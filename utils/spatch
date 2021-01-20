@@ -72,13 +72,12 @@ grep_str() {
 }
 
 # Description:
-# Get substring after (from / up to) specific (n)character(s) in a string,
-# whitespace as a character is also a delimiter
+# Get substring after (from / up to) specific (N)character(s) in a string
 #
 # Parameters:
-# [$1] - from (n)
+# [$1] - from left to right N $2 character(s)
 # <$2> - from character(s)
-# [$3] - up to (n)
+# [$3] - up to N $4 character(s)
 # [$4] - up to character(s)
 # <$5> - string
 #
