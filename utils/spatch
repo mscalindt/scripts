@@ -557,7 +557,7 @@ main() {
                         targetfile=$(substr_after "=" "$i")
                         targetfile=$(get_fpath "$targetfile")
                         shift && continue
-                    elif ! grep_str "t " "$i"; then
+                    elif ! grep_str "t " "$i "; then
                         targetfile=$(substr_after "1" "t" "$i")
                         targetfile=$(get_fpath "$targetfile")
                         shift && continue
