@@ -400,14 +400,16 @@ spatch_exec() {
     fi
 
     while read -r LINE || [ -n "$LINE" ]; do
-        URL=$(printf "%s" "$LINE" | grep -Eo '[^[:space:]]+://[^[:space:]]+')
-
-        if [ $? -ne 0 ]; then
+        if ! grep_str "://" " $LINE "; then
             if [ -n "$LINE" ] && [ -n "$verbose" ]; then
                 warn "No URL string (*://*) found in '$LINE'"
             fi
             continue
         fi
+
+        TMP=$(substr_before "://" "1" " " " $LINE ")
+        URL=$(substr_after "://" "1" " " " $LINE ")
+        URL=$(printf "%s%s" "$TMP" "$URL")
 
         if [ -z $directurl ]; then
             if ! grep_str ".patch" "$URL"; then
