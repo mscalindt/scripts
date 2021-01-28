@@ -269,6 +269,24 @@ grep_str() {
 }
 
 # Description:
+# Parse the content of a file (supports newline)
+#
+# Parameters:
+# <$1> - file
+#
+# Returns:
+# (0) file's content | empty output (file)
+# (1) file does not exist | permission error
+#
+fparser() {
+    while read -r LINE || [ -n "$LINE" ]; do
+        echo "$LINE"
+    done < "$1"
+
+    return $?
+}
+
+# Description:
 # Check command availability
 #
 # Parameters:
