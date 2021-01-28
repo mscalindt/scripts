@@ -35,43 +35,6 @@ awk, cat, cd, curl, date, grep, ls, mkdir, rm, sort, wget.
 }
 
 # Description:
-# Check command availability
-#
-# Parameters:
-# <$1> - command
-#
-# Returns:
-# (0) if command available,
-# (127) if not
-#
-cmd_avail() {
-    if command -v $1 > /dev/null 2>&1; then
-        return 0
-    fi
-
-    return 127
-}
-
-# Description:
-# Check if a substring is present in a string
-#
-# Parameters:
-# <$1> - substring
-# <$2> - string
-#
-# Returns:
-# (0) if substring is present,
-# (1) if not
-#
-grep_str() {
-    case "$2" in
-        *"$1"*) grepstr=0 && return 0 ;;
-    esac
-
-    return 1
-}
-
-# Description:
 # Get substring after (from / up to) specific (N)character(s) in a string
 #
 # Parameters:
@@ -82,7 +45,7 @@ grep_str() {
 # <$5> - string
 #
 # Returns:
-# (0) substring of $5, undefined behaviour if $2/$4 not present
+# (0) substring of $5 | undefined behaviour if $2/$4 not present
 # (1) undefined behaviour
 #
 substr_after() {
@@ -169,7 +132,7 @@ substr_after() {
 # <$5> - string
 #
 # Returns:
-# (0) substring of $5, undefined behaviour if $2/$4 not present
+# (0) substring of $5 | undefined behaviour if $2/$4 not present
 # (1) undefined behaviour
 #
 substr_before() {
@@ -256,6 +219,74 @@ substr_before() {
 }
 
 # Description:
+# Print specific line in a file
+#
+# Parameters:
+# <$1> - line number
+# <$2> - file
+#
+# Returns:
+# (0) line's content
+# (1) line empty | does not exist | file permission error
+#
+pline() {
+    x=0
+    unset i
+
+    while read -r LINE || [ -n "$LINE" ]; do
+        x=$((x + 1))
+        if [ $x -eq $1 ]; then
+            i=$(printf "%s" "${LINE}")
+            break
+        fi
+    done < "$2"
+
+    if [ -n "$i" ]; then
+        printf "%s" "${i}"
+        return 0
+    fi
+    
+    return 1
+}
+
+# Description:
+# Check if a substring is present in a string
+#
+# Parameters:
+# <$1> - substring
+# <$2> - string
+#
+# Returns:
+# (0) substring exists
+# (1) no substring
+#
+grep_str() {
+    case "$2" in
+        *"$1"*) grepstr=0 && return 0 ;;
+    esac
+
+    return 1
+}
+
+# Description:
+# Check command availability
+#
+# Parameters:
+# <$1> - command
+#
+# Returns:
+# (0) if command available,
+# (127) if not
+#
+cmd_avail() {
+    if command -v $1 > /dev/null 2>&1; then
+        return 0
+    fi
+
+    return 127
+}
+
+# Description:
 # Remove specific character(s) in a string
 #
 # Parameters:
@@ -297,37 +328,6 @@ get_fpath() {
     esac
 
     printf "%s" "$1"
-}
-
-# Description:
-# Print specific line in a file
-#
-# Parameters:
-# <$1> - line number
-# <$2> - file
-#
-# Returns:
-# (0) line's content,
-# (1) line empty / does not exist / file permission error
-#
-pline() {
-    x=0
-    unset i
-
-    while read -r LINE || [ -n "$LINE" ]; do
-        x=$((x + 1))
-        if [ $x -eq $1 ]; then
-            i=$(printf "%s" "${LINE}")
-            break
-        fi
-    done < "$2"
-
-    if [ -n "$i" ]; then
-        printf "%s" "${i}"
-        return 0
-    fi
-    
-    return 1
 }
 
 # Description:
