@@ -30,7 +30,7 @@ Options:
       --         specify end of options
 
 External utilities dependency list (for full functionality):
-awk, cat, cd, curl, date, grep, ls, mkdir, rm, sort, wget.
+awk, cat, cd, curl, date, ls, mkdir, rm, sort, wget.
 "
 }
 
@@ -461,7 +461,8 @@ spatch_exec() {
         DSTR=$(substr_after "2" " " "4" " " "$DSTR")
 
         if [ -n "$preserve" ]; then
-            CSTR=$(grep -Eo -- "[^[:space:]]+$CSTR" "$1")
+            TMP=$(fparser "$1")
+            CSTR=$(substr_before "$CSTR" "1" " " " $TMP ")
         fi
 
         printf "%s %s\n" "${CSTR}" "${DSTR}" >> "$TMP_FILE"
