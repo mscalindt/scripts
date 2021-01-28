@@ -30,7 +30,7 @@ Options:
       --         specify end of options
 
 External utilities dependency list (for full functionality):
-awk, cat, cd, curl, date, ls, mkdir, rm, sort, wget.
+awk, cat, cd, curl, date, ls, rm, sort, wget.
 "
 }
 
@@ -390,13 +390,11 @@ rdr() {
 }
 
 spatch_work() {
-    TMP_DIR="$HOME"/.spatch_tmp_dir
-    TMP_FILE="$HOME"/.spatch_tmp_file
-    TMP_FILE2="$HOME"/.spatch_tmp_file2
+    TMP_DIR="${TMPDIR:-/tmp}"
+    TMP_FILE="${TMPDIR:-/tmp}"/spatch_tmp
+    TMP_FILE2="${TMPDIR:-/tmp}"/spatch_tmp2
 
-    rm -rf "$TMP_DIR" && mkdir "$TMP_DIR"
-    rm -f "$TMP_FILE"
-    rm -f "$TMP_FILE2"
+    rm -f "$TMP_DIR"/*.patch
     cd "$TMP_DIR" || err "Line $LINENO failed" "1"
 
     if cmd_avail curl; then
@@ -453,7 +451,7 @@ spatch_exec() {
         err "No patches are found" "1"
     fi
 
-    PATCHES="$TMP_DIR/*"
+    PATCHES="$TMP_DIR/*.patch"
     for PATCH in $PATCHES; do
         CSTR=$(pline "1" "$PATCH")
         CSTR=$(substr_after "1" " " "1" " " "$CSTR")
@@ -507,7 +505,7 @@ spatch_exec() {
 }
 
 spatch_post() {
-    rm -rf "$TMP_DIR"
+    rm -f "$TMP_DIR"/*.patch
     rm -f "$TMP_FILE"
     rm -f "$TMP_FILE2"
 }
