@@ -463,7 +463,7 @@ spatch_exec() {
             CSTR=$(substr_before "$CSTR" "1" " " " $TMP ")
         fi
 
-        printf "%s %s\n" "${CSTR}" "${DSTR}" >> "$TMP_FILE"
+        echo "$CSTR $DSTR" >> "$TMP_FILE"
     done
 
     sort -t " " -k4.1,4.4 \
@@ -485,14 +485,14 @@ spatch_exec() {
             NUM=$((1 + CNT))
             LINE="$NUM - $LINE"
             CNT=$NUM
-            printf "%s\n" "${LINE}" >> "$TMP_FILE2"
+            echo "$LINE" >> "$TMP_FILE2"
         done < "$TMP_FILE"
         rdr "$TMP_FILE2" "$TMP_FILE"
     fi
 
     if [ -n "$timestamp" ]; then
         DATE=$(date "+%b %-e, %T %:z %Y")
-        printf "TIMESTAMP: %s\n" "${DATE}" >> "$TMP_FILE"
+        echo "TIMESTAMP: $DATE" >> "$TMP_FILE"
     fi
 
     if [ -n "$targetfile" ]; then
