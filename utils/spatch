@@ -358,8 +358,8 @@ get_fpath() {
 err() {
     printf "%b" "\033[1;31m"
     echo
-    printf "%s" "$1"
-    echo && echo
+    echo "$1"
+    echo
     printf "%b" "\033[0m"
     exit $2
 }
