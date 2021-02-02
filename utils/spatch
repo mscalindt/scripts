@@ -280,7 +280,7 @@ grep_str() {
 #
 fparser() {
     while read -r LINE || [ -n "$LINE" ]; do
-        echo "$LINE"
+        echo "  $LINE  "
     done < "$1"
 
     return $?
@@ -453,7 +453,7 @@ spatch_exec() {
 
             if [ -n "$preserve" ]; then
                 TMP=$(fparser "$1")
-                CSTR=$(substr_before "$CSTR" "1" " " " $TMP ")
+                CSTR=$(substr_before "$CSTR" "1" " " "$TMP")
             fi
 
             echo "$CSTR $DSTR" >> "$TMP_FILE"
