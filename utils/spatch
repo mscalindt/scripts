@@ -534,7 +534,7 @@ main() {
 
             # Parse options
             "--"*)
-                i=$(substr_after "--" "$1")
+                i=$(substr_after "1" "--" "$1")
                 i=" $i "
 
                 if grep_str " direct-url " "$i"; then saf4; fi
@@ -546,7 +546,7 @@ main() {
 
                 if grep_str "target-file" "$i"; then
                     if grep_str "target-file=" "$i"; then
-                        targetfile=$(substr_after "=" "$i")
+                        targetfile=$(substr_after "1" "=" "$i")
                         targetfile=$(get_fpath "$targetfile")
                     elif ! grep_str "target-file " "$i"; then
                         targetfile=$(substr_after "2" "e" "$i")
@@ -564,11 +564,11 @@ main() {
                 shift
             ;;
             "-"*)
-                i=$(substr_after "-" "$1")
+                i=$(substr_after "1" "-" "$1")
 
                 if grep_str "t" "$i"; then
                     if grep_str "t=" "$i"; then
-                        targetfile=$(substr_after "=" "$i")
+                        targetfile=$(substr_after "1" "=" "$i")
                         targetfile=$(get_fpath "$targetfile")
                         shift && continue
                     elif ! grep_str "t " "$i "; then
