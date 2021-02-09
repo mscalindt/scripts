@@ -553,7 +553,7 @@ main() {
     # Serve the script until no script parameters passed
     while [ "$1" ]; do
         # Reset variables from previous loop run
-        unset grepstr
+        if [ -n "$grepstr" ]; then unset grepstr; fi
 
         case "$1" in
             # Parse specific options first
