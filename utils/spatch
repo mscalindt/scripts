@@ -305,6 +305,31 @@ cmd_avail() {
 }
 
 # Description:
+# Check glob expansion
+#
+# Parameters:
+# <$1> - string
+# <$2> - string
+#
+# Returns:
+# (0) no expansion,
+# (1) one expansion,
+# (2) two or more expansions
+#
+tglob() {
+    i="$1"
+    ii="$2"
+
+    set -- "$i"*"$ii"
+
+    case $#-$1 in
+        1-$i'*'$ii) return 0 ;;
+        1-*$ii) return 1 ;;
+        *) return 2 ;;
+    esac
+}
+
+# Description:
 # Remove specific character(s) in a string
 #
 # Parameters:
