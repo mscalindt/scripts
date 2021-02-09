@@ -30,7 +30,7 @@ Options:
       --         specify end of options
 
 External utilities dependency list (for full functionality):
-awk, cat, cd, curl, date, ls, rm, sort, wget.
+awk, cat, cd, curl, date, rm, sort, wget.
 "
 }
 
@@ -469,26 +469,26 @@ spatch_exec() {
         fi
     done < "$1"
 
-    ls "$TMP_DIR"/*.patch > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
+    PATCHES="$TMP_DIR/*.patch"
+
+    if tglob "$TMP_DIR/" ".patch"; then
         spatch_post;
         err "No patches are found" "1"
+    else
+        for PATCH in $PATCHES; do
+            CSTR=$(pline "1" "$PATCH")
+            CSTR=$(substr_after "1" " " "1" " " "$CSTR")
+            DSTR=$(pline "3" "$PATCH")
+            DSTR=$(substr_after "2" " " "4" " " "$DSTR")
+
+            if [ -n "$preserve" ]; then
+                TMP=$(fparser "$1")
+                CSTR=$(substr_before "$CSTR" "1" " " "$TMP")
+            fi
+
+            echo "$CSTR $DSTR" >> "$TMP_FILE"
+        done
     fi
-
-    PATCHES="$TMP_DIR/*.patch"
-    for PATCH in $PATCHES; do
-        CSTR=$(pline "1" "$PATCH")
-        CSTR=$(substr_after "1" " " "1" " " "$CSTR")
-        DSTR=$(pline "3" "$PATCH")
-        DSTR=$(substr_after "2" " " "4" " " "$DSTR")
-
-        if [ -n "$preserve" ]; then
-            TMP=$(fparser "$1")
-            CSTR=$(substr_before "$CSTR" "1" " " "$TMP")
-        fi
-
-        echo "$CSTR $DSTR" >> "$TMP_FILE"
-    done
 
     sort -t " " -k4.1,4.4 \
                 -k3.1,3.3M \
