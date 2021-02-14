@@ -470,13 +470,11 @@ spatch_exec() {
         fi
     done < "$1"
 
-    PATCHES="$TMP_DIR/*.patch"
-
     if tglob "$TMP_DIR/" ".patch"; then
         spatch_post;
         err "No patches are found" "1"
     else
-        for PATCH in $PATCHES; do
+        for PATCH in "$TMP_DIR"/*.patch; do
             CSTR=$(pline "1" "$PATCH")
             CSTR=$(substr_after "1" " " "1" " " "$CSTR")
             DSTR=$(pline "3" "$PATCH")
