@@ -375,18 +375,14 @@ get_fpath() {
 }
 
 # Description:
-# Print text in red and exit
+# Print error and exit
 #
 # Parameters:
 # <$1> - text
 # <$2> - exit code
 #
 err() {
-    printf "%b" "\033[1;31m"
-    echo
-    echo "$1"
-    echo
-    printf "%b" "\033[0m"
+    printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$1"
     exit $2
 }
 
