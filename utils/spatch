@@ -387,15 +387,13 @@ err() {
 }
 
 # Description:
-# Print text in yellow
+# Print a warning
 #
 # Parameters:
 # <$1> - text
 #
 warn() {
-    printf "%b" "\033[1;33m"
-    echo "$1"
-    printf "%b" "\033[0m"
+    printf "%bWARNING:%b %s\n" "\033[1;33m" "\033[0m" "$1"
 }
 
 # Description:
