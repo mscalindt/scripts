@@ -414,7 +414,7 @@ spatch_work() {
     TMP_FILE2="${TMPDIR:-/tmp}"/spatch_tmp2
 
     rm -f "$TMP_DIR"/*.patch
-    cd "$TMP_DIR" || err "Line $LINENO failed" "1"
+    cd "$TMP_DIR" || err "Line '$LINENO' failed." "1"
 
     if cmd_avail curl; then
         dw_tool='curl'
@@ -424,20 +424,20 @@ spatch_work() {
         dw_tool_args=''
     else
         spatch_post;
-        err "No file download tool available (curl/wget)" "127"
+        err "No URL download tool available. (curl/wget)" "127"
     fi
 }
 
 spatch_exec() {
     if [ ! -f "$1" ]; then
         spatch_post;
-        err "$1 is not a file" "1"
+        err "'$1' is not a file." "1"
     fi
 
     while read -r LINE || [ -n "$LINE" ]; do
         if ! grep_str "://" " $LINE "; then
             if [ -n "$LINE" ] && [ -n "$verbose" ]; then
-                warn "No URL string (*://*) found in '$LINE'"
+                warn "'$LINE' has no URL. (*://*)"
             fi
             continue
         fi
@@ -460,13 +460,13 @@ spatch_exec() {
 
         if [ $? -ne 0 ]; then
             spatch_post;
-            err "Failed to download $URL" "1"
+            err "'$URL' failed." "1"
         fi
     done < "$1"
 
     if tglob "$TMP_DIR/" ".patch"; then
         spatch_post;
-        err "No patches are found" "1"
+        err "No patches found." "1"
     else
         for PATCH in "$TMP_DIR"/*.patch; do
             CSTR=$(pline "1" "$PATCH")
