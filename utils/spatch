@@ -31,7 +31,7 @@ Options:
       --         specify end of options
 
 External utilities dependency list (for full functionality):
-awk, cat, cd, curl, date, rm, sort, wget.
+awk, cat, curl, date, rm, sort, wget.
 "
 }
 
