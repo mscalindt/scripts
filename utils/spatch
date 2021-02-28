@@ -462,13 +462,19 @@ spatch_exec() {
             fi
         fi
 
+        if [ -n "$verbose" ]; then
+            NUM=$((1 + CNT))
+            info "URL ($NUM) - '$URL'."
+            CNT=$NUM
+        fi
         $dw_tool ${dw_tool_args} $URL > /dev/null 2>&1 &
 
         if [ $? -ne 0 ]; then
             spatch_post;
-            err "'$URL' failed." "1"
+            err "'$URL' (URL $NUM) failed." "1"
         fi
     done < "$1"
+    CNT=0
     wait
 
     if tglob "$TMP_DIR/" ".patch"; then
