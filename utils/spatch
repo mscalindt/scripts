@@ -397,6 +397,16 @@ warn() {
 }
 
 # Description:
+# Print info
+#
+# Parameters:
+# <$1> - text
+#
+info() {
+    printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$1"
+}
+
+# Description:
 # Redirect information from source file to target file
 #
 # Parameters:
