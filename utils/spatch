@@ -418,6 +418,12 @@ rdr() {
     rm -f "$1"
 }
 
+spatch_check() {
+    if [ ! -f "$1" ]; then
+        err "'$1' is not a file." "1"
+    fi
+}
+
 spatch_work() {
     TMP_DIR="${TMPDIR:-/tmp}"
     TMP_FILE="${TMPDIR:-/tmp}"/spatch_tmp
@@ -439,11 +445,6 @@ spatch_work() {
 }
 
 spatch_exec() {
-    if [ ! -f "$1" ]; then
-        spatch_post;
-        err "'$1' is not a file." "1"
-    fi
-
     while read -r LINE || [ -n "$LINE" ]; do
         if ! grep_str "://" " $LINE "; then
             if [ -n "$LINE" ] && [ -n "$verbose" ]; then
@@ -544,6 +545,7 @@ spatch_post() {
 }
 
 spatch() {
+    spatch_check "$1"
     spatch_work;
     spatch_exec "$1"
     spatch_post;
