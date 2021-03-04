@@ -639,7 +639,11 @@ main() {
     done
 
     # Catch wrong input
-    if [ ! "$1" ] || [ "$2" ]; then
+    if [ ! "$1" ]; then
+        warn "Missing operand."
+        usage && return 2
+    elif [ "$2" ]; then
+        warn "Too many arguments ($#)."
         usage && return 2
     fi
 
