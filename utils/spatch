@@ -433,11 +433,11 @@ spatch_work() {
     cd "$TMP_DIR" || err "Line '$LINENO' failed." "1"
 
     if cmd_avail curl; then
-        dw_tool='curl'
-        dw_tool_args='-Of'
+        URL_TOOL='curl'
+        URL_TOOL_ARGS='-Of'
     elif cmd_avail wget; then
-        dw_tool='wget'
-        dw_tool_args=''
+        URL_TOOL='wget'
+        URL_TOOL_ARGS=''
     else
         spatch_post;
         err "No URL download tool available. (curl/wget)" "127"
@@ -468,7 +468,7 @@ spatch_exec() {
             info "URL ($NUM) - '$URL'."
             CNT=$NUM
         fi
-        $dw_tool ${dw_tool_args} $URL > /dev/null 2>&1 &
+        $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1 &
 
         if [ $? -ne 0 ]; then
             spatch_post;
