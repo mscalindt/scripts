@@ -549,7 +549,7 @@ spatch() {
 }
 
 main() {
-    # Script argument functions
+    # Script options' functions
     saf1() { invert=1 ;}
     saf2() { preserve=1 ;}
     saf3() { timestamp=1 ;}
