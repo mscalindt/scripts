@@ -584,20 +584,19 @@ main() {
             # Parse options
             "--"*)
                 i=$(substr_after "1" "--" "$1")
-                i=" $i "
 
-                if grep_str " direct-url " "$i"; then saf4; fi
-                if grep_str " invert-sort " "$i"; then saf1; fi
-                if grep_str " line-numbers " "$i"; then saf5; fi
-                if grep_str " preserve-url " "$i"; then saf2; fi
-                if grep_str " timestamp " "$i"; then saf3; fi
-                if grep_str " verbose " "$i"; then saf6; fi
+                if grep_str "direct-url" "$i" "1"; then saf4; fi
+                if grep_str "invert-sort" "$i" "1"; then saf1; fi
+                if grep_str "line-numbers" "$i" "1"; then saf5; fi
+                if grep_str "preserve-url" "$i" "1"; then saf2; fi
+                if grep_str "timestamp" "$i" "1"; then saf3; fi
+                if grep_str "verbose" "$i" "1"; then saf6; fi
 
-                if grep_str "target-file" "$i"; then
-                    if grep_str "target-file=" "$i"; then
+                if grep_str "target-file" "$i" "1"; then
+                    if grep_str "target-file=" "$i" "1"; then
                         targetfile=$(substr_after "1" "=" "$i")
                         targetfile=$(get_fpath "$targetfile")
-                    elif ! grep_str "target-file " "$i"; then
+                    elif ! grep_str "target-file " "$i " "1"; then
                         targetfile=$(substr_after "2" "e" "$i")
                         targetfile=$(get_fpath "$targetfile")
                     elif [ "$2" ]; then
@@ -615,12 +614,12 @@ main() {
             "-"*)
                 i=$(substr_after "1" "-" "$1")
 
-                if grep_str "t" "$i"; then
-                    if grep_str "t=" "$i"; then
+                if grep_str "t" "$i" "1"; then
+                    if grep_str "t=" "$i" "1"; then
                         targetfile=$(substr_after "1" "=" "$i")
                         targetfile=$(get_fpath "$targetfile")
                         shift && continue
-                    elif ! grep_str "t " "$i "; then
+                    elif ! grep_str "t " "$i " "1"; then
                         targetfile=$(substr_after "1" "t" "$i")
                         targetfile=$(get_fpath "$targetfile")
                         shift && continue
