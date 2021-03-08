@@ -604,12 +604,12 @@ main() {
                     fi
                 fi
 
-                if grep_str "direct-url" "$i" "1"; then saf4; fi
-                if grep_str "invert-sort" "$i" "1"; then saf1; fi
-                if grep_str "line-numbers" "$i" "1"; then saf5; fi
-                if grep_str "preserve-url" "$i" "1"; then saf2; fi
-                if grep_str "timestamp" "$i" "1"; then saf3; fi
-                if grep_str "verbose" "$i" "1"; then saf6; fi
+                if grep_str "direct-url" "$i" "3"; then saf4; fi
+                if grep_str "invert-sort" "$i" "3"; then saf1; fi
+                if grep_str "line-numbers" "$i" "3"; then saf5; fi
+                if grep_str "preserve-url" "$i" "3"; then saf2; fi
+                if grep_str "timestamp" "$i" "3"; then saf3; fi
+                if grep_str "verbose" "$i" "3"; then saf6; fi
 
                 if [ ! $grepstr ]; then
                     warn "Unrecognized option: '$1'"
