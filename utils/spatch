@@ -251,20 +251,34 @@ pline() {
 }
 
 # Description:
-# Check if a substring is present in a string
+# Check the existence/position of a substring in a string
 #
 # Parameters:
 # <$1> - substring
 # <$2> - string
+# [$3] - mode('1' - $1 is first character(s) of $2,
+#             '2' - $1 is last character(s) of $2)
 #
 # Returns:
 # (0) substring exists
 # (1) no substring
 #
 grep_str() {
-    case "$2" in
-        *"$1"*) grepstr=0 && return 0 ;;
-    esac
+    if [ $3 ]; then
+        if [ $3 -eq 1 ]; then
+            case "$2" in
+                "$1"*) grepstr=0 && return 0 ;;
+            esac
+        elif [ $3 -eq 2 ]; then
+            case "$2" in
+                *"$1") grepstr=0 && return 0 ;;
+            esac
+        fi
+    else
+        case "$2" in
+            *"$1"*) grepstr=0 && return 0 ;;
+        esac
+    fi
 
     return 1
 }
