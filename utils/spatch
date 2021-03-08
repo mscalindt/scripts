@@ -482,7 +482,7 @@ spatch_exec() {
         URL=$(substr_after "://" "1" " " " $LINE ")
         URL=$(printf "%s%s" "$TMP" "$URL")
 
-        if [ -z $directurl ]; then
+        if [ -z $durl ]; then
             if ! grep_str ".patch" "$URL"; then
                 URL=${URL}.patch
             fi
@@ -513,7 +513,7 @@ spatch_exec() {
             DSTR=$(pline "3" "$PATCH")
             DSTR=$(substr_after "2" " " "4" " " "$DSTR")
 
-            if [ -n "$preserve" ]; then
+            if [ -n "$purl" ]; then
                 TMP=$(fparser "$1")
                 CSTR=$(substr_before "$CSTR" "1" " " "$TMP")
             fi
@@ -536,7 +536,7 @@ spatch_exec() {
         rdr "$TMP_FILE2" "$TMP_FILE"
     fi
 
-    if [ -n "$linenumbers" ]; then
+    if [ -n "$lnumbers" ]; then
         while read -r LINE; do
             NUM=$((1 + CNT))
             LINE="$NUM - $LINE"
@@ -546,13 +546,13 @@ spatch_exec() {
         rdr "$TMP_FILE2" "$TMP_FILE"
     fi
 
-    if [ -n "$timestamp" ]; then
+    if [ -n "$tstamp" ]; then
         TMP=$(date "+%b %-e, %T %:z %Y")
         echo "TIMESTAMP: $TMP" >> "$TMP_FILE"
     fi
 
-    if [ -n "$targetfile" ]; then
-        rdr "$TMP_FILE" "$targetfile"
+    if [ -n "$tfile" ]; then
+        rdr "$TMP_FILE" "$tfile"
     else
         while read -r LINE; do
             echo "$LINE"
@@ -590,23 +590,23 @@ main() {
 
                 if grep_str "target-file" "$i" "1"; then
                     if grep_str "target-file=" "$i" "1"; then
-                        targetfile=$(substr_after "1" "=" "$i")
-                        targetfile=$(get_fpath "$targetfile")
+                        tfile=$(substr_after "1" "=" "$i")
+                        tfile=$(get_fpath "$tfile")
                     elif ! grep_str "target-file " "$i " "1"; then
-                        targetfile=$(substr_after "2" "e" "$i")
-                        targetfile=$(get_fpath "$targetfile")
+                        tfile=$(substr_after "2" "e" "$i")
+                        tfile=$(get_fpath "$tfile")
                     elif [ "$2" ]; then
-                        targetfile="$2"
-                        targetfile=$(get_fpath "$targetfile")
+                        tfile="$2"
+                        tfile=$(get_fpath "$tfile")
                         shift
                     fi
                 fi
 
-                if grep_str "direct-url" "$i" "3"; then directurl=1; fi
+                if grep_str "direct-url" "$i" "3"; then durl=1; fi
                 if grep_str "invert-sort" "$i" "3"; then invert=1; fi
-                if grep_str "line-numbers" "$i" "3"; then linenumbers=1; fi
-                if grep_str "preserve-url" "$i" "3"; then preserve=1; fi
-                if grep_str "timestamp" "$i" "3"; then timestamp=1; fi
+                if grep_str "line-numbers" "$i" "3"; then lnumbers=1; fi
+                if grep_str "preserve-url" "$i" "3"; then purl=1; fi
+                if grep_str "timestamp" "$i" "3"; then tstamp=1; fi
                 if grep_str "verbose" "$i" "3"; then verbose=1; fi
 
                 if [ ! $grepstr ]; then
@@ -619,25 +619,25 @@ main() {
 
                 if grep_str "t" "$i" "1"; then
                     if grep_str "t=" "$i" "1"; then
-                        targetfile=$(substr_after "1" "=" "$i")
-                        targetfile=$(get_fpath "$targetfile")
+                        tfile=$(substr_after "1" "=" "$i")
+                        tfile=$(get_fpath "$tfile")
                         shift && continue
                     elif ! grep_str "t " "$i " "1"; then
-                        targetfile=$(substr_after "1" "t" "$i")
-                        targetfile=$(get_fpath "$targetfile")
+                        tfile=$(substr_after "1" "t" "$i")
+                        tfile=$(get_fpath "$tfile")
                         shift && continue
                     elif [ "$2" ]; then
-                        targetfile="$2"
-                        targetfile=$(get_fpath "$targetfile")
+                        tfile="$2"
+                        tfile=$(get_fpath "$tfile")
                         shift 2 && continue
                     fi
                 fi
 
-                if grep_str "d" "$i"; then directurl=1; fi
+                if grep_str "d" "$i"; then durl=1; fi
                 if grep_str "i" "$i"; then invert=1; fi
-                if grep_str "l" "$i"; then linenumbers=1; fi
-                if grep_str "p" "$i"; then preserve=1; fi
-                if grep_str "T" "$i"; then timestamp=1; fi
+                if grep_str "l" "$i"; then lnumbers=1; fi
+                if grep_str "p" "$i"; then purl=1; fi
+                if grep_str "T" "$i"; then tstamp=1; fi
                 if grep_str "v" "$i"; then verbose=1; fi
 
                 i=$(remchars "dilpTv" "$i")
