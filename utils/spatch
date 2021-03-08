@@ -21,9 +21,9 @@ Options:
                              not end with .patch
   -i, --invert-sort          sort from newest to oldest
   -l, --line-numbers         append line numbers to the sort output
-  -p, --preserve-url         preserve the URLs
-  -t, --target-file=PATH     PATH is an absolute or relative location to which
+  -o, --output=PATH          PATH is an absolute or relative location to which
                              the sort output shall be written
+  -p, --preserve-url         preserve the URLs
   -T, --timestamp            append timestamp to the sort output
   -v, --verbose              show additional information unrelated to the sort
                              output
@@ -588,12 +588,12 @@ main() {
             "--"*)
                 i=$(substr_after "1" "--" "$1")
 
-                if grep_str "target-file" "$i" "1"; then
-                    if grep_str "target-file=" "$i" "1"; then
+                if grep_str "output" "$i" "1"; then
+                    if grep_str "output=" "$i" "1"; then
                         tfile=$(substr_after "1" "=" "$i")
                         tfile=$(get_fpath "$tfile")
-                    elif ! grep_str "target-file " "$i " "1"; then
-                        tfile=$(substr_after "2" "e" "$i")
+                    elif ! grep_str "output " "$i " "1"; then
+                        tfile=$(substr_after "2" "t" "$i")
                         tfile=$(get_fpath "$tfile")
                     elif [ "$2" ]; then
                         tfile="$2"
@@ -617,13 +617,13 @@ main() {
             "-"*)
                 i=$(substr_after "1" "-" "$1")
 
-                if grep_str "t" "$i" "1"; then
-                    if grep_str "t=" "$i" "1"; then
+                if grep_str "o" "$i" "1"; then
+                    if grep_str "o=" "$i" "1"; then
                         tfile=$(substr_after "1" "=" "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
-                    elif ! grep_str "t " "$i " "1"; then
-                        tfile=$(substr_after "1" "t" "$i")
+                    elif ! grep_str "o " "$i " "1"; then
+                        tfile=$(substr_after "1" "o" "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
                     elif [ "$2" ]; then
