@@ -574,14 +574,6 @@ spatch() {
 }
 
 main() {
-    # Script options' functions
-    saf1() { invert=1 ;}
-    saf2() { preserve=1 ;}
-    saf3() { timestamp=1 ;}
-    saf4() { directurl=1 ;}
-    saf5() { linenumbers=1 ;}
-    saf6() { verbose=1 ;}
-
     # Serve the script until no script parameters passed
     while [ "$1" ]; do
         # Reset variables from previous loop run
@@ -610,12 +602,12 @@ main() {
                     fi
                 fi
 
-                if grep_str "direct-url" "$i" "3"; then saf4; fi
-                if grep_str "invert-sort" "$i" "3"; then saf1; fi
-                if grep_str "line-numbers" "$i" "3"; then saf5; fi
-                if grep_str "preserve-url" "$i" "3"; then saf2; fi
-                if grep_str "timestamp" "$i" "3"; then saf3; fi
-                if grep_str "verbose" "$i" "3"; then saf6; fi
+                if grep_str "direct-url" "$i" "3"; then directurl=1; fi
+                if grep_str "invert-sort" "$i" "3"; then invert=1; fi
+                if grep_str "line-numbers" "$i" "3"; then linenumbers=1; fi
+                if grep_str "preserve-url" "$i" "3"; then preserve=1; fi
+                if grep_str "timestamp" "$i" "3"; then timestamp=1; fi
+                if grep_str "verbose" "$i" "3"; then verbose=1; fi
 
                 if [ ! $grepstr ]; then
                     warn "Unrecognized option: '$1'"
@@ -641,12 +633,12 @@ main() {
                     fi
                 fi
 
-                if grep_str "d" "$i"; then saf4; fi
-                if grep_str "i" "$i"; then saf1; fi
-                if grep_str "l" "$i"; then saf5; fi
-                if grep_str "p" "$i"; then saf2; fi
-                if grep_str "T" "$i"; then saf3; fi
-                if grep_str "v" "$i"; then saf6; fi
+                if grep_str "d" "$i"; then directurl=1; fi
+                if grep_str "i" "$i"; then invert=1; fi
+                if grep_str "l" "$i"; then linenumbers=1; fi
+                if grep_str "p" "$i"; then preserve=1; fi
+                if grep_str "T" "$i"; then timestamp=1; fi
+                if grep_str "v" "$i"; then verbose=1; fi
 
                 i=$(remchars "dilpTv" "$i")
                 if [ -n "$i" ]; then
