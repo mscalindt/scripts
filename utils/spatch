@@ -457,9 +457,12 @@ spatch_work() {
     elif cmd_avail wget; then
         URL_TOOL='wget'
         URL_TOOL_ARGS=''
+    elif cmd_avail axel; then
+        URL_TOOL='axel'
+        URL_TOOL_ARGS=''
     else
         spatch_post;
-        err "No URL download tool available. (curl/wget)" "127"
+        err "No URL download tool available. (curl/wget/axel)" "127"
     fi
 }
 
