@@ -585,13 +585,6 @@ main() {
             "--"*)
                 i=$(substr_after "1" "--" "$1")
 
-                if grep_str "direct-url" "$i" "1"; then saf4; fi
-                if grep_str "invert-sort" "$i" "1"; then saf1; fi
-                if grep_str "line-numbers" "$i" "1"; then saf5; fi
-                if grep_str "preserve-url" "$i" "1"; then saf2; fi
-                if grep_str "timestamp" "$i" "1"; then saf3; fi
-                if grep_str "verbose" "$i" "1"; then saf6; fi
-
                 if grep_str "target-file" "$i" "1"; then
                     if grep_str "target-file=" "$i" "1"; then
                         targetfile=$(substr_after "1" "=" "$i")
@@ -605,6 +598,13 @@ main() {
                         shift
                     fi
                 fi
+
+                if grep_str "direct-url" "$i" "1"; then saf4; fi
+                if grep_str "invert-sort" "$i" "1"; then saf1; fi
+                if grep_str "line-numbers" "$i" "1"; then saf5; fi
+                if grep_str "preserve-url" "$i" "1"; then saf2; fi
+                if grep_str "timestamp" "$i" "1"; then saf3; fi
+                if grep_str "verbose" "$i" "1"; then saf6; fi
 
                 if [ ! $grepstr ]; then
                     warn "Unrecognized option: '$1'"
