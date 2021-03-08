@@ -547,8 +547,8 @@ spatch_exec() {
     fi
 
     if [ -n "$timestamp" ]; then
-        DATE=$(date "+%b %-e, %T %:z %Y")
-        echo "TIMESTAMP: $DATE" >> "$TMP_FILE"
+        TMP=$(date "+%b %-e, %T %:z %Y")
+        echo "TIMESTAMP: $TMP" >> "$TMP_FILE"
     fi
 
     if [ -n "$targetfile" ]; then
@@ -661,8 +661,8 @@ main() {
     fi
 
     # Convert relative path to absolute path
-    fpath=$(get_fpath "$1")
-    set -- "$fpath"
+    TMP=$(get_fpath "$1")
+    set -- "$TMP"
 
     # Execute the core function
     spatch "$1"
