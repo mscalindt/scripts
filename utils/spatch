@@ -257,7 +257,8 @@ pline() {
 # <$1> - substring
 # <$2> - string
 # [$3] - mode('1' - $1 is first character(s) of $2,
-#             '2' - $1 is last character(s) of $2)
+#             '2' - $1 is last character(s) of $2,
+#             '3' - $1 is the string on its own)
 #
 # Returns:
 # (0) substring exists
@@ -272,6 +273,10 @@ grep_str() {
         elif [ $3 -eq 2 ]; then
             case "$2" in
                 *"$1") grepstr=0 && return 0 ;;
+            esac
+        elif [ $3 -eq 3 ]; then
+            case "$2" in
+                "$1") grepstr=0 && return 0 ;;
             esac
         fi
     else
