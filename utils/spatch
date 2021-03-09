@@ -24,7 +24,7 @@ Options:
   -o, --output=PATH          PATH is an absolute or relative location to which
                              the sort output shall be written
   -p, --preserve-url         preserve the URLs
-  -T, --timestamp            append timestamp to the sort output
+  -t, --timestamp            append timestamp to the sort output
   -v, --verbose              show additional information unrelated to the sort
                              output
       --help     display this help text and exit
@@ -637,10 +637,10 @@ main() {
                 if grep_str "i" "$i"; then invert=1; fi
                 if grep_str "l" "$i"; then lnumbers=1; fi
                 if grep_str "p" "$i"; then purl=1; fi
-                if grep_str "T" "$i"; then tstamp=1; fi
+                if grep_str "t" "$i"; then tstamp=1; fi
                 if grep_str "v" "$i"; then verbose=1; fi
 
-                i=$(remchars "dilpTv" "$i")
+                i=$(remchars "dilptv" "$i")
                 if [ -n "$i" ]; then
                     warn "Unrecognized option(s): '-$i'"
                 fi
