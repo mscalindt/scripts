@@ -332,7 +332,7 @@ warn() {
 # <$1> - text
 #
 info() {
-    if [ -n "$verbose" ]; then
+    if [ -n "$verbose" ] && [ -z $check ]; then
         printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$1"
     fi
 }
@@ -341,7 +341,7 @@ fswap_env() {
     if [ -z $ssize ]; then
         ssize=1G
     fi
-    if [ -z $check ]; then info "Swap size: '$ssize'."; fi
+    info "Swap size: '$ssize'."
 
     if [ -z $sfile ]; then
         sfile="$HOME"/.swapfile
