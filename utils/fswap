@@ -31,7 +31,7 @@ The SIZE argument is an integer optionally followed by a unit.
 Units are K, M, G... (powers of 1024) or KB, MB, GB... (powers of 1000).
 Binary prefixes can also be used: KiB=K, MiB=M, GiB=G, and so on.
 
-If '-l' is not specified, default value is '$HOME/.swapfile'.
+If '-l' is not specified, default value is '\$HOME/.swapfile'.
 If '-s' is not specified, default value is '1G'.
 
 External utilities dependency list (for full functionality):
