@@ -332,9 +332,7 @@ warn() {
 # <$1> - text
 #
 info() {
-    if [ -n "$verbose" ]; then
-        printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$1"
-    fi
+    printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$1"
 }
 
 fswap_env() {
@@ -384,7 +382,7 @@ fswap_exec() {
 
 fswap() {
     fswap_env;
-    fswap_info;
+    if [ -n "$verbose" ]; then fswap_info; fi
     fswap_check;
     fswap_work;
     fswap_exec;
