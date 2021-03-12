@@ -22,6 +22,8 @@ Options:
                              the swap file shall be created
   -s, --size=SIZE            specify size for the swap file; see SIZE format
                              below
+  -S, --swappiness=[0-100]   specify swap intensity; value persists until
+                             reboot
   -v, --verbose              show additional information
       --help     display this help text and exit
 
@@ -33,7 +35,7 @@ If '-l' is not specified, default value is '$HOME/.swapfile'.
 If '-s' is not specified, default value is '1G'.
 
 External utilities dependency list (for full functionality):
-chmod, chown, dd, id, mkswap, rm, swapoff, swapon.
+cat, chmod, chown, dd, id, mkswap, rm, swapoff, swapon.
 "
 }
 
@@ -348,6 +350,15 @@ fswap_env() {
 fswap_info() {
     info "Swap size: '$ssize'."
     info "Swap file: '$sfile'."
+
+    if [ -n "$swappiness" ]; then
+        info "Swap intensity: '$swappiness'."
+    else
+        TMP=$(cat /proc/sys/vm/swappiness)
+        if [ -n "$TMP" ]; then
+            info "Swap intensity: '$TMP'."
+        fi
+    fi
 }
 
 fswap_check() {
@@ -380,12 +391,19 @@ fswap_exec() {
     swapon "$sfile"
 }
 
+fswap_post() {
+    if [ -n "$swappiness" ]; then
+        echo $swappiness > /proc/sys/vm/swappiness
+    fi
+}
+
 fswap() {
     fswap_env;
     if [ -n "$verbose" ]; then fswap_info; fi
     fswap_check;
     fswap_work;
     fswap_exec;
+    fswap_post;
 }
 
 main() {
@@ -429,6 +447,18 @@ main() {
                         shift 2 && continue
                     fi
                 fi
+                if grep_str "swappiness" "$i" "1"; then
+                    if grep_str "swappiness=" "$i" "1"; then
+                        swappiness=$(substr_after "1" "=" "$i")
+                        shift && continue
+                    elif ! grep_str "swappiness " "$i " "1"; then
+                        swappiness=$(substr_after "3" "s" "$i")
+                        shift && continue
+                    elif [ "$2" ]; then
+                        swappiness="$2"
+                        shift 2 && continue
+                    fi
+                fi
 
                 if grep_str "check" "$i" "3"; then check=1; fi 
                 if grep_str "verbose" "$i" "3"; then verbose=1; fi 
@@ -465,6 +495,18 @@ main() {
                         shift && continue
                     elif [ "$2" ]; then
                         ssize="$2"
+                        shift 2 && continue
+                    fi
+                fi
+                if grep_str "S" "$i" "1"; then
+                    if grep_str "S=" "$i" "1"; then
+                        swappiness=$(substr_after "1" "=" "$i")
+                        shift && continue
+                    elif ! grep_str "S " "$i " "1"; then
+                        swappiness=$(substr_after "1" "S" "$i")
+                        shift && continue
+                    elif [ "$2" ]; then
+                        swappiness="$2"
                         shift 2 && continue
                     fi
                 fi
