@@ -1,0 +1,526 @@
+#!/bin/sh
+# shellcheck disable=SC2046
+# shellcheck disable=SC2048
+# shellcheck disable=SC2086
+
+: <<'notice'
+ * SPDX-License-Identifier: GPL-3.0
+ *
+ * Copyright (C) 2021 Dimitar Yurukov <mscalindt@protonmail.com>
+ *
+notice
+
+usage() {
+printf "%s" "\
+Usage: fswap [options] [-c]
+Create a swap file.
+
+Options:
+  -c, --check                only check for an existing swap file and remove
+                             it; this option disregards other options
+  -l, --location=PATH        PATH is an absolute or relative location at which
+                             the swap file shall be created
+  -s, --size=SIZE            specify size for the swap file; see SIZE format
+                             below
+  -S, --swappiness=[0-200]   specify swap intensity; value persists until
+                             reboot
+  -v, --verbose              increase script message verbosity
+  -V, --vfs-cache-pressure=[0-2147483647]
+                             specify VFS cache reclaim priority; value persists
+                             until reboot
+      --help     display this help text and exit
+
+The SIZE argument is an integer followed by a unit.
+Units are M, G (powers of 1024) or MB, GB (powers of 1000).
+Binary prefixes can also be used: MiB=M, GiB=G.
+
+If '-l' is not specified, default value is '\$HOME/.swapfile'.
+If '-s' is not specified, default value is '1G'.
+
+External utilities dependency list:
+cat, chmod, dd, id, mkswap, rm, swapoff, swapon.
+"
+}
+
+# Description:
+# Get substring after (from / up to) specific (N)character(s) in a string
+#
+# Parameters:
+# [$1] - from left to right N $2 character(s)
+# <$2> - from character(s)
+# [$3] - up to N $4 character(s)
+# [$4] - up to character(s)
+# <$5> - string
+#
+# Returns:
+# (0) substring of $5 | undefined behaviour if $2/$4 not present
+# (1) undefined behaviour
+#
+substr_after() {
+    x=0
+
+    if [ "$5" ]; then
+        i=$(printf "%s" "$5")
+        until [ $x -eq $1 ]; do
+            i=$(printf "%s" "${i#*$2}")
+            x=$((x + 1))
+        done
+        x=0
+        ii="$i"
+        until [ $x -eq $3 ]; do
+            i=$(printf "%s" "${i#*$4}")
+            x=$((x + 1))
+        done
+        i=$(printf "%s" "${ii%$i}")
+    elif [ "$4" ]; then
+        i=$(printf "%s" "$4")
+        case "$1" in
+            '' | *[!0-9]*)
+                i=$(printf "%s" "${i##*$1}")
+                ii="$i"
+                until [ $x -eq $2 ]; do
+                    i=$(printf "%s" "${i#*$3}")
+                    x=$((x + 1))
+                done
+                i=$(printf "%s" "${ii%$i}")
+            ;;
+            *)
+                until [ $x -eq $1 ]; do
+                    i=$(printf "%s" "${i#*$2}")
+                    x=$((x + 1))
+                done
+                ii="$i"
+                i=$(printf "%s" "${i##*$3}")
+                i=$(printf "%s" "${ii%$i}")
+            ;;
+        esac
+    elif [ "$3" ]; then
+        i=$(printf "%s" "$3")
+        case "$1" in
+            '' | *[!0-9]*)
+                i=$(printf "%s" "${i##*$1}")
+                ii="$i"
+                i=$(printf "%s" "${i##*$2}")
+                i=$(printf "%s" "${ii%$i}")
+            ;;
+            *)
+                until [ $x -eq $1 ]; do
+                    i=$(printf "%s" "${i#*$2}")
+                    x=$((x + 1))
+                done
+            ;;
+        esac
+    else
+        i=$(printf "%s" "${2##*$1}")
+    fi
+
+    if [ -n "$i" ]; then
+        case "$i" in
+            " "*) i=$(printf "%s" "${i# }") ;;
+        esac
+        case "$i" in
+            *" ") i=$(printf "%s" "${i% }") ;;
+        esac
+
+        printf "%s" "${i}"
+        return 0
+    fi
+
+    return 1
+}
+
+# Description:
+# Check the existence/position of a substring in a string
+#
+# Parameters:
+# <$1> - substring
+# <$2> - string
+# [$3] - mode('1' - $1 is first character(s) of $2,
+#             '2' - $1 is last character(s) of $2,
+#             '3' - $1 is the string on its own)
+#
+# Returns:
+# (0) substring exists
+# (1) no substring
+#
+grep_str() {
+    if [ $3 ]; then
+        if [ $3 -eq 1 ]; then
+            case "$2" in
+                "$1"*) grepstr=0 && return 0 ;;
+            esac
+        elif [ $3 -eq 2 ]; then
+            case "$2" in
+                *"$1") grepstr=0 && return 0 ;;
+            esac
+        elif [ $3 -eq 3 ]; then
+            case "$2" in
+                "$1") grepstr=0 && return 0 ;;
+            esac
+        fi
+    else
+        case "$2" in
+            *"$1"*) grepstr=0 && return 0 ;;
+        esac
+    fi
+
+    return 1
+}
+
+# Description:
+# Remove specific character(s) in a string
+#
+# Parameters:
+# <$1> - character(s)
+# <$2> - string
+#
+# Returns:
+# $2 without $1 characters,
+# $2
+#
+remchars() {
+    i=$IFS
+
+    IFS=$1
+    set -- $2
+
+    IFS=""
+    set -- $*
+
+    printf "%s\n" "$*"
+
+    IFS=$i
+}
+
+# Description:
+# Convert relative path to absolute path
+#
+# Parameters:
+# <$1> - path
+#
+# Returns:
+# $PWD/$1,
+# $1
+#
+get_fpath() {
+    case "$1" in
+        "/"*) ;;
+        *) i=$(printf "%s/%s" "$PWD" "$1") && set -- "$i" ;;
+    esac
+
+    printf "%s" "$1"
+}
+
+# Description:
+# Print error and exit
+#
+# Parameters:
+# <$1> - text
+# <$2> - exit code
+#
+err() {
+    printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$1"
+    exit $2
+}
+
+# Description:
+# Print a warning
+#
+# Parameters:
+# <$1> - text
+#
+warn() {
+    printf "%bWARNING:%b %s\n" "\033[1;33m" "\033[0m" "$1"
+}
+
+# Description:
+# Print info
+#
+# Parameters:
+# <$1> - text
+#
+info() {
+    printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$1"
+}
+
+# Description:
+# Apply value to location
+#
+# Parameters:
+# <$1> - value
+# <$2> - location
+#
+fwrite() {
+    if [ -w "$2" ]; then
+        echo "$1" > "$2"
+    else
+        warn "Could not apply '$1' on '$2'. (!-w)"
+    fi
+}
+
+fswap_env() {
+    if [ -z $ssize ]; then
+        ssize=1G
+    fi
+
+    if [ -z $sfile ]; then
+        sfile="$HOME"/.swapfile
+    fi
+}
+
+fswap_info() {
+    info "Swap size: '$ssize'."
+    info "Swap file: '$sfile'."
+
+    if [ -n "$swappiness" ]; then
+        info "Swap intensity: '$swappiness'."
+    else
+        TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
+        if [ -n "$TMP" ]; then
+            info "Swap intensity: '$TMP'."
+        fi
+    fi
+ 
+    if [ -n "$vfscp" ]; then
+        info "VFS cache reclaim priority: '$vfscp'."
+    else
+        TMP=$(cat /proc/sys/vm/vfs_cache_pressure 2> /dev/null)
+        if [ -n "$TMP" ]; then
+            info "VFS cache reclaim priority: '$TMP'."
+        fi
+    fi
+
+    TMP=$(cat /sys/module/zswap/parameters/enabled 2> /dev/null)
+    if [ -n "$TMP" ]; then
+        info "zswap: '$TMP'."
+    fi
+
+    TMP=$(cat /sys/module/zswap/parameters/compressor 2> /dev/null)
+    if [ -n "$TMP" ]; then
+        info "zswap compressor: '$TMP'."
+    fi
+
+    TMP=$(cat /sys/module/zswap/parameters/zpool 2> /dev/null)
+    if [ -n "$TMP" ]; then
+        info "zswap allocator: '$TMP'."
+    fi
+}
+
+fswap_check() {
+    if [ $(id -u) -ne 0 ]; then
+        err "EUID is not 0. (no root)" "1"
+    fi
+
+    swapoff -a
+
+    if [ -f "$sfile" ]; then
+        rm -fv "$sfile"
+    fi
+}
+
+fswap_work() {
+    case "$ssize" in
+        *"M" | *"MiB") ssize=$(printf "%s" "${ssize%M*}"); ssize="${ssize}K" ;;
+        *"G" | *"GiB") ssize=$(printf "%s" "${ssize%G*}"); ssize="${ssize}M" ;;
+
+        *"MB") ssize=$(printf "%s" "${ssize%MB}") && ssize="${ssize}KB" ;;
+        *"GB") ssize=$(printf "%s" "${ssize%GB}") && ssize="${ssize}MB" ;;
+
+        *) err "Wrong swap size specified. Supported units: M,G[B]" "2" ;;
+    esac
+
+    case "$ssize" in
+        *"B") bscount=1000 ;;
+        *) bscount=1024 ;;
+    esac
+
+    dd_args='if=/dev/zero'
+    dd_args="${dd_args} of=${sfile}"
+    dd_args="${dd_args} bs=${ssize}"
+    dd_args="${dd_args} count=${bscount}"
+    dd_args="${dd_args} status=progress"
+}
+
+fswap_exec() {
+    dd ${dd_args}
+    chmod 600 "$sfile"
+    mkswap "$sfile"
+    swapon "$sfile"
+}
+
+fswap_post() {
+    if [ -n "$swappiness" ]; then
+        fwrite $swappiness /proc/sys/vm/swappiness
+    fi
+
+    if [ -n "$vfscp" ]; then
+        fwrite $vfscp /proc/sys/vm/vfs_cache_pressure
+    fi
+}
+
+fswap() {
+    fswap_env;
+    if [ -n "$verbose" ]; then fswap_info; fi
+    fswap_check;
+    fswap_work;
+    fswap_exec;
+    fswap_post;
+}
+
+main() {
+    # Serve the script until no script parameters passed
+    while [ "$1" ]; do
+        # Reset variables from previous loop run
+        if [ -n "$grepstr" ]; then unset grepstr; fi
+
+        case "$1" in
+            # Parse specific options first
+            "--help") usage && return 0 ;;
+
+            # Parse options
+            "--"*)
+                i=$(substr_after "1" "--" "$1")
+
+                if grep_str "location" "$i" "1"; then
+                    if grep_str "location=" "$i" "1"; then
+                        sfile=$(substr_after "1" "=" "$i")
+                        sfile=$(get_fpath "$sfile")
+                        shift && continue
+                    elif ! grep_str "location " "$i " "1"; then
+                        sfile=$(substr_after "1" "n" "$i")
+                        sfile=$(get_fpath "$sfile")
+                        shift && continue
+                    elif [ "$2" ]; then
+                        sfile="$2"
+                        sfile=$(get_fpath "$sfile")
+                        shift 2 && continue
+                    fi
+                fi
+                if grep_str "size" "$i" "1"; then
+                    if grep_str "size=" "$i" "1"; then
+                        ssize=$(substr_after "1" "=" "$i")
+                        shift && continue
+                    elif ! grep_str "size " "$i " "1"; then
+                        ssize=$(substr_after "1" "e" "$i")
+                        shift && continue
+                    elif [ "$2" ]; then
+                        ssize="$2"
+                        shift 2 && continue
+                    fi
+                fi
+                if grep_str "swappiness" "$i" "1"; then
+                    if grep_str "swappiness=" "$i" "1"; then
+                        swappiness=$(substr_after "1" "=" "$i")
+                        shift && continue
+                    elif ! grep_str "swappiness " "$i " "1"; then
+                        swappiness=$(substr_after "3" "s" "$i")
+                        shift && continue
+                    elif [ "$2" ]; then
+                        swappiness="$2"
+                        shift 2 && continue
+                    fi
+                fi
+                if grep_str "vfs-cache-pressure" "$i" "1"; then
+                    if grep_str "vfs-cache-pressure=" "$i" "1"; then
+                        vfscp=$(substr_after "1" "=" "$i")
+                        shift && continue
+                    elif ! grep_str "vfs-cache-pressure " "$i " "1"; then
+                        vfscp=$(substr_after "3" "e" "$i")
+                        shift && continue
+                    elif [ "$2" ]; then
+                        vfscp="$2"
+                        shift 2 && continue
+                    fi
+                fi
+
+                if grep_str "check" "$i" "3"; then check=1; fi 
+                if grep_str "verbose" "$i" "3"; then verbose=1; fi 
+
+                if [ ! $grepstr ]; then
+                    warn "Unrecognized option: '$1'"
+                fi
+                shift
+            ;;
+            "-"*)
+                i=$(substr_after "1" "-" "$1")
+
+                if grep_str "l" "$i" "1"; then
+                    if grep_str "l=" "$i" "1"; then
+                        sfile=$(substr_after "1" "=" "$i")
+                        sfile=$(get_fpath "$sfile")
+                        shift && continue
+                    elif ! grep_str "l " "$i " "1"; then
+                        sfile=$(substr_after "1" "l" "$i")
+                        sfile=$(get_fpath "$sfile")
+                        shift && continue
+                    elif [ "$2" ]; then
+                        sfile="$2"
+                        sfile=$(get_fpath "$sfile")
+                        shift 2 && continue
+                    fi
+                fi
+                if grep_str "s" "$i" "1"; then
+                    if grep_str "s=" "$i" "1"; then
+                        ssize=$(substr_after "1" "=" "$i")
+                        shift && continue
+                    elif ! grep_str "s " "$i " "1"; then
+                        ssize=$(substr_after "1" "s" "$i")
+                        shift && continue
+                    elif [ "$2" ]; then
+                        ssize="$2"
+                        shift 2 && continue
+                    fi
+                fi
+                if grep_str "S" "$i" "1"; then
+                    if grep_str "S=" "$i" "1"; then
+                        swappiness=$(substr_after "1" "=" "$i")
+                        shift && continue
+                    elif ! grep_str "S " "$i " "1"; then
+                        swappiness=$(substr_after "1" "S" "$i")
+                        shift && continue
+                    elif [ "$2" ]; then
+                        swappiness="$2"
+                        shift 2 && continue
+                    fi
+                fi
+                if grep_str "V" "$i" "1"; then
+                    if grep_str "V=" "$i" "1"; then
+                        vfscp=$(substr_after "1" "=" "$i")
+                        shift && continue
+                    elif ! grep_str "V " "$i " "1"; then
+                        vfscp=$(substr_after "1" "V" "$i")
+                        shift && continue
+                    elif [ "$2" ]; then
+                        vfscp="$2"
+                        shift 2 && continue
+                    fi
+                fi
+
+                if grep_str "c" "$i"; then check=1; fi
+                if grep_str "v" "$i"; then verbose=1; fi
+
+                i=$(remchars "cv" "$i")
+                if [ -n "$i" ]; then
+                    warn "Unrecognized option(s): '-$i'"
+                fi
+                shift
+            ;;
+
+            *) warn "Unrecognized option(s): '$1'" && shift && continue ;;
+        esac
+    done
+
+    # Take specific actions for special options
+    if [ -n "$check" ]; then
+        fswap_env && fswap_check
+        return 0
+    fi
+
+    # Execute the core function
+    fswap;
+
+    # Explicit success
+    return 0
+}
+
+main "$@"
