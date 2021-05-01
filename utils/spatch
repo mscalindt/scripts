@@ -555,7 +555,7 @@ spatch_exec() {
     fi
 
     if [ -n "$tfile" ]; then
-        fparse "$TMP_FILE2" > "$TMP_FILE"
+        fparse "$TMP_FILE2" > "$tfile"
     else
         while read -r LINE; do
             echo "$LINE"
