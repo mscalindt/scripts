@@ -540,6 +540,7 @@ spatch_exec() {
     fi
 
     if [ -n "$lnumbers" ]; then
+        rm -f "$TMP_FILE2"
         while read -r LINE; do
             NUM=$((1 + CNT))
             LINE="$NUM - $LINE"
