@@ -453,9 +453,9 @@ spatch_check() {
 }
 
 spatch_work() {
-    TMP_DIR="${TMPDIR:-/tmp}"
-    TMP_FILE="${TMPDIR:-/tmp}"/spatch_tmp
-    TMP_FILE2="${TMPDIR:-/tmp}"/spatch_tmp2
+    TMP_DIR=/tmp
+    TMP_FILE=${TMP_DIR}/spatch_tmp
+    TMP_FILE2=${TMP_DIR}/spatch_tmp2
 
     if cmd_avail curl; then
         URL_TOOL='curl'
