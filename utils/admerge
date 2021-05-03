@@ -560,6 +560,9 @@ admerge() {
 }
 
 main() {
+    # For security reasons, unset specific internal variables if they exist
+    if [ -n "$RC" ]; then unset RC; fi
+
     # Serve the script until no script parameters passed
     while [ "$1" ]; do
         # Reset variables from previous loop run
@@ -614,7 +617,10 @@ main() {
     # Execute the core function
     admerge "$1"
 
-    # Explicit success
+    # Check if RC is set, otherwise explicit success
+    if [ -n "$RC" ]; then
+        return $RC
+    fi
     return 0
 }
 

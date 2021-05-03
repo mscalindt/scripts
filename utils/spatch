@@ -582,6 +582,7 @@ main() {
     # For security reasons, unset specific internal variables if they exist
     if [ -n "$CNT" ]; then unset CNT; fi
     if [ -n "$tfile" ]; then unset tfile; fi
+    if [ -n "$RC" ]; then unset RC; fi
 
     # Serve the script until no script parameters passed
     while [ "$1" ]; do
@@ -674,7 +675,10 @@ main() {
     # Execute the core function
     spatch "$1"
 
-    # Explicit success
+    # Check if RC is set, otherwise explicit success
+    if [ -n "$RC" ]; then
+        return $RC
+    fi
     return 0
 }
 

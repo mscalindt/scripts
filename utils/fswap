@@ -373,6 +373,7 @@ main() {
     if [ -n "$sfile" ]; then unset sfile; fi
     if [ -n "$swappiness" ]; then unset swappiness; fi
     if [ -n "$vfscp" ]; then unset vfscp; fi
+    if [ -n "$RC" ]; then unset RC; fi
 
     # Serve the script until no script parameters passed
     while [ "$1" ]; do
@@ -525,7 +526,10 @@ main() {
     # Execute the core function
     fswap;
 
-    # Explicit success
+    # Check if RC is set, otherwise explicit success
+    if [ -n "$RC" ]; then
+        return $RC
+    fi
     return 0
 }
 
