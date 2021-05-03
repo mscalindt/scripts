@@ -494,7 +494,7 @@ admerge_exec() {
     else
         if ! git merge ${gitm_args}; then
             if git merge HEAD > /dev/null 2>&1; then
-                return 1
+                RC=1 && return 1
             else
                 exit 1
             fi
