@@ -535,9 +535,7 @@ admerge_post() {
 
 admerge_info() {
     info "Our branch: '$CBRANCH'"
-    TMP=$(pline "1" "$ALOCK")
-    TMP=$(substr_after "1" "@" "1" "@" "$TMP")
-    TMP=$(strip_end "@" "$TMP")
+    TMP=$(alock_query "1")
     if [ -n "$TMP" ]; then
         info "Their branch: '$TMP'"
     fi
