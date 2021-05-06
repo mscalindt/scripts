@@ -497,15 +497,11 @@ admerge_check() {
 
 admerge_lock() {
     {
-    printf " "
-    printf "@%s@ " "$1"
-    if [ -n "$soff" ]; then
-        printf "@s@ "
-    fi
-    if [ -n "$gsign" ]; then
-        printf "@S@ "
-    fi
-    printf " \n"
+    aw "0"
+    aw "$1"
+    if [ -n "$soff" ]; then aw "s"; fi
+    if [ -n "$gsign" ]; then aw "S"; fi
+    aw "1"
     } >> "$ALOCK"
 }
 
