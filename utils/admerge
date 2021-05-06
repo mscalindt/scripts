@@ -451,6 +451,21 @@ ac() {
     return 1
 }
 
+# Description:
+# Return lock format for an attribute
+#
+# Parameters:
+# <$1> - attribute('0' - begin lock format,
+#                  '1' - end lock format)
+#
+aw() {
+    case "$1" in
+        "0") printf " " ;;
+        "1") printf " \n" ;;
+        *) printf "@%s@ " "$1" ;;
+    esac
+}
+
 admerge_env() {
     CBRANCH=$(git symbolic-ref --short HEAD 2> /dev/null)
     ALOCK="$PWD"/.git/admerge_lock
