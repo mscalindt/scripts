@@ -431,6 +431,26 @@ aq() {
     return 1
 }
 
+# Description:
+# Check if an attribute exists in the lock file
+#
+# Parameters:
+# <$1> - attribute
+#
+# Returns:
+# (0) attribute exists
+# (1) no attribute
+#
+ac() {
+    i=$(pline "1" "$ALOCK")
+
+    if grep_str "@$1@" "$i"; then
+        return 0
+    fi
+
+    return 1
+}
+
 admerge_env() {
     CBRANCH=$(git symbolic-ref --short HEAD 2> /dev/null)
     ALOCK="$PWD"/.git/admerge_lock
