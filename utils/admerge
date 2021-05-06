@@ -519,13 +519,8 @@ admerge_work() {
     gitc_args="-eF $AMSG --no-edit"
 
     if [ -r "$ALOCK" ]; then
-        TMP=$(pline "1" "$ALOCK")
-        if grep_str "@s@" "$TMP"; then
-            gitc_args="--signoff ${gitc_args}"
-        fi
-        if grep_str "@S@" "$TMP"; then
-            gitc_args="--gpg-sign ${gitc_args}"
-        fi
+        if ac "s"; then gitc_args="--signoff ${gitc_args}"; fi
+        if ac "S"; then gitc_args="--gpg-sign ${gitc_args}"; fi
     fi
 }
 
