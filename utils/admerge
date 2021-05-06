@@ -506,8 +506,8 @@ admerge_lock() {
     {
     aw "0"
     aw "$1"
-    if [ -n "$soff" ]; then aw "s"; fi
-    if [ -n "$gsign" ]; then aw "S"; fi
+    aw "s" "$soff"
+    aw "S" "$gsign"
     aw "1"
     } >> "$ALOCK"
 }
