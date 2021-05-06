@@ -416,7 +416,7 @@ info() {
 # (0) N attribute
 # (1) N attribute does not exist
 #
-alock_query() {
+aq() {
     x=$1
     i=$(pline "1" "$ALOCK")
     x=$((x - 1 + x))
@@ -535,7 +535,7 @@ admerge_post() {
 
 admerge_info() {
     info "Our branch: '$CBRANCH'"
-    TMP=$(alock_query "1")
+    TMP=$(aq "1")
     if [ -n "$TMP" ]; then
         info "Their branch: '$TMP'"
     fi
