@@ -474,13 +474,13 @@ aw() {
 }
 
 admerge_env() {
-    CBRANCH=$(git symbolic-ref --short HEAD 2> /dev/null)
+    OBR=$(git symbolic-ref --short HEAD 2> /dev/null)
     ALOCK="$PWD"/.git/admerge_lock
     AMSG="$PWD"/.git/admerge_msg
 }
 
 admerge_check() {
-    if [ -z $CBRANCH ]; then
+    if [ -z $OBR ]; then
         err "Failed to identify current branch. (not in git repository?)" "1"
     fi
 
@@ -514,12 +514,12 @@ admerge_lock() {
 
 admerge_msg() {
     {
-    printf "Merge '%s' into '%s'\n\n" "$1" "${CBRANCH}"
-    TMP=$(git rev-list --count ${CBRANCH}..$1 2> /dev/null)
+    printf "Merge '%s' into '%s'\n\n" "$1" "${OBR}"
+    TMP=$(git rev-list --count ${OBR}..$1 2> /dev/null)
     if [ -n "$TMP" ]; then
         printf "Summary of commits (%d):\n" "$TMP"
     fi
-    TMP=$(git log --format="format:%h: %s" ${CBRANCH}..$1 2> /dev/null)
+    TMP=$(git log --format="format:%h: %s" ${OBR}..$1 2> /dev/null)
     if [ -n "$TMP" ]; then
         printf "%s\n" "${TMP}"
     fi
@@ -569,7 +569,7 @@ admerge_post() {
 }
 
 admerge_info() {
-    info "Our branch: '$CBRANCH'"
+    info "Our branch: '$OBR'"
     TMP=$(aq "1")
     if [ -n "$TMP" ]; then
         info "Their branch: '$TMP'"
