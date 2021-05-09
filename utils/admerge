@@ -525,7 +525,7 @@ admerge_msg() {
     if [ -n "$TMP" ]; then
         printf "Summary of commits (%d):\n" "$TMP"
     fi
-    TMP=$(git log --format="format:%h: %s" ${OBR}..${TBR} 2> /dev/null)
+    TMP=$(git log --oneline ${OBR}..${TBR} 2> /dev/null)
     if [ -n "$TMP" ]; then
         printf "%s\n" "${TMP}"
     fi
