@@ -477,6 +477,12 @@ admerge_env() {
     OBR=$(git symbolic-ref --short HEAD 2> /dev/null)
     ALOCK="$PWD"/.git/admerge_lock
     AMSG="$PWD"/.git/admerge_msg
+
+    if [ "$1" ]; then
+        TBR="$1"
+    else
+        TBR=""
+    fi
 }
 
 admerge_check() {
@@ -505,7 +511,7 @@ admerge_check() {
 admerge_lock() {
     {
     aw "0"
-    aw "$1"
+    aw "$TBR"
     aw "s" "$soff"
     aw "S" "$gsign"
     aw "1"
@@ -514,12 +520,12 @@ admerge_lock() {
 
 admerge_msg() {
     {
-    printf "Merge '%s' into '%s'\n\n" "$1" "${OBR}"
-    TMP=$(git rev-list --count ${OBR}..$1 2> /dev/null)
+    printf "Merge '%s' into '%s'\n\n" "${TBR}" "${OBR}"
+    TMP=$(git rev-list --count ${OBR}..${TBR} 2> /dev/null)
     if [ -n "$TMP" ]; then
         printf "Summary of commits (%d):\n" "$TMP"
     fi
-    TMP=$(git log --format="format:%h: %s" ${OBR}..$1 2> /dev/null)
+    TMP=$(git log --format="format:%h: %s" ${OBR}..${TBR} 2> /dev/null)
     if [ -n "$TMP" ]; then
         printf "%s\n" "${TMP}"
     fi
@@ -533,7 +539,7 @@ admerge_msg() {
 }
 
 admerge_work() {
-    gitm_args="--no-ff --no-commit $1"
+    gitm_args="--no-ff --no-commit $TBR"
     gitc_args="-eF $AMSG --no-edit"
 
     if [ -r "$ALOCK" ]; then
@@ -608,11 +614,11 @@ admerge_status() {
 }
 
 admerge() {
-    admerge_env;
+    admerge_env "$1"
     admerge_check;
-    admerge_lock "$1"
-    admerge_msg "$1"
-    admerge_work "$1"
+    admerge_lock;
+    admerge_msg;
+    admerge_work;
     admerge_exec;
     admerge_post;
 }
