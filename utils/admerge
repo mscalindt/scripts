@@ -601,7 +601,7 @@ admerge_abort() {
 admerge_continue() {
     admerge_env;
     admerge_check "c"
-    admerge_work "c"
+    admerge_work;
     admerge_exec "c"
     admerge_post;
 }
