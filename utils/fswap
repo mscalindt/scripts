@@ -47,10 +47,10 @@ cat, chmod, dd, id, mkswap, rm, swapoff, swapon.
 #
 # Parameters:
 # [$1] - from left to right N $2 character(s)
-# <$2> - from character(s)
+# <"$2"> - from character(s)
 # [$3] - up to N $4 character(s)
-# [$4] - up to character(s)
-# <$5> - string
+# ["$4"] - up to character(s)
+# <"$5"> - string
 #
 # Returns:
 # (0) substring of $5 | undefined behaviour if $2/$4 not present
@@ -133,8 +133,8 @@ substr_after() {
 # Check the existence/position of a substring in a string
 #
 # Parameters:
-# <$1> - substring
-# <$2> - string
+# <"$1"> - substring
+# <"$2"> - string
 # [$3] - mode('1' - $1 is first character(s) of $2,
 #             '2' - $1 is last character(s) of $2,
 #             '3' - $1 is the string on its own)
@@ -171,8 +171,8 @@ grep_str() {
 # Remove specific character(s) in a string
 #
 # Parameters:
-# <$1> - character(s)
-# <$2> - string
+# <"$1"> - character(s)
+# <"$2"> - string
 #
 # Returns:
 # $2 without $1 characters,
@@ -196,7 +196,7 @@ remchars() {
 # Convert relative path to absolute path
 #
 # Parameters:
-# <$1> - path
+# <"$1"> - path
 #
 # Returns:
 # $PWD/$1,
@@ -215,7 +215,7 @@ get_fpath() {
 # Print error and exit
 #
 # Parameters:
-# <$1> - text
+# <"$1"> - text
 # <$2> - exit code
 #
 err() {
@@ -227,7 +227,7 @@ err() {
 # Print a warning
 #
 # Parameters:
-# <$1> - text
+# <"$1"> - text
 #
 warn() {
     printf "%bWARNING:%b %s\n" "\033[1;33m" "\033[0m" "$1"
@@ -237,7 +237,7 @@ warn() {
 # Print info
 #
 # Parameters:
-# <$1> - text
+# <"$1"> - text
 #
 info() {
     printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$1"
@@ -247,7 +247,7 @@ info() {
 # Apply value to location
 #
 # Parameters:
-# <$1> - value
+# <"$1"> - value
 # <$2> - location
 #
 fwrite() {

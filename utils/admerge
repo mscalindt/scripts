@@ -43,10 +43,10 @@ git, rm.
 #
 # Parameters:
 # [$1] - from left to right N $2 character(s)
-# <$2> - from character(s)
+# <"$2"> - from character(s)
 # [$3] - up to N $4 character(s)
-# [$4] - up to character(s)
-# <$5> - string
+# ["$4"] - up to character(s)
+# <"$5"> - string
 #
 # Returns:
 # (0) substring of $5 | undefined behaviour if $2/$4 not present
@@ -130,7 +130,7 @@ substr_after() {
 #
 # Parameters:
 # <$1> - line number
-# <$2> - file
+# <"$2"> - file
 #
 # Returns:
 # (0) line's content
@@ -160,8 +160,8 @@ pline() {
 # Check the existence/position of a substring in a string
 #
 # Parameters:
-# <$1> - substring
-# <$2> - string
+# <"$1"> - substring
+# <"$2"> - string
 # [$3] - mode('1' - $1 is first character(s) of $2,
 #             '2' - $1 is last character(s) of $2,
 #             '3' - $1 is the string on its own)
@@ -198,8 +198,8 @@ grep_str() {
 # Strip character(s) from the end of a string
 #
 # Parameters:
-# <$1> - character(s)
-# <$2> - string
+# <"$1"> - character(s)
+# <"$2"> - string
 #
 # Returns:
 # (0) string stripped
@@ -217,7 +217,7 @@ strip_end() {
 # Parse the content of a file
 #
 # Parameters:
-# <$1> - file
+# <"$1"> - file
 # [$2] - mode('1' - wrap parsed lines in one trailing whitespace,
 #             '2' - wrap parsed lines in two trailing whitespaces,
 #             '3' - skip empty lines)
@@ -256,8 +256,8 @@ fparse() {
 # Remove specific character(s) in a string
 #
 # Parameters:
-# <$1> - character(s)
-# <$2> - string
+# <"$1"> - character(s)
+# <"$2"> - string
 #
 # Returns:
 # $2 without $1 characters,
@@ -281,7 +281,7 @@ remchars() {
 # Print error and exit
 #
 # Parameters:
-# <$1> - text
+# <"$1"> - text
 # <$2> - exit code
 #
 err() {
@@ -293,7 +293,7 @@ err() {
 # Print a warning
 #
 # Parameters:
-# <$1> - text
+# <"$1"> - text
 #
 warn() {
     printf "%bWARNING:%b %s\n" "\033[1;33m" "\033[0m" "$1"
@@ -303,7 +303,7 @@ warn() {
 # Print info
 #
 # Parameters:
-# <$1> - text
+# <"$1"> - text
 #
 info() {
     printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$1"
@@ -338,7 +338,7 @@ aq() {
 # Check if an attribute exists in the lock file
 #
 # Parameters:
-# <$1> - attribute
+# <"$1"> - attribute
 #
 # Returns:
 # (0) attribute exists
@@ -358,9 +358,9 @@ ac() {
 # Return lock format for an attribute
 #
 # Parameters:
-# <$1> - attribute('0' - begin lock format,
+# <"$1"> - attribute('0' - begin lock format,
 #                  '1' - end lock format)
-# [$2] - test variable
+# ["$2"] - test variable
 #
 # Returns:
 # (0) format
