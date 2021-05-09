@@ -321,9 +321,9 @@ info() {
 #
 aq() {
     x=$1
-    i=$(pline "1" "$ALOCK")
+    i=$(pline 1 "$ALOCK")
     x=$((x - 1 + x))
-    i=$(substr_after "$x" "@" "1" "@" "$i")
+    i=$(substr_after $x "@" 1 "@" "$i")
     i=$(strip_end "@" "$i")
 
     if [ -n "$i" ]; then
@@ -345,7 +345,7 @@ aq() {
 # (1) no attribute
 #
 ac() {
-    i=$(pline "1" "$ALOCK")
+    i=$(pline 1 "$ALOCK")
 
     if grep_str "@$1@" "$i"; then
         return 0
@@ -390,23 +390,22 @@ admerge_env() {
 
 admerge_check() {
     if [ -z $OBR ]; then
-        err "Failed to identify current branch. (not in git repository?)" "1"
+        err "Failed to identify current branch. (not in git repository?)" 1
     fi
 
     if [ $1 ]; then
         if [ ! -r "$ALOCK" ]; then
-            err "No lock file found. (no merge in progress?)" "2"
+            err "No lock file found. (no merge in progress?)" 2
         fi
     else
         if [ -r "$ALOCK" ]; then
-            err "A merge is already in progress. ($ALOCK)" "2"
+            err "A merge is already in progress. ($ALOCK)" 2
         fi
     fi
 
     if [ ! $1 ]; then
         if [ -r "$AMSG" ]; then
-            err "'$AMSG' exists, but no lock file is found. (manual lock rm?)" \
-                "1"
+            err "'$AMSG' exists, but no lock file is found. (manual lock rm?)" 1
         fi
     fi
 }
@@ -479,18 +478,18 @@ admerge_post() {
 
 admerge_info() {
     info "Our branch: '$OBR'"
-    TMP=$(aq "1")
+    TMP=$(aq 1)
     if [ -n "$TMP" ]; then
         info "Their branch: '$TMP'"
     fi
     info "Lock file location: '$ALOCK'"
-    TMP=$(pline "1" "$ALOCK")
+    TMP=$(pline 1 "$ALOCK")
     if [ -n "$TMP" ]; then
         info "Lock file content: '$TMP'"
     fi
     info "Commit message file location: '$AMSG'"
     info "Commit message file content (not shown: empty lines, signoff):"
-    fparse "$AMSG" "3"
+    fparse "$AMSG" 3
     info "Status of files:"
 }
 
@@ -545,11 +544,11 @@ main() {
 
             # Parse options
             "--"*)
-                i=$(substr_after "1" "--" "$1")
+                i=$(substr_after 1 "--" "$1")
 
-                if grep_str "sign-off" "$i" "3"; then soff=1; fi 
-                if grep_str "gpg-sign" "$i" "3"; then gsign=1; fi
-                if grep_str "git-version" "$i" "3"; then gver=1; fi
+                if grep_str "sign-off" "$i" 3; then soff=1; fi 
+                if grep_str "gpg-sign" "$i" 3; then gsign=1; fi
+                if grep_str "git-version" "$i" 3; then gver=1; fi
 
                 if [ ! $grepstr ]; then
                     warn "Unrecognized option: '$1'"
@@ -557,7 +556,7 @@ main() {
                 shift
             ;;
             "-"*)
-                i=$(substr_after "1" "-" "$1")
+                i=$(substr_after 1 "-" "$1")
 
                 if grep_str "s" "$i"; then soff=1; fi
                 if grep_str "S" "$i"; then gsign=1; fi
@@ -576,9 +575,9 @@ main() {
 
     # Catch wrong input
     if [ ! "$1" ]; then
-        err "No branch/tag specified." "2"
+        err "No branch/tag specified." 2
     elif [ "$2" ]; then
-        err "Too many operands. ($#)" "2"
+        err "Too many operands. ($#)" 2
     fi
 
     # Execute the core function
