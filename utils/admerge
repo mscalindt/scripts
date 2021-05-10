@@ -483,21 +483,10 @@ admerge_lock() {
 
 admerge_msg() {
     {
-    printf "Merge '%s' into '%s'\n\n" "${TBR}" "${OBR}"
-    TMP=$(git rev-list --count ${OBR}..${TBR} 2> /dev/null)
-    if [ -n "$TMP" ]; then
-        printf "Summary of commits (%d):\n" "$TMP"
-    fi
-    TMP=$(git log --oneline ${OBR}..${TBR} 2> /dev/null)
-    if [ -n "$TMP" ]; then
-        printf "%s\n" "${TMP}"
-    fi
-    if [ -n "$gver" ]; then
-        TMP=$(git --version 2> /dev/null)
-        if [ -n "$TMP" ]; then
-            printf "\n%s\n" "${TMP}"
-        fi
-    fi
+    mc "Merge '$TBR' into '$OBR'\n\n"
+    mc "Summary of commits (%d):\n" "rev-list --count" "1"
+    mc "1" "log --oneline" "1"
+    mc "3" "--version" '$gver'
     } >> "$AMSG"
 }
 
