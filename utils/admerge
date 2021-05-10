@@ -360,14 +360,16 @@ ac() {
 # Parameters:
 # <"$1"> - attribute('0' - begin lock format,
 #                  '1' - end lock format)
-# ["$2"] - test variable
+# ['$2'] - test variable
 #
 # Returns:
 # (0) format
 # (1) variable is empty/unset
 #
 aw() {
-    if [ $# -eq 2 ]; then if [ ! "$2" ]; then return 1; fi; fi
+    if [ $# -eq 2 ]; then
+        i=$(eval "echo $2") && if [ ! "$i" ]; then return 1; fi
+    fi
 
     case "$1" in
         "0") printf " " ;;
@@ -414,8 +416,8 @@ admerge_lock() {
     {
     aw "0"
     aw "$TBR"
-    aw "s" "$soff"
-    aw "S" "$gsign"
+    aw "s" '$soff'
+    aw "S" '$gsign'
     aw "1"
     } >> "$ALOCK"
 }
