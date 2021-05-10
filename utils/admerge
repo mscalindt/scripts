@@ -362,7 +362,7 @@ ac() {
 #
 # Parameters:
 # <"$1"> - attribute('0' - begin lock format,
-#                  '1' - end lock format)
+#                    '1' - end lock format)
 # ['$2'] - test variable
 #
 # Returns:
@@ -386,8 +386,8 @@ aw() {
 #
 # Parameters:
 # <"$1"> - printf format('1' - "%s\n",
-#                      '2' - "%s\n\n",
-#                      '3' - "\n%s\n")
+#                        '2' - "%s\n\n",
+#                        '3' - "\n%s\n")
 # ["$2"] - command
 # ['$3'] - test variable
 # [$4] - mode('1' - unique commits, "..",
