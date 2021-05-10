@@ -59,7 +59,7 @@ cat, chmod, dd, id, mkswap, rm, swapoff, swapon.
 substr_after() {
     x=0
 
-    if [ "$5" ]; then
+    if [ $# -eq 5 ]; then
         i=$(printf "%s" "$5")
         until [ $x -eq $1 ]; do
             i=$(printf "%s" "${i#*$2}")
@@ -72,7 +72,7 @@ substr_after() {
             x=$((x + 1))
         done
         i=$(printf "%s" "${ii%$i}")
-    elif [ "$4" ]; then
+    elif [ $# -eq 4 ]; then
         i=$(printf "%s" "$4")
         case "$1" in
             '' | *[!0-9]*)
@@ -94,7 +94,7 @@ substr_after() {
                 i=$(printf "%s" "${ii%$i}")
             ;;
         esac
-    elif [ "$3" ]; then
+    elif [ $# -eq 3 ]; then
         i=$(printf "%s" "$3")
         case "$1" in
             '' | *[!0-9]*)
@@ -144,7 +144,7 @@ substr_after() {
 # (1) no substring
 #
 grep_str() {
-    if [ $3 ]; then
+    if [ $# -eq 3 ]; then
         if [ $3 -eq 1 ]; then
             case "$2" in
                 "$1"*) grepstr=0 && return 0 ;;
