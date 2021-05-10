@@ -3,6 +3,7 @@
 # shellcheck disable=SC2034
 # shellcheck disable=SC2046
 # shellcheck disable=SC2048
+# shellcheck disable=SC2059
 # shellcheck disable=SC2086
 
 : <<'notice'
