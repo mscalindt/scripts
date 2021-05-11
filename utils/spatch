@@ -446,9 +446,13 @@ info() {
     printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$1"
 }
 
+spatch_env() {
+    FILE="$1"
+}
+
 spatch_check() {
-    if [ ! -f "$1" ]; then
-        err "'$1' is not a file." 1
+    if [ ! -f "$FILE" ]; then
+        err "'$FILE' is not a file." 1
     fi
 }
 
@@ -503,7 +507,7 @@ spatch_exec() {
         fi
 
         $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1 &
-    done < "$1"
+    done < "$FILE"
     wait
 
     if tglob "$TMP_DIR/" ".patch"; then
@@ -517,7 +521,7 @@ spatch_exec() {
             DSTR=$(substr_after 2 " " 4 " " "$DSTR")
 
             if [ -n "$purl" ]; then
-                TMP=$(fparse "$1" 2)
+                TMP=$(fparse "$FILE" 2)
                 CSTR=$(substr_before "$CSTR" 1 " " "$TMP")
             fi
 
@@ -572,9 +576,10 @@ spatch_post() {
 }
 
 spatch() {
-    spatch_check "$1"
+    spatch_env "$1"
+    spatch_check;
     spatch_work;
-    spatch_exec "$1"
+    spatch_exec;
     spatch_post;
 }
 
