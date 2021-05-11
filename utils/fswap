@@ -444,7 +444,7 @@ main() {
                 if grep_str "verbose" "$i" 3; then verbose=1; fi 
 
                 if [ ! $grepstr ]; then
-                    warn "Unrecognized option: '$1'"
+                    warn "Unrecognized option: '$1'. See --help"
                 fi
                 shift
             ;;
@@ -508,12 +508,15 @@ main() {
 
                 i=$(remchars "cv" "$i")
                 if [ -n "$i" ]; then
-                    warn "Unrecognized option(s): '-$i'"
+                    warn "Unrecognized option(s): '-$i'. See --help"
                 fi
                 shift
             ;;
 
-            *) warn "Unrecognized option(s): '$1'" && shift && continue ;;
+            *)
+               warn "Unrecognized option(s): '$1'. See --help"
+               shift && continue
+            ;;
         esac
     done
 

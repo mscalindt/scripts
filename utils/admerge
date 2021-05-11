@@ -630,7 +630,7 @@ main() {
                 if grep_str "git-version" "$i" 3; then gver=1; fi
 
                 if [ ! $grepstr ]; then
-                    warn "Unrecognized option: '$1'"
+                    warn "Unrecognized option: '$1'. See --help"
                 fi
                 shift
             ;;
@@ -643,7 +643,7 @@ main() {
 
                 i=$(remchars "sSv" "$i")
                 if [ -n "$i" ]; then
-                    warn "Unrecognized option(s): '-$i'"
+                    warn "Unrecognized option(s): '-$i'. See --help"
                 fi
                 shift
             ;;
