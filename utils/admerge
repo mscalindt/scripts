@@ -400,8 +400,7 @@ aw() {
 mc() {
     if [ $# -eq 3 ] || [ $# -eq 4 ]; then
         i=$(eval "echo $3") && if [ ! "$i" ]; then return 1; fi
-    fi
-    if [ $# -eq 2 ]; then
+    elif [ $# -eq 2 ]; then
         i=$(eval "echo $2") && if [ ! "$i" ]; then return 1; fi
     fi
 
