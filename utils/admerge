@@ -437,6 +437,45 @@ mc() {
     return 1
 }
 
+# Description:
+# Return info format for status
+#
+# Parameters:
+# <"$1"> - printf format
+# ['$2'] - command
+# ['$3'] - test variable
+#
+# Returns:
+# (0) format
+# (1) variable is empty/unset | no command output
+#
+qi() {
+    if [ $# -eq 3 ]; then
+        i=$(eval "echo $3") && if [ ! "$i" ]; then return 1; fi
+    elif [ $# -eq 2 ]; then
+        i=$(eval "echo $2") && if [ ! "$i" ]; then return 1; fi
+    fi
+
+    if [ $# -eq 3 ]; then
+        i=$(eval "echo $2")
+        i=$($i 2> /dev/null)
+    elif [ $# -eq 2 ]; then
+        case "$2" in
+            '$'*) printf "$1\n" "\033[1;37m" "\033[0m" && return 0 ;;
+            *) i=$(eval "echo $2") && i=$($i 2> /dev/null) ;;
+        esac
+    else
+        printf "$1\n" "\033[1;37m" "\033[0m" && return 0
+    fi
+
+    if [ -n "$i" ]; then
+        printf "$1\n" "\033[1;37m" "\033[0m" "$i"
+        return 0
+    fi
+
+    return 1
+}
+
 admerge_env() {
     OBR=$(git symbolic-ref --short HEAD 2> /dev/null)
     ALOCK="$PWD"/.git/admerge_lock
