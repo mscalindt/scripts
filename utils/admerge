@@ -390,8 +390,8 @@ aw() {
 #                        '3' - "\n%s\n")
 # ["$2"] - command
 # ['$3'] - test variable
-# [$4] - mode('1' - unique commits, "..",
-#             '2' - unique commits of both, "...")
+# [$4] - mode('0' - unique commits, "..",
+#             '1' - unique commits of both, "...")
 #
 # Returns:
 # (0) output
@@ -406,13 +406,13 @@ mc() {
 
     if [ $# -eq 4 ]; then
         case "$4" in
-            "1") i=$(git $2 ${OBR}..${TBR} 2> /dev/null) ;;
-            "2") i=$(git $2 ${OBR}...${TBR} 2> /dev/null) ;;
+            "0") i=$(git $2 ${OBR}..${TBR} 2> /dev/null) ;;
+            "1") i=$(git $2 ${OBR}...${TBR} 2> /dev/null) ;;
         esac
     elif [ $# -eq 3 ]; then
         case "$3" in
-            "1") i=$(git $2 ${OBR}..${TBR} 2> /dev/null) ;;
-            "2") i=$(git $2 ${OBR}...${TBR} 2> /dev/null) ;;
+            "0") i=$(git $2 ${OBR}..${TBR} 2> /dev/null) ;;
+            "1") i=$(git $2 ${OBR}...${TBR} 2> /dev/null) ;;
             *) i=$(git $2 2> /dev/null) ;;
         esac
     elif [ $# -eq 2 ]; then
@@ -522,8 +522,8 @@ admerge_lock() {
 admerge_msg() {
     {
     mc "Merge '$TBR' into '$OBR'\n\n"
-    mc "Summary of commits (%d):\n" "rev-list --count" "1"
-    mc "1" "log --oneline" "1"
+    mc "Summary of commits (%d):\n" "rev-list --count" "0"
+    mc "1" "log --oneline" "0"
     mc "3" "--version" '$gver'
     } >> "$AMSG"
 }
