@@ -361,8 +361,8 @@ ac() {
 # Return lock format for an attribute
 #
 # Parameters:
-# <"$1"> - attribute('0' - begin lock format,
-#                    '1' - end lock format)
+# <"$1"> - attribute('1' - begin lock format,
+#                    '2' - end lock format)
 # ['$2'] - test variable
 #
 # Returns:
@@ -375,8 +375,8 @@ aw() {
     fi
 
     case "$1" in
-        "0") printf " " ;;
-        "1") printf " \n" ;;
+        "1") printf " " ;;
+        "2") printf " \n" ;;
         *) printf "@%s@ " "$1" ;;
     esac
 }
@@ -511,11 +511,11 @@ admerge_check() {
 
 admerge_lock() {
     {
-    aw "0"
+    aw "1"
     aw "$TBR"
     aw "s" '$soff'
     aw "S" '$gsign'
-    aw "1"
+    aw "2"
     } >> "$ALOCK"
 }
 
