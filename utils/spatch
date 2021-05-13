@@ -492,7 +492,7 @@ spatch_exec() {
 
         TMP=$(substr_before "://" 1 " " " $LINE ")
         URL=$(substr_after "://" 1 " " " $LINE ")
-        URL=$(printf "%s%s" "$TMP" "$URL")
+        URL=$(printf "%s%s" "${TMP}" "${URL}")
 
         if [ -z $durl ]; then
             if ! grep_str ".patch" "$URL"; then

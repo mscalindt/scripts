@@ -426,10 +426,10 @@ mc() {
 
     if [ -n "$i" ]; then
         case "$1" in
-            "1") printf "%s\n" "$i" ;;
-            "2") printf "%s\n\n" "$i" ;;
-            "3") printf "\n%s\n" "$i" ;;
-            *) printf "$1" "$i" ;;
+            "1") printf "%s\n" "${i}" ;;
+            "2") printf "%s\n\n" "${i}" ;;
+            "3") printf "\n%s\n" "${i}" ;;
+            *) printf "$1" "${i}" ;;
         esac
         return 0
     fi
@@ -468,7 +468,7 @@ qi() {
     fi
 
     if [ -n "$i" ]; then
-        printf "$1\n" "\033[1;37m" "\033[0m" "$i"
+        printf "$1\n" "\033[1;37m" "\033[0m" "${i}"
         return 0
     fi
 
