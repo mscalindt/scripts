@@ -246,7 +246,7 @@ pline() {
         printf "%s" "${i}"
         return 0
     fi
-    
+
     return 1
 }
 
