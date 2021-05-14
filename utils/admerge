@@ -141,20 +141,13 @@ substr_after() {
 #
 pline() {
     x=0
-    unset i
 
     while read -r LINE || [ -n "$LINE" ]; do
         x=$((x + 1))
         if [ $x -eq $1 ]; then
-            i=$(printf "%s" "${LINE}")
-            break
+            printf -- "%s" "${LINE}" && return 0
         fi
     done < "$2"
-
-    if [ -n "$i" ]; then
-        printf "%s" "${i}"
-        return 0
-    fi
 
     return 1
 }
