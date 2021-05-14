@@ -514,7 +514,7 @@ spatch_exec() {
             DSTR=$(substr_after 2 " " 4 " " "$DSTR")
 
             if [ -n "$purl" ]; then
-                TMP=$(fparse "$FILE" 2)
+                TMP=$(fparse "$FILE")
                 CSTR=$(substr_before "$CSTR" 1 " " "$TMP")
             fi
 
