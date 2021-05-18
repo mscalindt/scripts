@@ -339,28 +339,56 @@ cmd_avail() {
 }
 
 # Description:
-# Check glob expansion
+# Count files and directories in a directory
 #
 # Parameters:
-# <"$1"> - string
-# <"$2"> - string
+# <"$1"> - directory
+# ["$2"] - mode('0X' - count files and directories ending with "X",
+#               '1' - count only files,
+#               '1X' - count only files ending with "X",
+#               '2' - count only directories,
+#               '2X' - count only directories ending with "X")
 #
 # Returns:
-# (0) no expansion
-# (1) one expansion
-# (2) two or more expansions
+# (0) count
+# (1) directory is empty
 #
-tglob() {
-    i="$1"
-    ii="$2"
+fcount() {
+    i=$(printf "%s" "$1")
 
-    set -- "$i"*"$ii"
+    if [ $# -eq 2 ]; then
+        case "$2" in
+            "0"*)
+                ii=$(printf "%s" "${2#0}")
+                set -- "$i"/*"$ii" && iii="$1" && ii=$#
+            ;;
+            "1")
+                set -- "$i"/* && iii="$1" && ii=$#
+                set -- "$i"/*/ && i=$# && ii=$((ii - i))
+            ;;
+            "1"*)
+                ii=$(printf "%s" "${2#1}")
+                set -- "$i"/*"$ii" && iii="$1" && iiii=$#
+                set -- "$i"/*"$ii"/ && i=$# && ii=$((iiii - i))
+            ;;
+            "2")
+                set -- "$i"/*/ && iii="$1" && ii=$#
+            ;;
+            "2"*)
+                ii=$(printf "%s" "${2#2}")
+                set -- "$i"/*"$ii"/ && iii="$1" && ii=$#
+            ;;
+        esac
+    else
+        set -- "$i"/* && iii="$1" && ii=$#
+    fi
 
-    case $#-$1 in
-        1-$i'*'$ii) return 0 ;;
-        1-*$ii) return 1 ;;
-        *) return 2 ;;
-    esac
+    if [ -e "$iii" ]; then
+        printf "%d" "${ii}"
+        return 0
+    fi
+
+    printf "0" && return 1
 }
 
 # Description:
@@ -503,7 +531,7 @@ spatch_exec() {
     done < "$FILE"
     wait
 
-    if tglob "$TMP_DIR/" ".patch"; then
+    if ! fcount "$TMP_DIR" "1.patch" > /dev/null 2>&1; then
         spatch_post;
         err "No patches found." 1
     else
