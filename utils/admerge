@@ -42,6 +42,173 @@ git, rm.
 }
 
 # Description:
+# Print error and exit
+#
+# Parameters:
+# <"$1"> - text
+# <$2> - exit code
+#
+err() {
+    printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$1"
+    exit $2
+}
+
+# Description:
+# Parse the content of a file
+#
+# Parameters:
+# <"$1"> - file
+# [$2] - mode('1' - wrap parsed lines in one trailing whitespace,
+#             '2' - wrap parsed lines in two trailing whitespaces,
+#             '3' - skip empty lines)
+#
+# Returns:
+# (0) file's content | empty output (file)
+# (1) file does not exist | permission error
+#
+fparse() {
+    if [ $# -eq 2 ]; then
+        if [ $2 -eq 1 ]; then
+            while read -r LINE || [ -n "$LINE" ]; do
+                printf -- " %s \n" "${LINE}"
+            done < "$1"
+        elif [ $2 -eq 2 ]; then
+            while read -r LINE || [ -n "$LINE" ]; do
+                printf -- "  %s  \n" "${LINE}"
+            done < "$1"
+        elif [ $2 -eq 3 ]; then
+            while read -r LINE || [ -n "$LINE" ]; do
+                if [ -n "$LINE" ]; then
+                    printf -- "%s\n" "${LINE}"
+                fi
+            done < "$1"
+        fi
+    else
+        while read -r LINE || [ -n "$LINE" ]; do
+            printf -- "%s\n" "${LINE}"
+        done < "$1"
+    fi
+
+    return $?
+}
+
+# Description:
+# Check the existence/position of a substring in a string
+#
+# Parameters:
+# <"$1"> - substring
+# <"$2"> - string
+# [$3] - mode('1' - $1 is first character(s) of $2,
+#             '2' - $1 is last character(s) of $2,
+#             '3' - $1 is the string on its own)
+#
+# Returns:
+# (0) substring exists
+# (1) no substring
+#
+grep_str() {
+    if [ $# -eq 3 ]; then
+        if [ $3 -eq 1 ]; then
+            case "$2" in
+                "$1"*) grepstr=0 && return 0 ;;
+            esac
+        elif [ $3 -eq 2 ]; then
+            case "$2" in
+                *"$1") grepstr=0 && return 0 ;;
+            esac
+        elif [ $3 -eq 3 ]; then
+            case "$2" in
+                "$1") grepstr=0 && return 0 ;;
+            esac
+        fi
+    else
+        case "$2" in
+            *"$1"*) grepstr=0 && return 0 ;;
+        esac
+    fi
+
+    return 1
+}
+
+# Description:
+# Print info
+#
+# Parameters:
+# <"$1"> - text
+#
+info() {
+    printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$1"
+}
+
+# Description:
+# Print specific line in a file
+#
+# Parameters:
+# <$1> - line number
+# <"$2"> - file
+#
+# Returns:
+# (0) line's content
+# (1) line empty | does not exist | file permission error
+#
+pline() {
+    x=0
+
+    while read -r LINE || [ -n "$LINE" ]; do
+        x=$((x + 1))
+        if [ $x -eq $1 ]; then
+            printf -- "%s" "${LINE}" && return 0
+        fi
+    done < "$2"
+
+    return 1
+}
+
+# Description:
+# Remove specific character(s) in a string
+#
+# Parameters:
+# <"$1"> - character(s)
+# <"$2"> - string
+#
+# Returns:
+# $2 without $1 characters,
+# $2
+#
+remchars() {
+    i=$IFS
+
+    IFS=$1
+    set -- $2
+
+    IFS=""
+    set -- $*
+
+    printf "%s\n" "$*"
+
+    IFS=$i
+}
+
+# Description:
+# Strip character(s) from the end of a string
+#
+# Parameters:
+# <"$1"> - character(s)
+# <"$2"> - string
+#
+# Returns:
+# (0) string stripped
+# (1) no $1 at the end of $2
+#
+strip_end() {
+    case "$2" in
+        *"$1") printf "%s" "${2%$1}" && return 0 ;;
+    esac
+
+    return 1
+}
+
+# Description:
 # Get substring after (from / up to) specific (N)character(s) in a string
 #
 # Parameters:
@@ -129,163 +296,6 @@ substr_after() {
 }
 
 # Description:
-# Print specific line in a file
-#
-# Parameters:
-# <$1> - line number
-# <"$2"> - file
-#
-# Returns:
-# (0) line's content
-# (1) line empty | does not exist | file permission error
-#
-pline() {
-    x=0
-
-    while read -r LINE || [ -n "$LINE" ]; do
-        x=$((x + 1))
-        if [ $x -eq $1 ]; then
-            printf -- "%s" "${LINE}" && return 0
-        fi
-    done < "$2"
-
-    return 1
-}
-
-# Description:
-# Check the existence/position of a substring in a string
-#
-# Parameters:
-# <"$1"> - substring
-# <"$2"> - string
-# [$3] - mode('1' - $1 is first character(s) of $2,
-#             '2' - $1 is last character(s) of $2,
-#             '3' - $1 is the string on its own)
-#
-# Returns:
-# (0) substring exists
-# (1) no substring
-#
-grep_str() {
-    if [ $# -eq 3 ]; then
-        if [ $3 -eq 1 ]; then
-            case "$2" in
-                "$1"*) grepstr=0 && return 0 ;;
-            esac
-        elif [ $3 -eq 2 ]; then
-            case "$2" in
-                *"$1") grepstr=0 && return 0 ;;
-            esac
-        elif [ $3 -eq 3 ]; then
-            case "$2" in
-                "$1") grepstr=0 && return 0 ;;
-            esac
-        fi
-    else
-        case "$2" in
-            *"$1"*) grepstr=0 && return 0 ;;
-        esac
-    fi
-
-    return 1
-}
-
-# Description:
-# Strip character(s) from the end of a string
-#
-# Parameters:
-# <"$1"> - character(s)
-# <"$2"> - string
-#
-# Returns:
-# (0) string stripped
-# (1) no $1 at the end of $2
-#
-strip_end() {
-    case "$2" in
-        *"$1") printf "%s" "${2%$1}" && return 0 ;;
-    esac
-
-    return 1
-}
-
-# Description:
-# Parse the content of a file
-#
-# Parameters:
-# <"$1"> - file
-# [$2] - mode('1' - wrap parsed lines in one trailing whitespace,
-#             '2' - wrap parsed lines in two trailing whitespaces,
-#             '3' - skip empty lines)
-#
-# Returns:
-# (0) file's content | empty output (file)
-# (1) file does not exist | permission error
-#
-fparse() {
-    if [ $# -eq 2 ]; then
-        if [ $2 -eq 1 ]; then
-            while read -r LINE || [ -n "$LINE" ]; do
-                printf -- " %s \n" "${LINE}"
-            done < "$1"
-        elif [ $2 -eq 2 ]; then
-            while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "  %s  \n" "${LINE}"
-            done < "$1"
-        elif [ $2 -eq 3 ]; then
-            while read -r LINE || [ -n "$LINE" ]; do
-                if [ -n "$LINE" ]; then
-                    printf -- "%s\n" "${LINE}"
-                fi
-            done < "$1"
-        fi
-    else
-        while read -r LINE || [ -n "$LINE" ]; do
-            printf -- "%s\n" "${LINE}"
-        done < "$1"
-    fi
-
-    return $?
-}
-
-# Description:
-# Remove specific character(s) in a string
-#
-# Parameters:
-# <"$1"> - character(s)
-# <"$2"> - string
-#
-# Returns:
-# $2 without $1 characters,
-# $2
-#
-remchars() {
-    i=$IFS
-
-    IFS=$1
-    set -- $2
-
-    IFS=""
-    set -- $*
-
-    printf "%s\n" "$*"
-
-    IFS=$i
-}
-
-# Description:
-# Print error and exit
-#
-# Parameters:
-# <"$1"> - text
-# <$2> - exit code
-#
-err() {
-    printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$1"
-    exit $2
-}
-
-# Description:
 # Print a warning
 #
 # Parameters:
@@ -293,16 +303,6 @@ err() {
 #
 warn() {
     printf "%bWARNING:%b %s\n" "\033[1;33m" "\033[0m" "$1"
-}
-
-# Description:
-# Print info
-#
-# Parameters:
-# <"$1"> - text
-#
-info() {
-    printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$1"
 }
 
 # Description:
