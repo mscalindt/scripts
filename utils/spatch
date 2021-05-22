@@ -14,7 +14,7 @@ notice
 usage() {
 printf "%s" "\
 Usage: spatch [options] [--] FILE
-Sort commit/patch links by date.
+Sort commit/patch URLs by date.
 
 Options:
   -d, --direct-url           assume URLs are valid patch links even if they do
