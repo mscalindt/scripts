@@ -20,9 +20,10 @@ Do an advanced, better merge. (git wrapper)
 
 Options:
   -s, --sign-off             add Signed-off-by line at the end of the commit
-                             message; requires preconfigured signoff info
+                             message; requires preconfigured signoff info for
+                             seamless work
   -S, --gpg-sign             sign the merge commit; requires preconfigured key
-                             and user.signingkey
+                             and user.signingkey for seamless work
   -v, --git-version          print the git version at the end of the commit
                              message
       --help     display this help text and exit
