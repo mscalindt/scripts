@@ -516,8 +516,8 @@ admerge_lock() {
 admerge_msg() {
     {
     mc "Merge '$TBR' into '$OBR'\n\n"
-    mc "Summary of commits (%d):\n" "rev-list --count" "0"
-    mc "1" "log --oneline" "0"
+    mc "Summary of commits (%d):\n" "rev-list --count" 0
+    mc "1" "log --oneline" 0
     mc "3" "--version" '$gver'
     } >> "$AMSG"
 }
