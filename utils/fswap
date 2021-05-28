@@ -368,11 +368,13 @@ fswap() {
 }
 
 main() {
-    # For security reasons, unset specific internal variables if they exist
-    if [ -n "$ssize" ]; then unset ssize; fi
+    # For security reasons, unset conditional variables if they exist
     if [ -n "$sfile" ]; then unset sfile; fi
+    if [ -n "$ssize" ]; then unset ssize; fi
     if [ -n "$swappiness" ]; then unset swappiness; fi
     if [ -n "$vfscp" ]; then unset vfscp; fi
+    if [ -n "$check" ]; then unset check; fi
+    if [ -n "$verbose" ]; then unset verbose; fi
     if [ -n "$RC" ]; then unset RC; fi
 
     # Serve the script until no script parameters passed

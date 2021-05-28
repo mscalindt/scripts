@@ -605,9 +605,15 @@ spatch() {
 }
 
 main() {
-    # For security reasons, unset specific internal variables if they exist
+    # For security reasons, unset conditional variables if they exist
     if [ -n "$CNT" ]; then unset CNT; fi
     if [ -n "$tfile" ]; then unset tfile; fi
+    if [ -n "$durl" ]; then unset durl; fi
+    if [ -n "$invert" ]; then unset invert; fi
+    if [ -n "$lnumbers" ]; then unset lnumbers; fi
+    if [ -n "$purl" ]; then unset purl; fi
+    if [ -n "$tstamp" ]; then unset tstamp; fi
+    if [ -n "$verbose" ]; then unset verbose; fi
     if [ -n "$RC" ]; then unset RC; fi
 
     # Serve the script until no script parameters passed

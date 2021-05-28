@@ -598,7 +598,10 @@ admerge() {
 }
 
 main() {
-    # For security reasons, unset specific internal variables if they exist
+    # For security reasons, unset conditional variables if they exist
+    if [ -n "$soff" ]; then unset soff; fi
+    if [ -n "$gsign" ]; then unset gsign; fi
+    if [ -n "$gver" ]; then unset gver; fi
     if [ -n "$RC" ]; then unset RC; fi
 
     # Serve the script until no script parameters passed
