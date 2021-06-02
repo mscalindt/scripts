@@ -591,9 +591,7 @@ spatch_exec() {
 }
 
 spatch_post() {
-    rm -f "$TMP_DIR"/*.patch
-    rm -f "$TMP_FILE"
-    rm -f "$TMP_FILE2"
+    rm -f "$TMP_DIR"/*.patch "$TMP_FILE" "$TMP_FILE2"
 }
 
 spatch() {
