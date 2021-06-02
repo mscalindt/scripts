@@ -562,8 +562,7 @@ admerge_exec() {
 }
 
 admerge_post() {
-    rm -f "$ALOCK"
-    rm -f "$AMSG"
+    rm -f "$ALOCK" "$AMSG"
 }
 
 admerge_abort() {
