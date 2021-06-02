@@ -132,6 +132,24 @@ grep_str() {
 }
 
 # Description:
+# Add a command to the hash table
+#
+# Parameters:
+# <$1> - command
+#
+# Returns:
+# (0) success
+# (127) command does not exist
+#
+hash_cmd() {
+    if hash $1 > /dev/null 2>&1; then
+        return 0
+    fi
+
+    return 127
+}
+
+# Description:
 # Print info
 #
 # Parameters:
