@@ -515,6 +515,7 @@ spatch_work() {
     else
         err "No URL download tool available. (curl/aria2/wget/axel)" 127
     fi
+    hash_cmd $URL_TOOL
 
     rm -f "$TMP_DIR"/*.patch
     cd "$TMP_DIR" || err "Line '$LINENO' failed." 1

@@ -488,6 +488,8 @@ qi() {
 }
 
 admerge_env() {
+    hash_cmd git
+
     OBR=$(git symbolic-ref --short HEAD 2> /dev/null)
     ALOCK="$PWD"/.git/admerge_lock
     AMSG="$PWD"/.git/admerge_msg

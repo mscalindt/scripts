@@ -287,6 +287,8 @@ fswap_env() {
 }
 
 fswap_info() {
+    hash_cmd cat
+
     info "Swap size: '$ssize'."
     info "Swap file: '$sfile'."
 
