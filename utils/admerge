@@ -564,7 +564,9 @@ admerge_work() {
 
 admerge_exec() {
     if [ $1 ] && [ $1 = a ]; then
-        git merge --abort
+        if ! git merge --abort; then
+            exit 1
+        fi
     elif [ $1 ] && [ $1 = c ]; then
         if ! git commit ${gitc_args}; then
             exit 1
@@ -577,7 +579,9 @@ admerge_exec() {
                 exit 1
             fi
         fi
-        git commit ${gitc_args}
+        if ! git commit ${gitc_args}; then
+            exit 1
+        fi
     fi
 }
 
