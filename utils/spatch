@@ -651,13 +651,15 @@ main() {
                     if grep_str "output=" "$i" 1; then
                         tfile=$(substr_after 1 "=" "$i")
                         tfile=$(get_fpath "$tfile")
+                        shift && continue
                     elif ! grep_str "output " "$i " 1; then
                         tfile=$(substr_after 2 "t" "$i")
                         tfile=$(get_fpath "$tfile")
+                        shift && continue
                     elif [ "$2" ]; then
                         tfile="$2"
                         tfile=$(get_fpath "$tfile")
-                        shift
+                        shift 2 && continue
                     fi
                 fi
 
