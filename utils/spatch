@@ -540,13 +540,12 @@ spatch_exec() {
 
         if [ -n "$verbose" ]; then
             NUM=$((1 + CNT))
-            info "URL ($NUM) - '$URL'."
             CNT=$NUM
+            info "URL ($NUM) - '$URL'."
         fi
 
         $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1 &
-    done < "$FILE"
-    wait
+    done < "$FILE"; wait && if [ -n "$verbose" ]; then unset CNT; fi
 
     if ! fcount "$TMP_DIR" "1.patch" > /dev/null 2>&1; then
         spatch_post;
@@ -578,13 +577,12 @@ spatch_exec() {
     fi
 
     if [ -n "$lnumbers" ]; then
-        if [ -n "$CNT" ]; then unset CNT; fi
         FILE=$(echo "$FILE" | \
             while read -r LINE; do
                 NUM=$((1 + CNT))
-                echo "$NUM - $LINE"
                 CNT=$NUM
-            done
+                echo "$NUM - $LINE"
+            done; unset CNT
         )
     fi
 
