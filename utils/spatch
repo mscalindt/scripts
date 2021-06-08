@@ -497,8 +497,6 @@ spatch_check() {
 
 spatch_work() {
     TMP_DIR=/tmp
-    TMP_FILE=${TMP_DIR}/spatch_tmp
-    TMP_FILE2=${TMP_DIR}/spatch_tmp2
 
     if cmd_avail curl; then
         URL_TOOL='curl'
@@ -554,63 +552,56 @@ spatch_exec() {
         spatch_post;
         err "No patches found." 1
     else
-        for PATCH in "$TMP_DIR"/*.patch; do
-            CSTR=$(pline 1 "$PATCH")
-            CSTR=$(substr_after 1 " " 1 " " "$CSTR")
-            DSTR=$(pline 3 "$PATCH")
-            DSTR=$(substr_after 2 " " 4 " " "$DSTR")
+        FILE=$(
+            for PATCH in "$TMP_DIR"/*.patch; do
+                CSTR=$(pline 1 "$PATCH")
+                CSTR=$(substr_after 1 " " 1 " " "$CSTR")
+                DSTR=$(pline 3 "$PATCH")
+                DSTR=$(substr_after 2 " " 4 " " "$DSTR")
 
-            if [ -n "$purl" ]; then
-                TMP=$(fparse "$FILE" 2)
-                CSTR=$(substr_before "$CSTR" 1 " " "$TMP")
-            fi
+                if [ -n "$purl" ]; then
+                    TMP=$(fparse "$FILE" 2)
+                    CSTR=$(substr_before "$CSTR" 1 " " "$TMP")
+                fi
 
-            echo "$CSTR $DSTR" >> "$TMP_FILE"
-        done
+                echo "$CSTR $DSTR"
+            done
+        )
     fi
 
-    sort -t " " -k4.1,4.4 \
-                -k3.1,3.3M \
-                -k2.1n \
-                -k5.1,5.2 \
-                -k5.4,5.5 \
-                -k5.7,5.8 "$TMP_FILE" > "$TMP_FILE2"
-    fparse "$TMP_FILE2" > "$TMP_FILE"
+    FILE=$(printf "%s" "$FILE" | sort -t " " -k4.1,4.4 -k3.1,3.3M -k2.1n \
+                                             -k5.1,5.2 -k5.4,5.5 -k5.7,5.8)
 
     if [ -n "$invert" ]; then
-        awk '{a[i++]=$0;} END {for (j=i-1; j>=0;) print a[j--];}' \
-            "$TMP_FILE" > "$TMP_FILE2"
-        fparse "$TMP_FILE2" > "$TMP_FILE"
+        FILE=$(printf "%s" "$FILE" | \
+               awk '{a[i++]=$0;} END {for (j=i-1; j>=0;) print a[j--];}')
     fi
 
     if [ -n "$lnumbers" ]; then
-        :> "$TMP_FILE2"
         if [ -n "$CNT" ]; then unset CNT; fi
-        while read -r LINE; do
-            NUM=$((1 + CNT))
-            LINE="$NUM - $LINE"
-            CNT=$NUM
-            echo "$LINE" >> "$TMP_FILE2"
-        done < "$TMP_FILE"
-        fparse "$TMP_FILE2" > "$TMP_FILE"
+        FILE=$(echo "$FILE" | \
+            while read -r LINE; do
+                NUM=$((1 + CNT))
+                echo "$NUM - $LINE"
+                CNT=$NUM
+            done
+        )
     fi
 
     if [ -n "$tstamp" ]; then
-        TMP=$(date "+%b %-e, %T %:z %Y")
-        echo "TIMESTAMP: $TMP" >> "$TMP_FILE"
+        FILE=$(printf "%s\nTIMESTAMP: %s\n" "${FILE}" \
+                      "$(date '+%b %-e, %T %:z %Y')")
     fi
 
     if [ -n "$tfile" ]; then
-        fparse "$TMP_FILE2" > "$tfile"
+        echo "$FILE" > "$tfile"
     else
-        while read -r LINE; do
-            echo "$LINE"
-        done < "$TMP_FILE"
+        echo "$FILE"
     fi
 }
 
 spatch_post() {
-    rm -f "$TMP_DIR"/*.patch "$TMP_FILE" "$TMP_FILE2"
+    rm -f "$TMP_DIR"/*.patch
 }
 
 spatch() {
