@@ -178,16 +178,16 @@ pline() {
             while read -r LINE || [ -n "$LINE" ]; do
                 printf -- "%s\n" "${LINE}"
             done < "$2"
-        ) && set -- $1 "$i"
+        )
     else
         i=$(
             while read -r LINE || [ -n "$LINE" ]; do
                 printf -- "%s\n" "${LINE}"
             done
-        ) && set -- $1 "$i"
+        )
     fi
 
-    printf "%s\n" "$2" | while read -r LINE; do
+    printf "%s\n" "$i" | while read -r LINE; do
         x=$((x + 1))
         if [ $x -eq $1 ]; then
             printf -- "%s" "${LINE}" && return 0
