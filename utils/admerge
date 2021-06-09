@@ -464,16 +464,14 @@ mc() {
 qi() {
     if [ $# -eq 3 ]; then
         i=$(eval "echo $3") && if [ ! "$i" ]; then return 1; fi
-    elif [ $# -eq 2 ]; then
-        i=$(eval "echo $2") && if [ ! "$i" ]; then return 1; fi
-    fi
-
-    if [ $# -eq 3 ]; then
-        i=$(eval "echo $2") && i=$($i 2> /dev/null)
+        i=$(eval 'echo $2') && i=$(eval $i 2> /dev/null)
     elif [ $# -eq 2 ]; then
         case "$2" in
-            '$'*) printf "$1\n" "\033[1;37m" "\033[0m" && return 0 ;;
-            *) i=$(eval "echo $2") && i=$($i 2> /dev/null) ;;
+            '$'*)
+                i=$(eval "echo $2") && if [ ! "$i" ]; then return 1; fi
+                printf "$1\n" "\033[1;37m" "\033[0m" && return 0
+            ;;
+            *) i=$(eval 'echo $2') && i=$(eval $i 2> /dev/null) ;;
         esac
     else
         printf "$1\n" "\033[1;37m" "\033[0m" && return 0
