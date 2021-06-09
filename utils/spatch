@@ -411,7 +411,7 @@ substr_before() {
             i=$(printf "%s" "${i%$4*}")
             x=$((x + 1))
         done
-        i=$(printf "%s" "${ii#$i}")
+        i=$(printf "%s" "${ii#*$i}")
     elif [ $# -eq 4 ]; then
         i=$(printf "%s" "$4")
         case "$1" in
@@ -424,7 +424,7 @@ substr_before() {
                     i=$(printf "%s" "${i%$3*}")
                     x=$((x + 1))
                 done
-                i=$(printf "%s" "${ii#$i}")
+                i=$(printf "%s" "${ii#*$i}")
             ;;
             *)
                 ii="$i"
@@ -435,7 +435,7 @@ substr_before() {
                 i=$(printf "%s" "${ii%$i}")
                 ii="$i"
                 i=$(printf "%s" "${i%%$3*}")
-                i=$(printf "%s" "${ii#$i}")
+                i=$(printf "%s" "${ii#*$i}")
             ;;
         esac
     elif [ $# -eq 3 ]; then
@@ -447,7 +447,7 @@ substr_before() {
                 i=$(printf "%s" "${ii%$i}")
                 ii="$i"
                 i=$(printf "%s" "${i%%$2*}")
-                i=$(printf "%s" "${ii#$i}")
+                i=$(printf "%s" "${ii#*$i}")
             ;;
             *)
                 ii="$i"
