@@ -497,7 +497,7 @@ admerge_env() {
     if [ "$1" ]; then
         TBR="$1"
     else
-        TBR=""
+        TBR=
     fi
 }
 
