@@ -160,25 +160,39 @@ info() {
 }
 
 # Description:
-# Print specific line in a file
+# Print specific line in stdin/file
 #
 # Parameters:
 # <$1> - line number
-# <"$2"> - file
+# ["$2"] - file
 #
 # Returns:
 # (0) line's content
-# (1) line empty | does not exist | file permission error
+# (1) line empty | line does not exist | file permission error
 #
 pline() {
     x=0
 
-    while read -r LINE || [ -n "$LINE" ]; do
+    if [ $# -eq 2 ]; then
+        i=$(
+            while read -r LINE || [ -n "$LINE" ]; do
+                printf -- "%s\n" "${LINE}"
+            done < "$2"
+        ) && set -- $1 "$i"
+    else
+        i=$(
+            while read -r LINE || [ -n "$LINE" ]; do
+                printf -- "%s\n" "${LINE}"
+            done
+        ) && set -- $1 "$i"
+    fi
+
+    printf "%s\n" "$2" | while read -r LINE; do
         x=$((x + 1))
         if [ $x -eq $1 ]; then
             printf -- "%s" "${LINE}" && return 0
         fi
-    done < "$2"
+    done
 
     return 1
 }
