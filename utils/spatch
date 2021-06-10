@@ -72,7 +72,7 @@ err() {
 #
 # Parameters:
 # <"$1"> - directory
-# ["$2"] - mode('0X' - count files and directories ending with "X",
+# ['$2'] - mode('0X' - count files and directories ending with "X",
 #               '1' - count only files,
 #               '1X' - count only files ending with "X",
 #               '2' - count only directories,
@@ -579,7 +579,7 @@ spatch_exec() {
         $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1 &
     done < "$FILE"; wait && if [ -n "$verbose" ]; then unset CNT; fi
 
-    if ! fcount "$TMP_DIR" "1.patch" > /dev/null 2>&1; then
+    if ! fcount "$TMP_DIR" '1.patch' > /dev/null 2>&1; then
         spatch_post;
         err "No patches found." 1
     else
