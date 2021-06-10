@@ -582,6 +582,12 @@ spatch_exec() {
             info "URL ($NUM) - '$URL'."
         fi
 
+        if grep_str "github" "$URL"; then
+            if [ $URL_TOOL = curl ]; then
+                URL_TOOL_ARGS="-r 0-300 $URL_TOOL_ARGS"
+            fi
+        fi
+
         $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1 &
     done < "$FILE"; wait && if [ -n "$verbose" ]; then unset CNT; fi
 
