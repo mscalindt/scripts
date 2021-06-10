@@ -212,7 +212,8 @@ info() {
 # <$1> - mode('1' - one-to-one copy,
 #             '2' - wrap parsed lines in one leading/trailing whitespace char,
 #             '3' - wrap parsed lines in two leading/trailing whitespace chars,
-#             '4' - skip empty lines)
+#             '4' - skip empty lines,
+#             '5' - strip trailing/leading whitespace chars)
 # ["$2"] - file
 #
 # Returns:
@@ -253,6 +254,11 @@ parse() {
         "4")
             printf "%s\n" "$i" | while IFS= read -r LINE; do
                 if [ -n "$LINE" ]; then printf -- "%s\n" "${LINE}"; fi
+            done
+        ;;
+        "5")
+            printf "%s\n" "$i" | while read -r LINE; do
+                printf -- "%s\n" "${LINE}"
             done
         ;;
     esac
