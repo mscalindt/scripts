@@ -55,45 +55,6 @@ err() {
 }
 
 # Description:
-# Parse the content of a file
-#
-# Parameters:
-# <"$1"> - file
-# [$2] - mode('1' - wrap parsed lines in one trailing whitespace,
-#             '2' - wrap parsed lines in two trailing whitespaces,
-#             '3' - skip empty lines)
-#
-# Returns:
-# (0) file's content | empty output (file)
-# (1) file does not exist | permission error
-#
-fparse() {
-    if [ $# -eq 2 ]; then
-        if [ $2 -eq 1 ]; then
-            while IFS= read -r LINE || [ -n "$LINE" ]; do
-                printf -- " %s \n" "${LINE}"
-            done < "$1"
-        elif [ $2 -eq 2 ]; then
-            while IFS= read -r LINE || [ -n "$LINE" ]; do
-                printf -- "  %s  \n" "${LINE}"
-            done < "$1"
-        elif [ $2 -eq 3 ]; then
-            while IFS= read -r LINE || [ -n "$LINE" ]; do
-                if [ -n "$LINE" ]; then
-                    printf -- "%s\n" "${LINE}"
-                fi
-            done < "$1"
-        fi
-    else
-        while IFS= read -r LINE || [ -n "$LINE" ]; do
-            printf -- "%s\n" "${LINE}"
-        done < "$1"
-    fi
-
-    return $?
-}
-
-# Description:
 # Check the existence/position of a substring in a string
 #
 # Parameters:
@@ -157,6 +118,61 @@ hash_cmd() {
 #
 info() {
     printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$1"
+}
+
+# Description:
+# Parse the content of stdin/file
+#
+# Parameters:
+# <$1> - mode('1' - one-to-one copy,
+#             '2' - wrap parsed lines in one leading/trailing whitespace char,
+#             '3' - wrap parsed lines in two leading/trailing whitespace chars,
+#             '4' - skip empty lines)
+# ["$2"] - file
+#
+# Returns:
+# (0) output | empty output (stdin/file)
+# (1) file does not exist | file permission error
+#
+parse() {
+    if [ $# -eq 2 ]; then
+        i=$(
+            while IFS= read -r LINE || [ -n "$LINE" ]; do
+                printf -- "%s\n" "${LINE}"
+            done < "$2"
+        )
+    else
+        i=$(
+            while IFS= read -r LINE || [ -n "$LINE" ]; do
+                printf -- "%s\n" "${LINE}"
+            done
+        )
+    fi
+
+    case $1 in
+        "1")
+            printf "%s\n" "$i" | while IFS= read -r LINE; do
+                printf -- "%s\n" "${LINE}"
+            done
+        ;;
+        "2")
+            printf "%s\n" "$i" | while read -r LINE; do
+                printf -- " %s \n" "${LINE}"
+            done
+        ;;
+        "3")
+            printf "%s\n" "$i" | while read -r LINE; do
+                printf -- "  %s  \n" "${LINE}"
+            done
+        ;;
+        "4")
+            printf "%s\n" "$i" | while IFS= read -r LINE; do
+                if [ -n "$LINE" ]; then printf -- "%s\n" "${LINE}"; fi
+            done
+        ;;
+    esac
+
+    return $?
 }
 
 # Description:
@@ -570,7 +586,7 @@ admerge_work() {
         qi "%bLock file location:%b $ALOCK"
         qi "%bLock file content:%b '%s'" 'pline 1 "$ALOCK"'
         qi "%bCommit message file location:%b $AMSG"
-        qi "%bCommit message file content:%b\n%s" 'fparse "$AMSG" 3'
+        qi "%bCommit message file content:%b\n%s" 'parse 4 "$AMSG"'
         qi "%bStatus of files:%b\n%s" 'git -c color.ui=always status -s'
     fi
 }
