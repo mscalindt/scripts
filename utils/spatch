@@ -209,11 +209,11 @@ info() {
 # Parse the content of stdin/file
 #
 # Parameters:
-# <$1> - mode('1' - one-to-one copy,
-#             '2' - wrap parsed lines in one leading/trailing whitespace char,
-#             '3' - wrap parsed lines in two leading/trailing whitespace chars,
-#             '4' - skip empty lines,
-#             '5' - strip trailing/leading whitespace chars)
+# <$1> - mode('0' - one-to-one copy,
+#             '1' - wrap parsed lines in one leading/trailing whitespace char,
+#             '2' - wrap parsed lines in two leading/trailing whitespace chars,
+#             '3' - skip empty lines,
+#             '4' - strip trailing/leading whitespace chars)
 # ["$2"] - file
 #
 # Returns:
@@ -236,27 +236,27 @@ parse() {
     fi
 
     case $1 in
-        "1")
+        "0")
             printf "%s\n" "$i" | while IFS= read -r LINE; do
                 printf -- "%s\n" "${LINE}"
             done
         ;;
-        "2")
+        "1")
             printf "%s\n" "$i" | while read -r LINE; do
                 printf -- " %s \n" "${LINE}"
             done
         ;;
-        "3")
+        "2")
             printf "%s\n" "$i" | while read -r LINE; do
                 printf -- "  %s  \n" "${LINE}"
             done
         ;;
-        "4")
+        "3")
             printf "%s\n" "$i" | while IFS= read -r LINE; do
                 if [ -n "$LINE" ]; then printf -- "%s\n" "${LINE}"; fi
             done
         ;;
-        "5")
+        "4")
             printf "%s\n" "$i" | while read -r LINE; do
                 printf -- "%s\n" "${LINE}"
             done
@@ -603,7 +603,7 @@ spatch_exec() {
                 DSTR=$(substr_after 2 " " 4 " " "$DSTR")
 
                 if [ -n "$purl" ]; then
-                    TMP=$(parse 3 "$FILE")
+                    TMP=$(parse 2 "$FILE")
                     CSTR=$(substr_before "$CSTR" 1 " " "$TMP")
                 fi
 

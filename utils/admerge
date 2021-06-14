@@ -124,11 +124,11 @@ info() {
 # Parse the content of stdin/file
 #
 # Parameters:
-# <$1> - mode('1' - one-to-one copy,
-#             '2' - wrap parsed lines in one leading/trailing whitespace char,
-#             '3' - wrap parsed lines in two leading/trailing whitespace chars,
-#             '4' - skip empty lines,
-#             '5' - strip trailing/leading whitespace chars)
+# <$1> - mode('0' - one-to-one copy,
+#             '1' - wrap parsed lines in one leading/trailing whitespace char,
+#             '2' - wrap parsed lines in two leading/trailing whitespace chars,
+#             '3' - skip empty lines,
+#             '4' - strip trailing/leading whitespace chars)
 # ["$2"] - file
 #
 # Returns:
@@ -151,27 +151,27 @@ parse() {
     fi
 
     case $1 in
-        "1")
+        "0")
             printf "%s\n" "$i" | while IFS= read -r LINE; do
                 printf -- "%s\n" "${LINE}"
             done
         ;;
-        "2")
+        "1")
             printf "%s\n" "$i" | while read -r LINE; do
                 printf -- " %s \n" "${LINE}"
             done
         ;;
-        "3")
+        "2")
             printf "%s\n" "$i" | while read -r LINE; do
                 printf -- "  %s  \n" "${LINE}"
             done
         ;;
-        "4")
+        "3")
             printf "%s\n" "$i" | while IFS= read -r LINE; do
                 if [ -n "$LINE" ]; then printf -- "%s\n" "${LINE}"; fi
             done
         ;;
-        "5")
+        "4")
             printf "%s\n" "$i" | while read -r LINE; do
                 printf -- "%s\n" "${LINE}"
             done
@@ -592,7 +592,7 @@ admerge_work() {
         qi "%bLock file location:%b $ALOCK"
         qi "%bLock file content:%b '%s'" 'pline 1 "$ALOCK"'
         qi "%bCommit message file location:%b $AMSG"
-        qi "%bCommit message file content:%b\n%s" 'parse 4 "$AMSG"'
+        qi "%bCommit message file content:%b\n%s" 'parse 3 "$AMSG"'
         qi "%bStatus of files:%b\n%s" 'git -c color.ui=always status -s'
     fi
 }
