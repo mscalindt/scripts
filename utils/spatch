@@ -539,17 +539,11 @@ spatch_work() {
     if cmd_avail curl; then
         URL_TOOL='curl'
         URL_TOOL_ARGS='-Of'
-    elif cmd_avail aria2c; then
-        URL_TOOL='aria2c'
-        URL_TOOL_ARGS=''
     elif cmd_avail wget; then
         URL_TOOL='wget'
         URL_TOOL_ARGS=''
-    elif cmd_avail axel; then
-        URL_TOOL='axel'
-        URL_TOOL_ARGS=''
     else
-        err "No URL download tool available. (curl/aria2/wget/axel)" 127
+        err "No URL download tool available. (curl/wget)" 127
     fi
     hash_cmd $URL_TOOL
 
