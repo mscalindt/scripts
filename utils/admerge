@@ -370,7 +370,7 @@ warn() {
 # (0) N attribute
 # (1) N attribute does not exist
 #
-aq() {
+_aq() {
     x=$1
     i=$(pline 1 "$ALOCK")
     x=$((x - 1 + x))
@@ -395,7 +395,7 @@ aq() {
 # (0) attribute exists
 # (1) no attribute
 #
-ac() {
+_ac() {
     i=$(pline 1 "$ALOCK")
 
     if grep_str "@$1@" "$i"; then
@@ -417,7 +417,7 @@ ac() {
 # (0) format
 # (1) variable is empty/unset
 #
-aw() {
+_aw() {
     if [ $# -eq 2 ]; then
         i=$(eval "echo $2") && if [ ! "$i" ]; then return 1; fi
     fi
@@ -445,7 +445,7 @@ aw() {
 # (0) output
 # (1) variable is empty/unset | no command output
 #
-mc() {
+_mc() {
     if [ $# -eq 4 ]; then
         i=$(eval "echo $3") && if [ ! "$i" ]; then return 1; fi
         case "$4" in
@@ -498,7 +498,7 @@ mc() {
 # (0) format
 # (1) variable is empty/unset | no command output
 #
-qi() {
+_qi() {
     if [ $# -eq 3 ]; then
         i=$(eval "echo $3") && if [ ! "$i" ]; then return 1; fi
         i=$(eval 'echo $2') && i=$(eval $i 2> /dev/null)
@@ -560,20 +560,20 @@ admerge_check() {
 
 admerge_lock() {
     {
-    aw "1"
-    aw "$TBR"
-    aw "s" '$soff'
-    aw "S" '$gsign'
-    aw "2"
+    _aw "1"
+    _aw "$TBR"
+    _aw "s" '$soff'
+    _aw "S" '$gsign'
+    _aw "2"
     } >> "$ALOCK"
 }
 
 admerge_msg() {
     {
-    mc "Merge '$TBR' into '$OBR'\n\n"
-    mc "Summary of commits (%d):\n" "rev-list --count" 0
-    mc "1" "log --oneline" 0
-    mc "3" "--version" '$gver'
+    _mc "Merge '$TBR' into '$OBR'\n\n"
+    _mc "Summary of commits (%d):\n" "rev-list --count" 0
+    _mc "1" "log --oneline" 0
+    _mc "3" "--version" '$gver'
     } >> "$AMSG"
 }
 
@@ -582,18 +582,18 @@ admerge_work() {
     gitc_args="-eF $AMSG --no-edit"
 
     if [ -r "$ALOCK" ]; then
-        if ac "s"; then gitc_args="--signoff ${gitc_args}"; fi
-        if ac "S"; then gitc_args="--gpg-sign ${gitc_args}"; fi
+        if _ac "s"; then gitc_args="--signoff ${gitc_args}"; fi
+        if _ac "S"; then gitc_args="--gpg-sign ${gitc_args}"; fi
     fi
 
     if [ $1 ] && [ $1 = s ]; then
-        qi "%bOur branch:%b $OBR"
-        qi "%bTheir branch:%b %s" 'aq 1'
-        qi "%bLock file location:%b $ALOCK"
-        qi "%bLock file content:%b '%s'" 'pline 1 "$ALOCK"'
-        qi "%bCommit message file location:%b $AMSG"
-        qi "%bCommit message file content:%b\n%s" 'parse 3 "$AMSG"'
-        qi "%bStatus of files:%b\n%s" 'git -c color.ui=always status -s'
+        _qi "%bOur branch:%b $OBR"
+        _qi "%bTheir branch:%b %s" '_aq 1'
+        _qi "%bLock file location:%b $ALOCK"
+        _qi "%bLock file content:%b '%s'" 'pline 1 "$ALOCK"'
+        _qi "%bCommit message file location:%b $AMSG"
+        _qi "%bCommit message file content:%b\n%s" 'parse 3 "$AMSG"'
+        _qi "%bStatus of files:%b\n%s" 'git -c color.ui=always status -s'
     fi
 }
 
