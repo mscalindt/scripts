@@ -268,7 +268,7 @@ warn() {
 # <"$1"> - value
 # <$2> - location
 #
-fwrite() {
+_fwrite() {
     if [ -w "$2" ]; then
         printf -- "%s\n" "$1" > "$2"
     else
@@ -370,11 +370,11 @@ fswap_exec() {
 
 fswap_post() {
     if [ -n "$swappiness" ]; then
-        fwrite $swappiness /proc/sys/vm/swappiness
+        _fwrite $swappiness /proc/sys/vm/swappiness
     fi
 
     if [ -n "$vfscp" ]; then
-        fwrite $vfscp /proc/sys/vm/vfs_cache_pressure
+        _fwrite $vfscp /proc/sys/vm/vfs_cache_pressure
     fi
 }
 
