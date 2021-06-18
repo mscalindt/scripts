@@ -535,7 +535,6 @@ spatch_check() {
 
 spatch_work() {
     SFILE=
-    TMP_DIR=/tmp
 
     if cmd_avail curl; then
         URL_TOOL='curl'
@@ -548,8 +547,8 @@ spatch_work() {
     fi
     hash_cmd $URL_TOOL
 
-    rm -f "$TMP_DIR"/*.patch
-    cd "$TMP_DIR" || err "Line '$LINENO' failed." 1
+    rm -f /tmp/*.patch
+    cd /tmp || err "Line '$LINENO' failed." 1
 }
 
 spatch_exec() {
@@ -586,12 +585,12 @@ spatch_exec() {
         $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1 &
     done < "$FILE"; wait && if [ -n "$verbose" ]; then unset CNT; fi
 
-    if ! fcount "$TMP_DIR" '1.patch' > /dev/null 2>&1; then
+    if ! fcount "/tmp" '1.patch' > /dev/null 2>&1; then
         spatch_post;
         err "No patches found." 1
     else
         SFILE=$(
-            for PATCH in "$TMP_DIR"/*.patch; do
+            for PATCH in /tmp/*.patch; do
                 CSTR=$(pline 1 "$PATCH")
                 CSTR=$(substr_after 1 " " 1 " " "$CSTR")
                 DSTR=$(pline 3 "$PATCH")
@@ -638,7 +637,7 @@ spatch_exec() {
 }
 
 spatch_post() {
-    rm -f "$TMP_DIR"/*.patch
+    rm -f /tmp/*.patch
 }
 
 spatch() {
