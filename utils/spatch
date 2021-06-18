@@ -606,11 +606,11 @@ spatch_exec() {
         )
     fi
 
-    SFILE=$(printf "%s" "$SFILE" | sort -t " " -k4.1,4.4 -k3.1,3.3M -k2.1n \
-                                               -k5.1,5.2 -k5.4,5.5 -k5.7,5.8)
+    SFILE=$(echo "$SFILE" | sort -t " " -k4.1,4.4 -k3.1,3.3M -k2.1n \
+                                        -k5.1,5.2 -k5.4,5.5 -k5.7,5.8)
 
     if [ -n "$invert" ]; then
-        SFILE=$(printf "%s" "$SFILE" | \
+        SFILE=$(echo "$SFILE" | \
                 awk '{a[i++]=$0;} END {for (j=i-1; j>=0;) print a[j--];}')
     fi
 
