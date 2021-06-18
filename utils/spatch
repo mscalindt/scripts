@@ -620,7 +620,7 @@ spatch_exec() {
                 NUM=$((1 + CNT))
                 CNT=$NUM
                 echo "$NUM - $LINE"
-            done;
+            done
         )
     fi
 
