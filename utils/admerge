@@ -212,25 +212,20 @@ pline() {
     x=0
 
     if [ $# -eq 2 ]; then
-        i=$(
-            while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "%s\n" "${LINE}"
-            done < "$2"
-        )
+        while read -r LINE || [ -n "$LINE" ]; do
+            x=$((x + 1))
+            if [ $x -eq $1 ]; then
+                printf -- "%s" "${LINE}" && return 0
+            fi
+        done < "$2"
     else
-        i=$(
-            while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "%s\n" "${LINE}"
-            done
-        )
+        while read -r LINE || [ -n "$LINE" ]; do
+            x=$((x + 1))
+            if [ $x -eq $1 ]; then
+                printf -- "%s" "${LINE}" && return 0
+            fi
+        done
     fi
-
-    printf "%s\n" "$i" | while read -r LINE; do
-        x=$((x + 1))
-        if [ $x -eq $1 ]; then
-            printf -- "%s" "${LINE}" && return 0
-        fi
-    done
 
     return 1
 }
