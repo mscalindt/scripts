@@ -206,7 +206,7 @@ info() {
 }
 
 # Description:
-# Parse the content of stdin/file
+# Parse the content of file
 #
 # Parameters:
 # <$1> - mode('0' - one-to-one copy,
@@ -214,72 +214,87 @@ info() {
 #             '2' - wrap parsed lines in two leading/trailing whitespace chars,
 #             '3' - skip empty lines,
 #             '4' - strip trailing/leading whitespace chars)
-# ["$2"] - file
+# <"$2"> - file
 #
 # Returns:
-# (0) output | empty output (stdin/file)
+# (0) output | empty output (file)
 # (1) file does not exist | file permission error
 #
 parse() {
-    if [ $# -eq 2 ]; then
-        case $1 in
-            "0")
-                while IFS= read -r LINE || [ -n "$LINE" ]; do
-                    printf -- "%s\n" "${LINE}"
-                done < "$2"
-            ;;
-            "1")
-                while read -r LINE || [ -n "$LINE" ]; do
-                    printf -- " %s \n" "${LINE}"
-                done < "$2"
-            ;;
-            "2")
-                while read -r LINE || [ -n "$LINE" ]; do
-                    printf -- "  %s  \n" "${LINE}"
-                done < "$2"
-            ;;
-            "3")
-                while IFS= read -r LINE || [ -n "$LINE" ]; do
-                    [ -n "$LINE" ] && printf -- "%s\n" "${LINE}"
-                done < "$2"
-            ;;
-            "4")
-                while read -r LINE || [ -n "$LINE" ]; do
-                    printf -- "%s\n" "${LINE}"
-                done < "$2"
-            ;;
-        esac
-    else
-        case $1 in
-            "0")
-                while IFS= read -r LINE || [ -n "$LINE" ]; do
-                    printf -- "%s\n" "${LINE}"
-                done
-            ;;
-            "1")
-                while read -r LINE || [ -n "$LINE" ]; do
-                    printf -- " %s \n" "${LINE}"
-                done
-            ;;
-            "2")
-                while read -r LINE || [ -n "$LINE" ]; do
-                    printf -- "  %s  \n" "${LINE}"
-                done
-            ;;
-            "3")
-                while IFS= read -r LINE || [ -n "$LINE" ]; do
-                    [ -n "$LINE" ] && printf -- "%s\n" "${LINE}"
-                done
-            ;;
-            "4")
-                while read -r LINE || [ -n "$LINE" ]; do
-                    printf -- "%s\n" "${LINE}"
-                done
-            ;;
-        esac
-    fi
+    case $1 in
+        "0")
+            while IFS= read -r LINE || [ -n "$LINE" ]; do
+                printf -- "%s\n" "${LINE}"
+            done < "$2"
+        ;;
+        "1")
+            while read -r LINE || [ -n "$LINE" ]; do
+                printf -- " %s \n" "${LINE}"
+            done < "$2"
+        ;;
+        "2")
+            while read -r LINE || [ -n "$LINE" ]; do
+                printf -- "  %s  \n" "${LINE}"
+            done < "$2"
+        ;;
+        "3")
+            while IFS= read -r LINE || [ -n "$LINE" ]; do
+                [ -n "$LINE" ] && printf -- "%s\n" "${LINE}"
+            done < "$2"
+        ;;
+        "4")
+            while read -r LINE || [ -n "$LINE" ]; do
+                printf -- "%s\n" "${LINE}"
+            done < "$2"
+        ;;
+    esac
 
     return $?
+}
+
+# Description:
+# Parse the content of stdin
+#
+# Parameters:
+# <$1> - mode('0' - one-to-one copy,
+#             '1' - wrap parsed lines in one leading/trailing whitespace char,
+#             '2' - wrap parsed lines in two leading/trailing whitespace chars,
+#             '3' - skip empty lines,
+#             '4' - strip trailing/leading whitespace chars)
+#
+# Returns:
+# (0) output | empty output (stdin)
+#
+parse_fd1() {
+    case $1 in
+        "0")
+            while IFS= read -r LINE || [ -n "$LINE" ]; do
+                printf -- "%s\n" "${LINE}"
+            done
+        ;;
+        "1")
+            while read -r LINE || [ -n "$LINE" ]; do
+                printf -- " %s \n" "${LINE}"
+            done
+        ;;
+        "2")
+            while read -r LINE || [ -n "$LINE" ]; do
+                printf -- "  %s  \n" "${LINE}"
+            done
+        ;;
+        "3")
+            while IFS= read -r LINE || [ -n "$LINE" ]; do
+                [ -n "$LINE" ] && printf -- "%s\n" "${LINE}"
+            done
+        ;;
+        "4")
+            while read -r LINE || [ -n "$LINE" ]; do
+                printf -- "%s\n" "${LINE}"
+            done
+        ;;
+    esac
+
+    return 0
 }
 
 # Description:
