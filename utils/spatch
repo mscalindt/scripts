@@ -95,7 +95,7 @@ fcount() {
     fi
 
     [ -e "$iii" ] && printf "%d" "${ii}" && return 0
-    printf "0" && return 1
+    return 1
 }
 
 # Description:
