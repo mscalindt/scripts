@@ -94,11 +94,7 @@ fcount() {
         set -- "$i"/* && iii="$1" && ii=$#
     fi
 
-    if [ -e "$iii" ]; then
-        printf "%d" "${ii}"
-        return 0
-    fi
-
+    [ -e "$iii" ] && printf "%d" "${ii}" && return 0
     printf "0" && return 1
 }
 
