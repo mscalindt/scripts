@@ -301,13 +301,8 @@ _fwrite() {
 }
 
 fswap_env() {
-    if [ -z $ssize ]; then
-        ssize=1G
-    fi
-
-    if [ -z $sfile ]; then
-        sfile="$HOME"/.swapfile
-    fi
+    [ -z $ssize ] && ssize=1G
+    [ -z $sfile ] && sfile="$HOME"/.swapfile
 }
 
 fswap_info() {
@@ -320,46 +315,29 @@ fswap_info() {
         info "Swap intensity: '$swappiness'."
     else
         TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
-        if [ -n "$TMP" ]; then
-            info "Swap intensity: '$TMP'."
-        fi
+        [ -n "$TMP" ] && info "Swap intensity: '$TMP'."
     fi
  
     if [ -n "$vfscp" ]; then
         info "VFS cache reclaim priority: '$vfscp'."
     else
         TMP=$(cat /proc/sys/vm/vfs_cache_pressure 2> /dev/null)
-        if [ -n "$TMP" ]; then
-            info "VFS cache reclaim priority: '$TMP'."
-        fi
+        [ -n "$TMP" ] && info "VFS cache reclaim priority: '$TMP'."
     fi
 
     TMP=$(cat /sys/module/zswap/parameters/enabled 2> /dev/null)
-    if [ -n "$TMP" ]; then
-        info "zswap: '$TMP'."
-    fi
+    [ -n "$TMP" ] && info "zswap: '$TMP'."
 
     TMP=$(cat /sys/module/zswap/parameters/compressor 2> /dev/null)
-    if [ -n "$TMP" ]; then
-        info "zswap compressor: '$TMP'."
-    fi
+    [ -n "$TMP" ] && info "zswap compressor: '$TMP'."
 
     TMP=$(cat /sys/module/zswap/parameters/zpool 2> /dev/null)
-    if [ -n "$TMP" ]; then
-        info "zswap allocator: '$TMP'."
-    fi
+    [ -n "$TMP" ] && info "zswap allocator: '$TMP'."
 }
 
 fswap_check() {
-    if [ $(id -u) -ne 0 ]; then
-        err "EUID is not 0. (no root)" 1
-    fi
-
-    swapoff -a
-
-    if [ -f "$sfile" ]; then
-        rm -fv "$sfile"
-    fi
+    [ $(id -u) -ne 0 ] && err "EUID is not 0. (no root)" 1
+    swapoff -a; [ -f "$sfile" ] && rm -fv "$sfile"
 }
 
 fswap_work() {
@@ -393,18 +371,13 @@ fswap_exec() {
 }
 
 fswap_post() {
-    if [ -n "$swappiness" ]; then
-        _fwrite $swappiness /proc/sys/vm/swappiness
-    fi
-
-    if [ -n "$vfscp" ]; then
-        _fwrite $vfscp /proc/sys/vm/vfs_cache_pressure
-    fi
+    [ -n "$swappiness" ] && _fwrite $swappiness /proc/sys/vm/swappiness
+    [ -n "$vfscp" ] && _fwrite $vfscp /proc/sys/vm/vfs_cache_pressure
 }
 
 fswap() {
     fswap_env;
-    if [ -n "$verbose" ]; then fswap_info; fi
+    [ -n "$verbose" ] && fswap_info;
     fswap_check;
     fswap_work;
     fswap_exec;
@@ -413,18 +386,18 @@ fswap() {
 
 main() {
     # For security reasons, unset conditional variables if they exist
-    if [ -n "$sfile" ]; then unset sfile; fi
-    if [ -n "$ssize" ]; then unset ssize; fi
-    if [ -n "$swappiness" ]; then unset swappiness; fi
-    if [ -n "$vfscp" ]; then unset vfscp; fi
-    if [ -n "$check" ]; then unset check; fi
-    if [ -n "$verbose" ]; then unset verbose; fi
-    if [ -n "$RC" ]; then unset RC; fi
+    [ -n "$sfile" ] && unset sfile
+    [ -n "$ssize" ] && unset ssize
+    [ -n "$swappiness" ] && unset swappiness
+    [ -n "$vfscp" ] && unset vfscp
+    [ -n "$check" ] && unset check
+    [ -n "$verbose" ] && unset verbose
+    [ -n "$RC" ] && unset RC
 
     # Serve the script until no script parameters passed
     while [ "$1" ]; do
         # Reset variables from previous loop run
-        if [ -n "$grep_str" ]; then unset grep_str; fi
+        [ -n "$grep_str" ] && unset grep_str
 
         case "$1" in
             # Parse specific options first
@@ -576,10 +549,7 @@ main() {
     fswap;
 
     # Check if RC is set, otherwise explicit success
-    if [ -n "$RC" ]; then
-        return $RC
-    fi
-    return 0
+    [ -n "$RC" ] && return $RC || return 0
 }
 
 main "$@"
