@@ -569,9 +569,7 @@ spatch_env() {
 }
 
 spatch_check() {
-    if [ ! -f "$FILE" ]; then
-        err "'$FILE' is not a file." 1
-    fi
+    [ ! -f "$FILE" ] && err "'$FILE' is not a file." 1
 }
 
 spatch_work() {
@@ -585,8 +583,7 @@ spatch_work() {
         URL_TOOL_ARGS=''
     else
         err "No URL download tool available. (curl/wget)" 127
-    fi
-    hash $URL_TOOL > /dev/null 2>&1
+    fi; hash $URL_TOOL > /dev/null 2>&1
 
     rm -f /tmp/*.patch
     cd /tmp || err "Line '$LINENO' failed." 1
@@ -594,39 +591,26 @@ spatch_work() {
 
 spatch_exec() {
     while read -r LINE || [ -n "$LINE" ]; do
-        if ! grep_str "://" " $LINE "; then
-            if [ -n "$LINE" ] && [ -n "$verbose" ]; then
-                warn "'$LINE' has no URL. (*://*)"
-            fi
-            continue
-        fi
+        ! grep_str "://" " $LINE " && \
+            [ -n "$LINE" ] && [ -n "$verbose" ] && \
+                warn "'$LINE' has no URL. (*://*)" && continue
 
         TMP=$(substr_before "://" 1 " " " $LINE ")
         URL=$(substr_after "://" 1 " " " $LINE ")
         URL=$(printf "%s%s" "${TMP}" "${URL}")
 
-        if [ -z $durl ]; then
-            if ! grep_str ".patch" "$URL"; then
-                URL=${URL}.patch
-            fi
-        fi
+        [ -z $durl ] && \
+            ! grep_str ".patch" "$URL" && URL=${URL}.patch
 
-        if [ -n "$verbose" ]; then
-            NUM=$((1 + CNT))
-            CNT=$NUM
-            info "URL ($NUM) - '$URL'."
-        fi
+        [ -n "$verbose" ] && \
+            NUM=$((1 + CNT)) && CNT=$NUM && info "URL ($NUM) - '$URL'."
 
-        (
-        if grep_str "github" "$URL"; then
-            if [ $URL_TOOL = curl ]; then
-                URL_TOOL_ARGS="-r 0-300 $URL_TOOL_ARGS"
-            fi
-        fi
+        ( grep_str "github" "$URL" && \
+              [ $URL_TOOL = curl ] && URL_TOOL_ARGS="-r 0-300 $URL_TOOL_ARGS"
 
-        $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1
+          $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1
         ) &
-    done < "$FILE"; wait && if [ -n "$verbose" ]; then unset CNT; fi
+    done < "$FILE"; wait && [ -n "$verbose" ] && unset CNT
 
     if ! fcount "/tmp" '1.patch' > /dev/null 2>&1; then
         spatch_post;
@@ -672,11 +656,7 @@ spatch_exec() {
                        "$(date '+%b %-e, %T %:z %Y')")
     fi
 
-    if [ -n "$tfile" ]; then
-        echo "$SFILE" > "$tfile"
-    else
-        echo "$SFILE"
-    fi
+    [ -n "$tfile" ] && echo "$SFILE" > "$tfile" || echo "$SFILE"
 }
 
 spatch_post() {
@@ -693,20 +673,20 @@ spatch() {
 
 main() {
     # For security reasons, unset conditional variables if they exist
-    if [ -n "$CNT" ]; then unset CNT; fi
-    if [ -n "$tfile" ]; then unset tfile; fi
-    if [ -n "$durl" ]; then unset durl; fi
-    if [ -n "$invert" ]; then unset invert; fi
-    if [ -n "$lnumbers" ]; then unset lnumbers; fi
-    if [ -n "$purl" ]; then unset purl; fi
-    if [ -n "$tstamp" ]; then unset tstamp; fi
-    if [ -n "$verbose" ]; then unset verbose; fi
-    if [ -n "$RC" ]; then unset RC; fi
+    [ -n "$CNT" ] && unset CNT
+    [ -n "$tfile" ] && unset tfile
+    [ -n "$durl" ] && unset durl
+    [ -n "$invert" ] && unset invert
+    [ -n "$lnumbers" ] && unset lnumbers
+    [ -n "$purl" ] && unset purl
+    [ -n "$tstamp" ] && unset tstamp
+    [ -n "$verbose" ] && unset verbose
+    [ -n "$RC" ] && unset RC
 
     # Serve the script until no script parameters passed
     while [ "$1" ]; do
         # Reset variables from previous loop run
-        if [ -n "$grep_str" ]; then unset grep_str; fi
+        [ -n "$grep_str" ] && unset grep_str
 
         case "$1" in
             # Parse specific options first
@@ -797,10 +777,7 @@ main() {
     spatch "$1"
 
     # Check if RC is set, otherwise explicit success
-    if [ -n "$RC" ]; then
-        return $RC
-    fi
-    return 0
+    [ -n "$RC" ] && return $RC || return 0
 }
 
 main "$@"
