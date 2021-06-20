@@ -437,11 +437,7 @@ _aq() {
 # (1) no attribute
 #
 _ac() {
-    i=$(pline 1 "$ALOCK")
-
-    if grep_str "@$1@" "$i"; then
-        return 0
-    fi
+    i=$(pline 1 "$ALOCK") && grep_str "@$1@" "$i" && return 0
 
     return 1
 }
