@@ -283,7 +283,7 @@ pline_fd1() {
 }
 
 # Description:
-# Remove specific character(s) in a string
+# Remove specific character(s) in string
 #
 # Parameters:
 # <"$1"> - character(s)
