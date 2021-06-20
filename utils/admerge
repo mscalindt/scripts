@@ -535,12 +535,12 @@ _mc() {
 #
 _qi() {
     if [ $# -eq 3 ]; then
-        i=$(eval "echo $3") && if [ ! "$i" ]; then return 1; fi
+        i=$(eval "echo $3") && [ ! "$i" ] && return 1
         i=$(eval 'echo $2') && i=$(eval $i 2> /dev/null)
     elif [ $# -eq 2 ]; then
         case "$2" in
             '$'*)
-                i=$(eval "echo $2") && if [ ! "$i" ]; then return 1; fi
+                i=$(eval "echo $2") && [ ! "$i" ] && return 1
                 printf "$1\n" "\033[1;37m" "\033[0m" && return 0
             ;;
             *) i=$(eval 'echo $2') && i=$(eval $i 2> /dev/null) ;;
@@ -549,10 +549,7 @@ _qi() {
         printf "$1\n" "\033[1;37m" "\033[0m" && return 0
     fi
 
-    if [ -n "$i" ]; then
-        printf "$1\n" "\033[1;37m" "\033[0m" "${i}"
-        return 0
-    fi
+    [ -n "$i" ] && printf "$1\n" "\033[1;37m" "\033[0m" "${i}" && return 0
 
     return 1
 }
