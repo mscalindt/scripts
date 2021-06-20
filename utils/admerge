@@ -455,9 +455,7 @@ _ac() {
 # (1) variable is empty/unset
 #
 _aw() {
-    if [ $# -eq 2 ]; then
-        i=$(eval "echo $2") && if [ ! "$i" ]; then return 1; fi
-    fi
+    [ $# -eq 2 ] && i=$(eval "echo $2") && [ ! "$i" ] && return 1
 
     case "$1" in
         "1") printf " " ;;
