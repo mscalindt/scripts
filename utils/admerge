@@ -155,7 +155,7 @@ parse() {
             ;;
             "3")
                 while IFS= read -r LINE || [ -n "$LINE" ]; do
-                    if [ -n "$LINE" ]; then printf -- "%s\n" "${LINE}"; fi
+                    [ -n "$LINE" ] && printf -- "%s\n" "${LINE}"
                 done < "$2"
             ;;
             "4")
@@ -183,7 +183,7 @@ parse() {
             ;;
             "3")
                 while IFS= read -r LINE || [ -n "$LINE" ]; do
-                    if [ -n "$LINE" ]; then printf -- "%s\n" "${LINE}"; fi
+                    [ -n "$LINE" ] && printf -- "%s\n" "${LINE}"
                 done
             ;;
             "4")
