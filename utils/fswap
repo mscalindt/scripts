@@ -296,11 +296,8 @@ warn() {
 # <$2> - location
 #
 _fwrite() {
-    if [ -w "$2" ]; then
-        printf -- "%s\n" "$1" > "$2"
-    else
-        warn "Could not apply '$1' on '$2'. (!-w)"
-    fi
+    [ -w "$2" ] && printf -- "%s\n" "$1" > "$2" || \
+    warn "Could not apply '$1' on '$2'. (!-w)"
 }
 
 fswap_env() {
