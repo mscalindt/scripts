@@ -74,14 +74,14 @@ get_fpath() {
 }
 
 # Description:
-# Check the existence/position of a substring in a string
+# Check the existence/position of a substring in string
 #
 # Parameters:
 # <"$1"> - substring
 # <"$2"> - string
 # [$3] - mode('1' - $1 is first character(s) of $2,
 #             '2' - $1 is last character(s) of $2,
-#             '3' - $1 is the string on its own)
+#             '3' - $1 is, on its own, $2)
 #
 # Returns:
 # (0) substring exists
