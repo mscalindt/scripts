@@ -91,20 +91,20 @@ grep_str() {
     if [ $# -eq 3 ]; then
         if [ $3 -eq 1 ]; then
             case "$2" in
-                "$1"*) grepstr=0 && return 0 ;;
+                "$1"*) grep_str=0 && return 0 ;;
             esac
         elif [ $3 -eq 2 ]; then
             case "$2" in
-                *"$1") grepstr=0 && return 0 ;;
+                *"$1") grep_str=0 && return 0 ;;
             esac
         elif [ $3 -eq 3 ]; then
             case "$2" in
-                "$1") grepstr=0 && return 0 ;;
+                "$1") grep_str=0 && return 0 ;;
             esac
         fi
     else
         case "$2" in
-            *"$1"*) grepstr=0 && return 0 ;;
+            *"$1"*) grep_str=0 && return 0 ;;
         esac
     fi
 
@@ -400,7 +400,7 @@ main() {
     # Serve the script until no script parameters passed
     while [ "$1" ]; do
         # Reset variables from previous loop run
-        if [ -n "$grepstr" ]; then unset grepstr; fi
+        if [ -n "$grep_str" ]; then unset grep_str; fi
 
         case "$1" in
             # Parse specific options first
@@ -465,7 +465,7 @@ main() {
                 if grep_str "check" "$i" 3; then check=1; fi 
                 if grep_str "verbose" "$i" 3; then verbose=1; fi 
 
-                if [ ! $grepstr ]; then
+                if [ ! $grep_str ]; then
                     warn "Unrecognized option: '$1'. See --help"
                 fi
                 shift
