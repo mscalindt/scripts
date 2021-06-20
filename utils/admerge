@@ -220,8 +220,8 @@ parse_fd1() {
 # ["$2"] - file
 #
 # Returns:
-# (0) line's content
-# (1) line empty | line does not exist | file permission error
+# (0) line's content | line empty
+# (1) line does not exist | file permission error
 #
 pline() {
     x=0
