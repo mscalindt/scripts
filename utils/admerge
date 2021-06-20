@@ -213,11 +213,11 @@ parse_fd1() {
 }
 
 # Description:
-# Print specific line in stdin/file
+# Print specific line in file
 #
 # Parameters:
 # <$1> - line number
-# ["$2"] - file
+# <"$2"> - file
 #
 # Returns:
 # (0) line's content | line empty
@@ -226,21 +226,35 @@ parse_fd1() {
 pline() {
     x=0
 
-    if [ $# -eq 2 ]; then
-        while read -r LINE || [ -n "$LINE" ]; do
-            x=$((x + 1))
-            if [ $x -eq $1 ]; then
-                printf -- "%s" "${LINE}" && return 0
-            fi
-        done < "$2"
-    else
-        while read -r LINE || [ -n "$LINE" ]; do
-            x=$((x + 1))
-            if [ $x -eq $1 ]; then
-                printf -- "%s" "${LINE}" && return 0
-            fi
-        done
-    fi
+    while read -r LINE || [ -n "$LINE" ]; do
+        x=$((x + 1))
+        if [ $x -eq $1 ]; then
+            printf -- "%s" "${LINE}" && return 0
+        fi
+    done < "$2"
+
+    return 1
+}
+
+# Description:
+# Print specific line in stdin
+#
+# Parameters:
+# <$1> - line number
+#
+# Returns:
+# (0) line's content | line empty
+# (1) line does not exist
+#
+pline_fd1() {
+    x=0
+
+    while read -r LINE || [ -n "$LINE" ]; do
+        x=$((x + 1))
+        if [ $x -eq $1 ]; then
+            printf -- "%s" "${LINE}" && return 0
+        fi
+    done
 
     return 1
 }
