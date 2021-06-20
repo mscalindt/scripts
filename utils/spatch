@@ -38,24 +38,6 @@ awk, curl, date, rm, sort.
 }
 
 # Description:
-# Check command availability
-#
-# Parameters:
-# <$1> - command
-#
-# Returns:
-# (0) if command available,
-# (127) if not
-#
-cmd_avail() {
-    if command -v $1 > /dev/null 2>&1; then
-        return 0
-    fi
-
-    return 127
-}
-
-# Description:
 # Print error and exit
 #
 # Parameters:
@@ -572,10 +554,10 @@ spatch_check() {
 spatch_work() {
     SFILE=
 
-    if cmd_avail curl; then
+    if command -v curl > /dev/null 2>&1; then
         URL_TOOL='curl'
         URL_TOOL_ARGS='-Of'
-    elif cmd_avail wget; then
+    elif command -v wget > /dev/null 2>&1; then
         URL_TOOL='wget'
         URL_TOOL_ARGS=''
     else
