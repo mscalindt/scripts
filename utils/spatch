@@ -605,11 +605,7 @@ spatch_exec() {
         [ -n "$verbose" ] && \
             NUM=$((1 + CNT)) && CNT=$NUM && info "URL ($NUM) - '$URL'."
 
-        ( grep_str "github" "$URL" && \
-              [ $URL_TOOL = curl ] && URL_TOOL_ARGS="-r 0-300 $URL_TOOL_ARGS"
-
-          $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1
-        ) &
+        $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1 &
     done < "$FILE"; wait && [ -n "$verbose" ] && unset CNT
 
     if ! fcount "/tmp" '1.patch' > /dev/null 2>&1; then
