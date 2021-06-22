@@ -349,7 +349,7 @@ pline_fd1() {
 # Remove specific character(s) in string
 #
 # Parameters:
-# <"$1"> - character(s)
+# <'$1'> - character(s)
 # <"$2"> - string
 #
 # Returns:
@@ -747,7 +747,7 @@ main() {
                 if grep_str "t" "$i"; then tstamp=1; fi
                 if grep_str "v" "$i"; then verbose=1; fi
 
-                i=$(remchars "dilptv" "$i")
+                i=$(remchars 'dilptv' "$i")
                 if [ -n "$i" ]; then
                     warn "Unrecognized option(s): '-$i'. See --help"
                 fi
