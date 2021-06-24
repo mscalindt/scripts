@@ -121,7 +121,7 @@ get_fpath() {
 # Check the existence/position of a substring in string
 #
 # Parameters:
-# <"$1"> - substring
+# <'$1'> - substring
 # <"$2"> - string
 # [$3] - mode('1' - $1 is first character(s) of $2,
 #             '2' - $1 is last character(s) of $2,
@@ -591,7 +591,7 @@ spatch_work() {
 
 spatch_exec() {
     while read -r LINE || [ -n "$LINE" ]; do
-        ! grep_str "://" " $LINE " && \
+        ! grep_str '://' " $LINE " && \
             [ -n "$LINE" ] && [ -n "$verbose" ] && \
                 warn "'$LINE' has no URL. (*://*)" && continue
 
@@ -600,7 +600,7 @@ spatch_exec() {
         URL=$(printf "%s%s" "${TMP}" "${URL}")
 
         [ -z $durl ] && \
-            ! grep_str ".patch" "$URL" && URL=${URL}.patch
+            ! grep_str '.patch' "$URL" && URL=${URL}.patch
 
         [ -n "$verbose" ] && \
             NUM=$((1 + CNT)) && CNT=$NUM && info "URL ($NUM) - '$URL'."
@@ -693,12 +693,12 @@ main() {
             "--"*)
                 i=$(substr_after 1 '--' "$1")
 
-                if grep_str "output" "$i" 1; then
-                    if grep_str "output=" "$i" 1; then
+                if grep_str 'output' "$i" 1; then
+                    if grep_str 'output=' "$i" 1; then
                         tfile=$(substr_after 1 '=' "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
-                    elif ! grep_str "output " "$i " 1; then
+                    elif ! grep_str 'output ' "$i " 1; then
                         tfile=$(substr_after 2 't' "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
@@ -709,12 +709,12 @@ main() {
                     fi
                 fi
 
-                if grep_str "direct-url" "$i" 3; then durl=1; fi
-                if grep_str "invert-sort" "$i" 3; then invert=1; fi
-                if grep_str "line-numbers" "$i" 3; then lnumbers=1; fi
-                if grep_str "preserve-url" "$i" 3; then purl=1; fi
-                if grep_str "timestamp" "$i" 3; then tstamp=1; fi
-                if grep_str "verbose" "$i" 3; then verbose=1; fi
+                if grep_str 'direct-url' "$i" 3; then durl=1; fi
+                if grep_str 'invert-sort' "$i" 3; then invert=1; fi
+                if grep_str 'line-numbers' "$i" 3; then lnumbers=1; fi
+                if grep_str 'preserve-url' "$i" 3; then purl=1; fi
+                if grep_str 'timestamp' "$i" 3; then tstamp=1; fi
+                if grep_str 'verbose' "$i" 3; then verbose=1; fi
 
                 if [ ! $grep_str ]; then
                     warn "Unrecognized option: '$1'. See --help"
@@ -724,12 +724,12 @@ main() {
             "-"*)
                 i=$(substr_after 1 '-' "$1")
 
-                if grep_str "o" "$i" 1; then
-                    if grep_str "o=" "$i" 1; then
+                if grep_str 'o' "$i" 1; then
+                    if grep_str 'o=' "$i" 1; then
                         tfile=$(substr_after 1 '=' "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
-                    elif ! grep_str "o " "$i " 1; then
+                    elif ! grep_str 'o ' "$i " 1; then
                         tfile=$(substr_after 1 'o' "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
@@ -740,12 +740,12 @@ main() {
                     fi
                 fi
 
-                if grep_str "d" "$i"; then durl=1; fi
-                if grep_str "i" "$i"; then invert=1; fi
-                if grep_str "l" "$i"; then lnumbers=1; fi
-                if grep_str "p" "$i"; then purl=1; fi
-                if grep_str "t" "$i"; then tstamp=1; fi
-                if grep_str "v" "$i"; then verbose=1; fi
+                if grep_str 'd' "$i"; then durl=1; fi
+                if grep_str 'i' "$i"; then invert=1; fi
+                if grep_str 'l' "$i"; then lnumbers=1; fi
+                if grep_str 'p' "$i"; then purl=1; fi
+                if grep_str 't' "$i"; then tstamp=1; fi
+                if grep_str 'v' "$i"; then verbose=1; fi
 
                 i=$(remchars 'dilptv' "$i")
                 if [ -n "$i" ]; then

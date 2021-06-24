@@ -58,7 +58,7 @@ err() {
 # Check the existence/position of a substring in string
 #
 # Parameters:
-# <"$1"> - substring
+# <'$1'> - substring
 # <"$2"> - string
 # [$3] - mode('1' - $1 is first character(s) of $2,
 #             '2' - $1 is last character(s) of $2,
@@ -695,9 +695,9 @@ main() {
             "--"*)
                 i=$(substr_after 1 '--' "$1")
 
-                if grep_str "sign-off" "$i" 3; then soff=1; fi 
-                if grep_str "gpg-sign" "$i" 3; then gsign=1; fi
-                if grep_str "git-version" "$i" 3; then gver=1; fi
+                if grep_str 'sign-off' "$i" 3; then soff=1; fi 
+                if grep_str 'gpg-sign' "$i" 3; then gsign=1; fi
+                if grep_str 'git-version' "$i" 3; then gver=1; fi
 
                 if [ ! $grep_str ]; then
                     warn "Unrecognized option: '$1'. See --help"
@@ -707,9 +707,9 @@ main() {
             "-"*)
                 i=$(substr_after 1 '-' "$1")
 
-                if grep_str "s" "$i"; then soff=1; fi
-                if grep_str "S" "$i"; then gsign=1; fi
-                if grep_str "v" "$i"; then gver=1; fi
+                if grep_str 's' "$i"; then soff=1; fi
+                if grep_str 'S' "$i"; then gsign=1; fi
+                if grep_str 'v' "$i"; then gver=1; fi
 
                 i=$(remchars 'sSv' "$i")
                 if [ -n "$i" ]; then
