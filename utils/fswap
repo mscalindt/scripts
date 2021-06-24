@@ -196,9 +196,9 @@ remchars() {
 #
 # Parameters:
 # [$1] - from left to right N $2 character(s)
-# <"$2"> - from character(s)
+# <'$2'> - from character(s)
 # [$3] - up to N $4 character(s)
-# ["$4"] - up to character(s)
+# ['$4'] - up to character(s)
 # <"$5"> - string
 #
 # Returns:
@@ -405,15 +405,15 @@ main() {
 
             # Parse options
             "--"*)
-                i=$(substr_after 1 "--" "$1")
+                i=$(substr_after 1 '--' "$1")
 
                 if grep_str "location" "$i" 1; then
                     if grep_str "location=" "$i" 1; then
-                        sfile=$(substr_after 1 "=" "$i")
+                        sfile=$(substr_after 1 '=' "$i")
                         sfile=$(get_fpath "$sfile")
                         shift && continue
                     elif ! grep_str "location " "$i " 1; then
-                        sfile=$(substr_after 1 "n" "$i")
+                        sfile=$(substr_after 1 'n' "$i")
                         sfile=$(get_fpath "$sfile")
                         shift && continue
                     elif [ "$2" ]; then
@@ -424,10 +424,10 @@ main() {
                 fi
                 if grep_str "size" "$i" 1; then
                     if grep_str "size=" "$i" 1; then
-                        ssize=$(substr_after 1 "=" "$i")
+                        ssize=$(substr_after 1 '=' "$i")
                         shift && continue
                     elif ! grep_str "size " "$i " 1; then
-                        ssize=$(substr_after 1 "e" "$i")
+                        ssize=$(substr_after 1 'e' "$i")
                         shift && continue
                     elif [ "$2" ]; then
                         ssize="$2"
@@ -436,10 +436,10 @@ main() {
                 fi
                 if grep_str "swappiness" "$i" 1; then
                     if grep_str "swappiness=" "$i" 1; then
-                        swappiness=$(substr_after 1 "=" "$i")
+                        swappiness=$(substr_after 1 '=' "$i")
                         shift && continue
                     elif ! grep_str "swappiness " "$i " 1; then
-                        swappiness=$(substr_after 3 "s" "$i")
+                        swappiness=$(substr_after 3 's' "$i")
                         shift && continue
                     elif [ "$2" ]; then
                         swappiness="$2"
@@ -448,10 +448,10 @@ main() {
                 fi
                 if grep_str "vfs-cache-pressure" "$i" 1; then
                     if grep_str "vfs-cache-pressure=" "$i" 1; then
-                        vfscp=$(substr_after 1 "=" "$i")
+                        vfscp=$(substr_after 1 '=' "$i")
                         shift && continue
                     elif ! grep_str "vfs-cache-pressure " "$i " 1; then
-                        vfscp=$(substr_after 3 "e" "$i")
+                        vfscp=$(substr_after 3 'e' "$i")
                         shift && continue
                     elif [ "$2" ]; then
                         vfscp="$2"
@@ -468,15 +468,15 @@ main() {
                 shift
             ;;
             "-"*)
-                i=$(substr_after 1 "-" "$1")
+                i=$(substr_after 1 '-' "$1")
 
                 if grep_str "l" "$i" 1; then
                     if grep_str "l=" "$i" 1; then
-                        sfile=$(substr_after 1 "=" "$i")
+                        sfile=$(substr_after 1 '=' "$i")
                         sfile=$(get_fpath "$sfile")
                         shift && continue
                     elif ! grep_str "l " "$i " 1; then
-                        sfile=$(substr_after 1 "l" "$i")
+                        sfile=$(substr_after 1 'l' "$i")
                         sfile=$(get_fpath "$sfile")
                         shift && continue
                     elif [ "$2" ]; then
@@ -487,10 +487,10 @@ main() {
                 fi
                 if grep_str "s" "$i" 1; then
                     if grep_str "s=" "$i" 1; then
-                        ssize=$(substr_after 1 "=" "$i")
+                        ssize=$(substr_after 1 '=' "$i")
                         shift && continue
                     elif ! grep_str "s " "$i " 1; then
-                        ssize=$(substr_after 1 "s" "$i")
+                        ssize=$(substr_after 1 's' "$i")
                         shift && continue
                     elif [ "$2" ]; then
                         ssize="$2"
@@ -499,10 +499,10 @@ main() {
                 fi
                 if grep_str "S" "$i" 1; then
                     if grep_str "S=" "$i" 1; then
-                        swappiness=$(substr_after 1 "=" "$i")
+                        swappiness=$(substr_after 1 '=' "$i")
                         shift && continue
                     elif ! grep_str "S " "$i " 1; then
-                        swappiness=$(substr_after 1 "S" "$i")
+                        swappiness=$(substr_after 1 'S' "$i")
                         shift && continue
                     elif [ "$2" ]; then
                         swappiness="$2"
@@ -511,10 +511,10 @@ main() {
                 fi
                 if grep_str "V" "$i" 1; then
                     if grep_str "V=" "$i" 1; then
-                        vfscp=$(substr_after 1 "=" "$i")
+                        vfscp=$(substr_after 1 '=' "$i")
                         shift && continue
                     elif ! grep_str "V " "$i " 1; then
-                        vfscp=$(substr_after 1 "V" "$i")
+                        vfscp=$(substr_after 1 'V' "$i")
                         shift && continue
                     elif [ "$2" ]; then
                         vfscp="$2"

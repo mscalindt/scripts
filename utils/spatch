@@ -375,9 +375,9 @@ remchars() {
 #
 # Parameters:
 # [$1] - from left to right N $2 character(s)
-# <"$2"> - from character(s)
+# <'$2'> - from character(s)
 # [$3] - up to N $4 character(s)
-# ["$4"] - up to character(s)
+# ['$4'] - up to character(s)
 # <"$5"> - string
 #
 # Returns:
@@ -596,7 +596,7 @@ spatch_exec() {
                 warn "'$LINE' has no URL. (*://*)" && continue
 
         TMP=$(substr_before "://" 1 " " " $LINE ")
-        URL=$(substr_after "://" 1 " " " $LINE ")
+        URL=$(substr_after '://' 1 ' ' " $LINE ")
         URL=$(printf "%s%s" "${TMP}" "${URL}")
 
         [ -z $durl ] && \
@@ -615,9 +615,9 @@ spatch_exec() {
         SFILE=$(
             for PATCH in /tmp/*.patch; do
                 CSTR=$(pline 1 "$PATCH")
-                CSTR=$(substr_after 1 " " 1 " " "$CSTR")
+                CSTR=$(substr_after 1 ' ' 1 ' ' "$CSTR")
                 DSTR=$(pline 3 "$PATCH")
-                DSTR=$(substr_after 2 " " 4 " " "$DSTR")
+                DSTR=$(substr_after 2 ' ' 4 ' ' "$DSTR")
 
                 if [ -n "$purl" ]; then
                     SFILE=$(parse 2 "$FILE")
@@ -691,15 +691,15 @@ main() {
 
             # Parse options
             "--"*)
-                i=$(substr_after 1 "--" "$1")
+                i=$(substr_after 1 '--' "$1")
 
                 if grep_str "output" "$i" 1; then
                     if grep_str "output=" "$i" 1; then
-                        tfile=$(substr_after 1 "=" "$i")
+                        tfile=$(substr_after 1 '=' "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
                     elif ! grep_str "output " "$i " 1; then
-                        tfile=$(substr_after 2 "t" "$i")
+                        tfile=$(substr_after 2 't' "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
                     elif [ "$2" ]; then
@@ -722,15 +722,15 @@ main() {
                 shift
             ;;
             "-"*)
-                i=$(substr_after 1 "-" "$1")
+                i=$(substr_after 1 '-' "$1")
 
                 if grep_str "o" "$i" 1; then
                     if grep_str "o=" "$i" 1; then
-                        tfile=$(substr_after 1 "=" "$i")
+                        tfile=$(substr_after 1 '=' "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
                     elif ! grep_str "o " "$i " 1; then
-                        tfile=$(substr_after 1 "o" "$i")
+                        tfile=$(substr_after 1 'o' "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
                     elif [ "$2" ]; then
