@@ -462,9 +462,9 @@ substr_after() {
 #
 # Parameters:
 # [$1] - from left to right N $2 character(s)
-# <"$2"> - from character(s)
+# <'$2'> - from character(s)
 # [$3] - back to N $4 character(s)
-# ["$4"] - back to character(s)
+# ['$4'] - back to character(s)
 # <"$5"> - string
 #
 # Returns:
@@ -595,7 +595,7 @@ spatch_exec() {
             [ -n "$LINE" ] && [ -n "$verbose" ] && \
                 warn "'$LINE' has no URL. (*://*)" && continue
 
-        TMP=$(substr_before "://" 1 " " " $LINE ")
+        TMP=$(substr_before '://' 1 ' ' " $LINE ")
         URL=$(substr_after '://' 1 ' ' " $LINE ")
         URL=$(printf "%s%s" "${TMP}" "${URL}")
 
@@ -621,7 +621,7 @@ spatch_exec() {
 
                 if [ -n "$purl" ]; then
                     SFILE=$(parse 2 "$FILE")
-                    CSTR=$(substr_before "$CSTR" 1 " " "$SFILE")
+                    CSTR=$(substr_before "$CSTR" 1 ' ' "$SFILE")
                 fi
 
                 echo "$CSTR $DSTR"
