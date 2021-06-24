@@ -362,7 +362,7 @@ remchars() {
     IFS=$1
     set -- $2
 
-    IFS=""
+    IFS=
     set -- $*
 
     printf "%s\n" "$*"
