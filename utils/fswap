@@ -46,12 +46,13 @@ cat, chmod, dd, id, mkswap, rm, swapoff, swapon.
 # Print error and exit
 #
 # Parameters:
-# <"$1"> - text
-# <$2> - exit code
+# <$1> - exit code
+# <"$2+"> - text
 #
 err() {
-    printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$1" 1>&2
-    exit $2
+    i=$1 && shift
+    printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$*" 1>&2
+    exit $i
 }
 
 # Description:
@@ -336,7 +337,7 @@ fswap_info() {
 }
 
 fswap_check() {
-    [ $(id -u) -ne 0 ] && err "EUID is not 0. (no root)" 1
+    [ $(id -u) -ne 0 ] && err 1 "EUID is not 0. (no root)"
     swapoff -a; [ -f "$sfile" ] && rm -fv "$sfile"
 }
 
@@ -348,7 +349,7 @@ fswap_work() {
         *"MB") ssize=$(printf "%s" "${ssize%MB}") && ssize="${ssize}KB" ;;
         *"GB") ssize=$(printf "%s" "${ssize%GB}") && ssize="${ssize}MB" ;;
 
-        *) err "Wrong swap size specified. Supported units: M,G[B]" 2 ;;
+        *) err 2 "Wrong swap size specified. Supported units: M,G[B]" ;;
     esac
 
     case "$ssize" in

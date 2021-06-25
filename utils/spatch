@@ -41,12 +41,13 @@ awk, curl, date, rm, sort.
 # Print error and exit
 #
 # Parameters:
-# <"$1"> - text
-# <$2> - exit code
+# <$1> - exit code
+# <"$2+"> - text
 #
 err() {
-    printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$1" 1>&2
-    exit $2
+    i=$1 && shift
+    printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$*" 1>&2
+    exit $i
 }
 
 # Description:
@@ -569,7 +570,7 @@ spatch_env() {
 }
 
 spatch_check() {
-    [ ! -f "$FILE" ] && err "'$FILE' is not a file." 1
+    [ ! -f "$FILE" ] && err 1 "'$FILE' is not a file."
 }
 
 spatch_work() {
@@ -582,11 +583,11 @@ spatch_work() {
         URL_TOOL='wget'
         URL_TOOL_ARGS=''
     else
-        err "No URL download tool available. (curl/wget)" 127
+        err 127 "No URL download tool available. (curl/wget)"
     fi; hash $URL_TOOL > /dev/null 2>&1
 
     rm -f /tmp/*.patch
-    cd /tmp || err "Line '$LINENO' failed." 1
+    cd /tmp || err 1 "Line '$LINENO' failed."
 }
 
 spatch_exec() {
@@ -610,7 +611,7 @@ spatch_exec() {
 
     if ! fcount "/tmp" '1.patch' > /dev/null 2>&1; then
         spatch_post;
-        err "No patches found." 1
+        err 1 "No patches found."
     else
         SFILE=$(
             for PATCH in /tmp/*.patch; do
@@ -760,9 +761,9 @@ main() {
 
     # Catch wrong input
     if [ ! "$1" ]; then
-        err "No file specified." 2
+        err 2 "No file specified."
     elif [ "$2" ]; then
-        err "Too many operands. ($#)" 2
+        err 2 "Too many operands. ($#)"
     fi
 
     # Convert relative path to absolute path

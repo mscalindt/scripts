@@ -46,12 +46,13 @@ git, rm.
 # Print error and exit
 #
 # Parameters:
-# <"$1"> - text
-# <$2> - exit code
+# <$1> - exit code
+# <"$2+"> - text
 #
 err() {
-    printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$1" 1>&2
-    exit $2
+    i=$1 && shift
+    printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$*" 1>&2
+    exit $i
 }
 
 # Description:
@@ -566,21 +567,21 @@ admerge_env() {
 
 admerge_check() {
     [ -z $OBR ] && \
-        err "Failed to identify current branch. (not in git repository?)" 1
+        err 1 "Failed to identify current branch. (not in git repository?)"
 
     if [ $1 ]; then
         if [ ! -r "$ALOCK" ]; then
-            err "No lock file found. (no merge in progress?)" 2
+            err 2 "No lock file found. (no merge in progress?)"
         fi
     else
         if [ -r "$ALOCK" ]; then
-            err "A merge is already in progress. ($ALOCK)" 2
+            err 2 "A merge is already in progress. ($ALOCK)"
         fi
     fi
 
     if [ ! $1 ]; then
         if [ -r "$AMSG" ]; then
-            err "'$AMSG' exists, but no lock file is found. (manual lock rm?)" 1
+            err 1 "'$AMSG' exists, but no lock file is found. (manual lock rm?)"
         fi
     fi
 }
@@ -724,9 +725,9 @@ main() {
 
     # Catch wrong input
     if [ ! "$1" ]; then
-        err "No branch/tag specified." 2
+        err 2 "No branch/tag specified."
     elif [ "$2" ]; then
-        err "Too many operands. ($#)" 2
+        err 2 "Too many operands. ($#)"
     fi
 
     # Execute the core function
