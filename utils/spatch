@@ -230,27 +230,27 @@ parse() {
     case $1 in
         "0")
             while IFS= read -r LINE || [ -n "$LINE" ]; do
-                printf -- "%s\n" "$LINE"
+                printf "%s\n" "$LINE"
             done < "$2"
         ;;
         "1")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- " %s \n" "$LINE"
+                printf " %s \n" "$LINE"
             done < "$2"
         ;;
         "2")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "  %s  \n" "$LINE"
+                printf "  %s  \n" "$LINE"
             done < "$2"
         ;;
         "3")
             while IFS= read -r LINE || [ -n "$LINE" ]; do
-                [ -n "$LINE" ] && printf -- "%s\n" "$LINE"
+                [ -n "$LINE" ] && printf "%s\n" "$LINE"
             done < "$2"
         ;;
         "4")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "%s\n" "$LINE"
+                printf "%s\n" "$LINE"
             done < "$2"
         ;;
     esac
