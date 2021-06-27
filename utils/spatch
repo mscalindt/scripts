@@ -112,7 +112,7 @@ fcount() {
 get_fpath() {
     case "$1" in
         "/"*) ;;
-        *) i=$(printf "%s/%s" "$PWD" "$1") && set -- "$i" ;;
+        *) set -- "$PWD/$1" ;;
     esac
 
     printf "%s" "$1"
