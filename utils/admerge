@@ -167,27 +167,27 @@ parse() {
     case $1 in
         "0")
             while IFS= read -r LINE || [ -n "$LINE" ]; do
-                printf -- "%s\n" "${LINE}"
+                printf -- "%s\n" "$LINE"
             done < "$2"
         ;;
         "1")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- " %s \n" "${LINE}"
+                printf -- " %s \n" "$LINE"
             done < "$2"
         ;;
         "2")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "  %s  \n" "${LINE}"
+                printf -- "  %s  \n" "$LINE"
             done < "$2"
         ;;
         "3")
             while IFS= read -r LINE || [ -n "$LINE" ]; do
-                [ -n "$LINE" ] && printf -- "%s\n" "${LINE}"
+                [ -n "$LINE" ] && printf -- "%s\n" "$LINE"
             done < "$2"
         ;;
         "4")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "%s\n" "${LINE}"
+                printf -- "%s\n" "$LINE"
             done < "$2"
         ;;
     esac
@@ -212,27 +212,27 @@ parse_fd1() {
     case $1 in
         "0")
             while IFS= read -r LINE || [ -n "$LINE" ]; do
-                printf -- "%s\n" "${LINE}"
+                printf -- "%s\n" "$LINE"
             done
         ;;
         "1")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- " %s \n" "${LINE}"
+                printf -- " %s \n" "$LINE"
             done
         ;;
         "2")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "  %s  \n" "${LINE}"
+                printf -- "  %s  \n" "$LINE"
             done
         ;;
         "3")
             while IFS= read -r LINE || [ -n "$LINE" ]; do
-                [ -n "$LINE" ] && printf -- "%s\n" "${LINE}"
+                [ -n "$LINE" ] && printf -- "%s\n" "$LINE"
             done
         ;;
         "4")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "%s\n" "${LINE}"
+                printf -- "%s\n" "$LINE"
             done
         ;;
     esac
@@ -256,7 +256,7 @@ pline() {
 
     while read -r LINE || [ -n "$LINE" ]; do
         x=$((x + 1))
-        [ $x -eq $1 ] && printf -- "%s" "${LINE}" && return 0
+        [ $x -eq $1 ] && printf -- "%s" "$LINE" && return 0
     done < "$2"
 
     return 1
@@ -277,7 +277,7 @@ pline_fd1() {
 
     while read -r LINE || [ -n "$LINE" ]; do
         x=$((x + 1))
-        [ $x -eq $1 ] && printf -- "%s" "${LINE}" && return 0
+        [ $x -eq $1 ] && printf -- "%s" "$LINE" && return 0
     done
 
     return 1
@@ -388,7 +388,7 @@ substr_after() {
             *" ") i=$(printf "%s" "${i% }") ;;
         esac
 
-        printf "%s" "${i}"
+        printf "%s" "$i"
         return 0
     fi
 
@@ -422,7 +422,7 @@ _aq() {
     i=$(substr_after $x '@' 1 '@' "$i")
     i=$(printf "%s" "${i%@}")
 
-    [ -n "$i" ] && printf "%s" "${i}" && return 0
+    [ -n "$i" ] && printf "%s" "$i" && return 0
 
     return 1
 }
@@ -511,10 +511,10 @@ _mc() {
 
     if [ -n "$i" ]; then
         case "$1" in
-            "1") printf "%s\n" "${i}" ;;
-            "2") printf "%s\n\n" "${i}" ;;
-            "3") printf "\n%s\n" "${i}" ;;
-            *) printf "$1" "${i}" ;;
+            "1") printf "%s\n" "$i" ;;
+            "2") printf "%s\n\n" "$i" ;;
+            "3") printf "\n%s\n" "$i" ;;
+            *) printf "$1" "$i" ;;
         esac
         return 0
     fi
@@ -550,7 +550,7 @@ _qi() {
         printf "$1\n" "\033[1;37m" "\033[0m" && return 0
     fi
 
-    [ -n "$i" ] && printf "$1\n" "\033[1;37m" "\033[0m" "${i}" && return 0
+    [ -n "$i" ] && printf "$1\n" "\033[1;37m" "\033[0m" "$i" && return 0
 
     return 1
 }

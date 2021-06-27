@@ -272,7 +272,7 @@ substr_after() {
             *" ") i=$(printf "%s" "${i% }") ;;
         esac
 
-        printf "%s" "${i}"
+        printf "%s" "$i"
         return 0
     fi
 

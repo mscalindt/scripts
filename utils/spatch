@@ -95,7 +95,7 @@ fcount() {
         set -- "$i"/* && iii="$1" && ii=$#
     fi
 
-    [ -e "$iii" ] && printf "%d" "${ii}" && return 0
+    [ -e "$iii" ] && printf "%d" "$ii" && return 0
     return 1
 }
 
@@ -230,27 +230,27 @@ parse() {
     case $1 in
         "0")
             while IFS= read -r LINE || [ -n "$LINE" ]; do
-                printf -- "%s\n" "${LINE}"
+                printf -- "%s\n" "$LINE"
             done < "$2"
         ;;
         "1")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- " %s \n" "${LINE}"
+                printf -- " %s \n" "$LINE"
             done < "$2"
         ;;
         "2")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "  %s  \n" "${LINE}"
+                printf -- "  %s  \n" "$LINE"
             done < "$2"
         ;;
         "3")
             while IFS= read -r LINE || [ -n "$LINE" ]; do
-                [ -n "$LINE" ] && printf -- "%s\n" "${LINE}"
+                [ -n "$LINE" ] && printf -- "%s\n" "$LINE"
             done < "$2"
         ;;
         "4")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "%s\n" "${LINE}"
+                printf -- "%s\n" "$LINE"
             done < "$2"
         ;;
     esac
@@ -275,27 +275,27 @@ parse_fd1() {
     case $1 in
         "0")
             while IFS= read -r LINE || [ -n "$LINE" ]; do
-                printf -- "%s\n" "${LINE}"
+                printf -- "%s\n" "$LINE"
             done
         ;;
         "1")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- " %s \n" "${LINE}"
+                printf -- " %s \n" "$LINE"
             done
         ;;
         "2")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "  %s  \n" "${LINE}"
+                printf -- "  %s  \n" "$LINE"
             done
         ;;
         "3")
             while IFS= read -r LINE || [ -n "$LINE" ]; do
-                [ -n "$LINE" ] && printf -- "%s\n" "${LINE}"
+                [ -n "$LINE" ] && printf -- "%s\n" "$LINE"
             done
         ;;
         "4")
             while read -r LINE || [ -n "$LINE" ]; do
-                printf -- "%s\n" "${LINE}"
+                printf -- "%s\n" "$LINE"
             done
         ;;
     esac
@@ -319,7 +319,7 @@ pline() {
 
     while read -r LINE || [ -n "$LINE" ]; do
         x=$((x + 1))
-        [ $x -eq $1 ] && printf -- "%s" "${LINE}" && return 0
+        [ $x -eq $1 ] && printf -- "%s" "$LINE" && return 0
     done < "$2"
 
     return 1
@@ -340,7 +340,7 @@ pline_fd1() {
 
     while read -r LINE || [ -n "$LINE" ]; do
         x=$((x + 1))
-        [ $x -eq $1 ] && printf -- "%s" "${LINE}" && return 0
+        [ $x -eq $1 ] && printf -- "%s" "$LINE" && return 0
     done
 
     return 1
@@ -451,7 +451,7 @@ substr_after() {
             *" ") i=$(printf "%s" "${i% }") ;;
         esac
 
-        printf "%s" "${i}"
+        printf "%s" "$i"
         return 0
     fi
 
@@ -548,7 +548,7 @@ substr_before() {
             *" ") i=$(printf "%s" "${i% }") ;;
         esac
 
-        printf "%s" "${i}"
+        printf "%s" "$i"
         return 0
     fi
 
@@ -598,7 +598,7 @@ spatch_exec() {
 
         TMP=$(substr_before '://' 1 ' ' " $LINE ")
         URL=$(substr_after '://' 1 ' ' " $LINE ")
-        URL=$(printf "%s%s" "${TMP}" "${URL}")
+        URL=$(printf "%s%s" "$TMP" "$URL")
 
         [ -z $durl ] && \
             ! grep_str '.patch' "$URL" && URL=${URL}.patch
@@ -649,7 +649,7 @@ spatch_exec() {
     fi
 
     if [ -n "$tstamp" ]; then
-        SFILE=$(printf "%s\nTIMESTAMP: %s\n" "${SFILE}" \
+        SFILE=$(printf "%s\nTIMESTAMP: %s\n" "$SFILE" \
                        "$(date '+%b %-e, %T %:z %Y')")
     fi
 
