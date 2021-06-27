@@ -340,7 +340,7 @@ pline_fd1() {
 
     while read -r LINE || [ -n "$LINE" ]; do
         x=$((x + 1))
-        [ $x -eq $1 ] && printf -- "%s" "$LINE" && return 0
+        [ $x -eq $1 ] && printf "%s" "$LINE" && return 0
     done
 
     return 1
