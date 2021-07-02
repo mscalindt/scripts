@@ -544,12 +544,12 @@ parse() {
             done < "$2"
         ;;
         1)
-            while read -r LINE || [ -n "$LINE" ]; do
+            while IFS= read -r LINE || [ -n "$LINE" ]; do
                 printf " %s \n" "$LINE"
             done < "$2"
         ;;
         2)
-            while read -r LINE || [ -n "$LINE" ]; do
+            while IFS= read -r LINE || [ -n "$LINE" ]; do
                 printf "  %s  \n" "$LINE"
             done < "$2"
         ;;
