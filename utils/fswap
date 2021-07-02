@@ -407,11 +407,11 @@ fswap_check() {
 
 fswap_work() {
     case "$ssize" in
-        *"M" | *"MiB") ssize=$(printf "%s" "${ssize%M*}"); ssize="${ssize}K" ;;
-        *"G" | *"GiB") ssize=$(printf "%s" "${ssize%G*}"); ssize="${ssize}M" ;;
+        *"M" | *"MiB") ssize="${ssize%M*}" && ssize="${ssize}K" ;;
+        *"G" | *"GiB") ssize="${ssize%G*}" && ssize="${ssize}M" ;;
 
-        *"MB") ssize=$(printf "%s" "${ssize%MB}") && ssize="${ssize}KB" ;;
-        *"GB") ssize=$(printf "%s" "${ssize%GB}") && ssize="${ssize}MB" ;;
+        *"MB") ssize="${ssize%MB}" && ssize="${ssize}KB" ;;
+        *"GB") ssize="${ssize%GB}" && ssize="${ssize}MB" ;;
 
         *) err 2 "Wrong swap size specified. Supported units: M,G[B]" ;;
     esac
