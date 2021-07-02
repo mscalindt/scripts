@@ -208,6 +208,161 @@ info() {
 }
 
 # Description:
+# Get positional substring, (from LTR) (N)character(s), in a string
+#
+# Parameters:
+# <$1> - from "N" LTR character('0' - max)
+# <'$2'> - from "X" character(s)
+# <"$3"> - string
+# [$4] - mode('0' - strip trailing/leading whitespace character,
+#             '1' - keep $2)
+# [$5] - mode('2' - verify expansion (may cost performance))
+#
+# Returns:
+# (0) substring
+# (1) empty expansion
+# (2) bad expansion
+#
+# Returns (mode '2'):
+# (0) substring
+# (1) empty expansion
+# (2) bad expansion
+# (3) wrong expansion
+#
+ltr_substr0() {
+    if [ $# -eq 5 ] && [ $5 -eq 2 ] || [ $# -eq 4 ] && [ $4 -eq 2 ]; then
+        case $1 in
+            0) i="${3##*$2}" ;;
+            *) x=0 && i="$3"
+               until [ $x -eq $1 ]; do
+                   iii="$i" && i="${i#*$2}"
+                   [ "$iii" = "$i" ] && return 3
+                   x=$((x + 1))
+               done
+            ;;
+        esac
+    else
+        case $1 in
+            0) i="${3##*$2}" ;;
+            *) x=0 && i="$3"
+               until [ $x -eq $1 ]; do
+                   i="${i#*$2}"
+                   x=$((x + 1))
+               done
+            ;;
+        esac
+    fi
+    [ "$i" = "$3" ] && return 2
+
+    if [ -n "$i" ]; then
+        if [ $# -eq 4 ]; then
+            case $4 in
+                0) case "$i" in " "*) i="${i# }" ;; esac
+                   case "$i" in *" ") i="${i% }" ;; esac
+                ;;
+                1) i="$2$i" ;;
+            esac
+        fi
+
+        printf "%s" "$i" && return 0
+    fi
+
+    return 1
+}
+
+# Description:
+# Get positional substring, (from&to LTR) (N)character(s), in a string
+#
+# Parameters:
+# <$1> - from "N" LTR character('0' - max)
+# <'$2'> - from "X" character(s)
+# <$3> - to "N" $1-TR character('0' - max)
+# <'$4'> - to "X" character(s)
+# <"$5"> - string
+# [$6] - mode('0' - strip trailing/leading whitespace character,
+#             '1' - keep $2,
+#             '2' - keep $4,
+#             '3' - keep $2/$4)
+# [$7] - mode('4' - verify expansion (may cost performance))
+#
+# Returns:
+# (0) substring
+# (1) empty expansion
+# (2) bad expansion
+#
+# Returns (mode '4'):
+# (0) substring
+# (1) empty expansion
+# (2) bad expansion
+# (3) wrong expansion
+#
+ltr_substr1() {
+    if [ $# -eq 7 ] && [ $7 -eq 4 ] || [ $# -eq 6 ] && [ $6 -eq 4 ]; then
+        case $1 in
+            0) i="${5##*$2}" ;;
+            *) x=0 && i="$5"
+            until [ $x -eq $1 ]; do
+                iii="$i" && i="${i#*$2}"
+                [ "$iii" = "$i" ] && return 3
+                x=$((x + 1))
+            done
+            ;;
+        esac
+        ii="$i"
+        case $3 in
+            0) i="${i##*$4}" && i="${ii%$4$i}" ;;
+            *) x=0
+            until [ $x -eq $3 ]; do
+                iii="$i" && i="${i#*$4}"
+                [ "$iii" = "$i" ] && return 3
+                x=$((x + 1))
+            done
+            i="${ii%$4$i}"
+            ;;
+        esac
+    else
+        case $1 in
+            0) i="${5##*$2}" ;;
+            *) x=0 && i="$5"
+            until [ $x -eq $1 ]; do
+                i="${i#*$2}"
+                x=$((x + 1))
+            done
+            ;;
+        esac
+        ii="$i"
+        case $3 in
+            0) i="${i##*$4}" && i="${ii%$4$i}" ;;
+            *) x=0
+            until [ $x -eq $3 ]; do
+                i="${i#*$4}"
+                x=$((x + 1))
+            done
+            i="${ii%$4$i}"
+            ;;
+        esac
+    fi
+    [ "$i" = "$5" ] && return 2
+
+    if [ -n "$i" ]; then
+        if [ $# -eq 6 ]; then
+            case $6 in
+                0) case "$i" in " "*) i="${i# }" ;; esac
+                   case "$i" in *" ") i="${i% }" ;; esac
+                ;;
+                1) i="$2$i" ;;
+                2) i="$i$4" ;;
+                3) i="$2$i$4" ;;
+            esac
+        fi
+
+        printf "%s" "$i" && return 0
+    fi
+
+    return 1
+}
+
+# Description:
 # Parse the content of file
 #
 # Parameters:
@@ -368,93 +523,6 @@ remchars() {
 }
 
 # Description:
-# Get substring after (from / up to) specific (N)character(s) in a string
-#
-# Parameters:
-# [$1] - from left to right N $2 character(s)
-# <'$2'> - from character(s)
-# [$3] - up to N $4 character(s)
-# ['$4'] - up to character(s)
-# <"$5"> - string
-#
-# Returns:
-# (0) substring of $5 | undefined behaviour if $2/$4 not present
-# (1) undefined behaviour
-#
-substr_after() {
-    x=0
-
-    if [ $# -eq 5 ]; then
-        i=$(printf "%s" "$5")
-        until [ $x -eq $1 ]; do
-            i=$(printf "%s" "${i#*$2}")
-            x=$((x + 1))
-        done
-        x=0
-        ii="$i"
-        until [ $x -eq $3 ]; do
-            i=$(printf "%s" "${i#*$4}")
-            x=$((x + 1))
-        done
-        i=$(printf "%s" "${ii%$i}")
-    elif [ $# -eq 4 ]; then
-        i=$(printf "%s" "$4")
-        case "$1" in
-            '' | *[!0-9]*)
-                i=$(printf "%s" "${i##*$1}")
-                ii="$i"
-                until [ $x -eq $2 ]; do
-                    i=$(printf "%s" "${i#*$3}")
-                    x=$((x + 1))
-                done
-                i=$(printf "%s" "${ii%$i}")
-            ;;
-            *)
-                until [ $x -eq $1 ]; do
-                    i=$(printf "%s" "${i#*$2}")
-                    x=$((x + 1))
-                done
-                ii="$i"
-                i=$(printf "%s" "${i##*$3}")
-                i=$(printf "%s" "${ii%$i}")
-            ;;
-        esac
-    elif [ $# -eq 3 ]; then
-        i=$(printf "%s" "$3")
-        case "$1" in
-            '' | *[!0-9]*)
-                i=$(printf "%s" "${i##*$1}")
-                ii="$i"
-                i=$(printf "%s" "${i##*$2}")
-                i=$(printf "%s" "${ii%$i}")
-            ;;
-            *)
-                until [ $x -eq $1 ]; do
-                    i=$(printf "%s" "${i#*$2}")
-                    x=$((x + 1))
-                done
-            ;;
-        esac
-    else
-        i=$(printf "%s" "${2##*$1}")
-    fi
-
-    if [ -n "$i" ]; then
-        case "$i" in
-            " "*) i=$(printf "%s" "${i# }") ;;
-        esac
-        case "$i" in
-            *" ") i=$(printf "%s" "${i% }") ;;
-        esac
-
-        printf "%s" "$i"
-        return 0
-    fi
-
-    return 1
-}
-
-# Description:
 # Get substring before (from / back to) specific (N)character(s) in a string
 #
 # Parameters:
@@ -593,7 +661,7 @@ spatch_exec() {
                 warn "'$LINE' has no URL. (*://*)" && continue
 
         TMP=$(substr_before '://' 1 ' ' " $LINE ")
-        URL=$(substr_after '://' 1 ' ' " $LINE ")
+        URL=$(ltr_substr1 0 '://' 1 ' ' "$LINE ")
         URL=$(printf "%s%s" "$TMP" "$URL")
 
         [ -z $durl ] && \
@@ -612,9 +680,9 @@ spatch_exec() {
         SFILE=$(
             for PATCH in /tmp/*.patch; do
                 CSTR=$(pline 1 "$PATCH")
-                CSTR=$(substr_after 1 ' ' 1 ' ' "$CSTR")
+                CSTR=$(ltr_substr1 1 ' ' 1 ' ' "$CSTR")
                 DSTR=$(pline 3 "$PATCH")
-                DSTR=$(substr_after 2 ' ' 4 ' ' "$DSTR")
+                DSTR=$(ltr_substr1 2 ' ' 4 ' ' "$DSTR")
 
                 if [ -n "$purl" ]; then
                     SFILE=$(parse 2 "$FILE")
@@ -688,15 +756,15 @@ main() {
 
             # Parse options
             "--"*)
-                i=$(substr_after 1 '--' "$1")
+                i=$(ltr_substr0 1 '--' "$1")
 
                 if grep_str 'output' "$i" 1; then
                     if grep_str 'output=' "$i" 1; then
-                        tfile=$(substr_after 1 '=' "$i")
+                        tfile=$(ltr_substr0 1 '=' "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
                     elif ! grep_str 'output ' "$i " 1; then
-                        tfile=$(substr_after 2 't' "$i")
+                        tfile=$(ltr_substr0 2 't' "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
                     elif [ "$2" ]; then
@@ -719,15 +787,15 @@ main() {
                 shift
             ;;
             "-"*)
-                i=$(substr_after 1 '-' "$1")
+                i=$(ltr_substr0 1 '-' "$1")
 
                 if grep_str 'o' "$i" 1; then
                     if grep_str 'o=' "$i" 1; then
-                        tfile=$(substr_after 1 '=' "$i")
+                        tfile=$(ltr_substr0 1 '=' "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
                     elif ! grep_str 'o ' "$i " 1; then
-                        tfile=$(substr_after 1 'o' "$i")
+                        tfile=$(ltr_substr0 1 'o' "$i")
                         tfile=$(get_fpath "$tfile")
                         shift && continue
                     elif [ "$2" ]; then
