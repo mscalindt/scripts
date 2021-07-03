@@ -291,11 +291,11 @@ ltl_substr0() {
 # <$3> - to "N" $1-TL character('0' - max)
 # <'$4'> - to "X" character(s)
 # <"$5"> - string
-# [$6] - mode('0' - strip trailing/leading whitespace character,
-#             '1' - keep $2,
+# [$6] - mode('0' - strip trailing/leading whitespace character)
+# [$7] - mode('1' - keep $2,
 #             '2' - keep $4,
 #             '3' - keep $2/$4)
-# [$7] - mode('4' - verify expansion (may cost performance))
+# [$8] - mode('4' - verify expansion; may cost performance)
 #
 # Returns:
 # (0) substring
@@ -309,7 +309,9 @@ ltl_substr0() {
 # (3) wrong expansion
 #
 ltl_substr1() {
-    if [ $# -eq 7 ] && [ $7 -eq 4 ] || [ $# -eq 6 ] && [ $6 -eq 4 ]; then
+    if [ $# -eq 8 ] || \
+       [ $# -eq 7 ] && [ $7 -eq 4 ] || \
+       [ $# -eq 6 ] && [ $6 -eq 4 ]; then
         case $1 in
             0) i="${5%$2*}" ;;
             *) x=0 && i="$5" && ii="$i"
@@ -359,6 +361,16 @@ ltl_substr1() {
     [ "$i" = "$5" ] && return 2
 
     if [ -n "$i" ]; then
+        if [ $# -eq 7 ]; then
+            case $7 in
+                0) case "$i" in " "*) i="${i# }" ;; esac
+                   case "$i" in *" ") i="${i% }" ;; esac
+                ;;
+                1) i="$i$2" ;;
+                2) i="$4$i" ;;
+                3) i="$4$i$2" ;;
+            esac
+        fi
         if [ $# -eq 6 ]; then
             case $6 in
                 0) case "$i" in " "*) i="${i# }" ;; esac
