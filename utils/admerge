@@ -155,9 +155,9 @@ info() {
 # <$1> - from "N" LTR character('0' - max)
 # <'$2'> - from "X" character(s)
 # <"$3"> - string
-# [$4] - mode('0' - strip trailing/leading whitespace character,
-#             '1' - keep $2)
-# [$5] - mode('2' - verify expansion (may cost performance))
+# [$4] - mode('0' - strip trailing/leading whitespace character)
+# [$5] - mode('1' - keep $2)
+# [$6] - mode('2' - verify expansion; may cost performance)
 #
 # Returns:
 # (0) substring
@@ -171,7 +171,9 @@ info() {
 # (3) wrong expansion
 #
 ltr_substr0() {
-    if [ $# -eq 5 ] && [ $5 -eq 2 ] || [ $# -eq 4 ] && [ $4 -eq 2 ]; then
+    if [ $# -eq 6 ] || \
+       [ $# -eq 5 ] && [ $5 -eq 2 ] || \
+       [ $# -eq 4 ] && [ $4 -eq 2 ]; then
         case $1 in
             0) i="${3##*$2}" ;;
             *) x=0 && i="$3"
@@ -196,6 +198,14 @@ ltr_substr0() {
     [ "$i" = "$3" ] && return 2
 
     if [ -n "$i" ]; then
+        if [ $# -eq 5 ]; then
+            case $5 in
+                0) case "$i" in " "*) i="${i# }" ;; esac
+                   case "$i" in *" ") i="${i% }" ;; esac
+                ;;
+                1) i="$2$i" ;;
+            esac
+        fi
         if [ $# -eq 4 ]; then
             case $4 in
                 0) case "$i" in " "*) i="${i# }" ;; esac
