@@ -489,8 +489,8 @@ ltr_substr0() {
 #
 ltr_substr1() {
     if [ $# -eq 8 ] || \
-       [ $# -eq 7 ] && [ $7 -eq 4 ] || \
-       [ $# -eq 6 ] && [ $6 -eq 4 ]; then
+       [ $# -ge 7 ] && [ $7 -eq 4 ] || \
+       [ $# -ge 6 ] && [ $6 -eq 4 ]; then
         case $1 in
             0) i="${5##*$2}" ;;
             *) x=0 && i="$5"
@@ -538,7 +538,7 @@ ltr_substr1() {
     [ "$i" = "$5" ] && return 2
 
     if [ -n "$i" ]; then
-        if [ $# -eq 7 ]; then
+        if [ $# -ge 7 ]; then
             case $7 in
                 0) case "$i" in " "*) i="${i# }" ;; esac
                    case "$i" in *" ") i="${i% }" ;; esac
@@ -548,7 +548,7 @@ ltr_substr1() {
                 3) i="$2$i$4" ;;
             esac
         fi
-        if [ $# -eq 6 ]; then
+        if [ $# -ge 6 ]; then
             case $6 in
                 0) case "$i" in " "*) i="${i# }" ;; esac
                    case "$i" in *" ") i="${i% }" ;; esac
