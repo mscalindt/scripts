@@ -494,44 +494,44 @@ ltr_substr1() {
         case $1 in
             0) i="${5##*$2}" ;;
             *) x=0 && i="$5"
-            until [ $x -eq $1 ]; do
-                iii="$i" && i="${i#*$2}"
-                [ "$iii" = "$i" ] && return 3
-                x=$((x + 1))
-            done
+               until [ $x -eq $1 ]; do
+                   iii="$i" && i="${i#*$2}"
+                   [ "$iii" = "$i" ] && return 3
+                   x=$((x + 1))
+               done
             ;;
         esac
         ii="$i"
         case $3 in
             0) i="${i##*$4}" && i="${ii%$4$i}" ;;
             *) x=0
-            until [ $x -eq $3 ]; do
-                iii="$i" && i="${i#*$4}"
-                [ "$iii" = "$i" ] && return 3
-                x=$((x + 1))
-            done
-            i="${ii%$4$i}"
+               until [ $x -eq $3 ]; do
+                   iii="$i" && i="${i#*$4}"
+                   [ "$iii" = "$i" ] && return 3
+                   x=$((x + 1))
+               done
+               i="${ii%$4$i}"
             ;;
         esac
     else
         case $1 in
             0) i="${5##*$2}" ;;
             *) x=0 && i="$5"
-            until [ $x -eq $1 ]; do
-                i="${i#*$2}"
-                x=$((x + 1))
-            done
+               until [ $x -eq $1 ]; do
+                   i="${i#*$2}"
+                   x=$((x + 1))
+               done
             ;;
         esac
         ii="$i"
         case $3 in
             0) i="${i##*$4}" && i="${ii%$4$i}" ;;
             *) x=0
-            until [ $x -eq $3 ]; do
-                i="${i#*$4}"
-                x=$((x + 1))
-            done
-            i="${ii%$4$i}"
+               until [ $x -eq $3 ]; do
+                   i="${i#*$4}"
+                   x=$((x + 1))
+               done
+               i="${ii%$4$i}"
             ;;
         esac
     fi
