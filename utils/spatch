@@ -236,23 +236,23 @@ ltl_substr0() {
         case $1 in
             0) i="${3%$2*}" ;;
             *) x=0 && i="$3" && ii="$i"
-            until [ $x -eq $1 ]; do
-                iii="$i" && i="${i#*$2}"
-                [ "$iii" = "$i" ] && return 3
-                x=$((x + 1))
-            done
-            i="${ii%$2$i}"
+               until [ $x -eq $1 ]; do
+                   iii="$i" && i="${i#*$2}"
+                   [ "$iii" = "$i" ] && return 3
+                   x=$((x + 1))
+               done
+               i="${ii%$2$i}"
             ;;
         esac
     else
         case $1 in
             0) i="${3%$2*}" ;;
             *) x=0 && i="$3" && ii="$i"
-            until [ $x -eq $1 ]; do
-                i="${i#*$2}"
-                x=$((x + 1))
-            done
-            i="${ii%$2$i}"
+               until [ $x -eq $1 ]; do
+                   i="${i#*$2}"
+                   x=$((x + 1))
+               done
+               i="${ii%$2$i}"
             ;;
         esac
     fi
