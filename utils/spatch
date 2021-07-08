@@ -315,46 +315,46 @@ ltl_substr1() {
         case $1 in
             0) i="${5%$2*}" ;;
             *) x=0 && i="$5" && ii="$i"
-            until [ $x -eq $1 ]; do
-                iii="$i" && i="${i#*$2}"
-                [ "$iii" = "$i" ] && return 3
-                x=$((x + 1))
-            done
-            i="${ii%$2$i}"
+               until [ $x -eq $1 ]; do
+                   iii="$i" && i="${i#*$2}"
+                   [ "$iii" = "$i" ] && return 3
+                   x=$((x + 1))
+               done
+               i="${ii%$2$i}"
             ;;
         esac
         ii="$i"
         case $3 in
             0) i="${i%%$4*}" && i="${ii#$i$4}" ;;
             *) x=0
-            until [ $x -eq $3 ]; do
-                iii="$i" && i="${i%$4*}"
-                [ "$iii" = "$i" ] && return 3
-                x=$((x + 1))
-            done
-            i="${ii#$i$4}"
+               until [ $x -eq $3 ]; do
+                   iii="$i" && i="${i%$4*}"
+                   [ "$iii" = "$i" ] && return 3
+                   x=$((x + 1))
+               done
+               i="${ii#$i$4}"
             ;;
         esac
     else
         case $1 in
             0) i="${5%$2*}" ;;
             *) x=0 && i="$5" && ii="$i"
-            until [ $x -eq $1 ]; do
-                i="${i#*$2}"
-                x=$((x + 1))
-            done
-            i="${ii%$2$i}"
+               until [ $x -eq $1 ]; do
+                   i="${i#*$2}"
+                   x=$((x + 1))
+               done
+               i="${ii%$2$i}"
             ;;
         esac
         ii="$i"
         case $3 in
             0) i="${i%%$4*}" && i="${ii#$i$4}" ;;
             *) x=0
-            until [ $x -eq $3 ]; do
-                i="${i%$4*}"
-                x=$((x + 1))
-            done
-            i="${ii#$i$4}"
+               until [ $x -eq $3 ]; do
+                   i="${i%$4*}"
+                   x=$((x + 1))
+               done
+               i="${ii#$i$4}"
             ;;
         esac
     fi
