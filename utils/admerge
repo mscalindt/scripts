@@ -472,6 +472,8 @@ pline_fd1() {
 # $2
 #
 remchars() {
+    set -f
+
     i=$IFS
 
     IFS=$1
@@ -483,6 +485,8 @@ remchars() {
     printf "%s\n" "$*"
 
     IFS=$i
+
+    set +f
 }
 
 # Description:
