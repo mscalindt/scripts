@@ -64,9 +64,10 @@ err() {
 # Returns:
 # (0) count
 # (1) directory is empty
+# (2) not a directory / does not exist
 #
 fcount() {
-    i="$1"
+    [ -d "$1" ] && i="$1" || return 2
 
     if [ $# -eq 2 ]; then
         case "$2" in
