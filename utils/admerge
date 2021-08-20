@@ -86,16 +86,6 @@ grep_str() {
 }
 
 # Description:
-# Print info
-#
-# Parameters:
-# <"$1+"> - text
-#
-info() {
-    printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$*"
-}
-
-# Description:
 # Get positional substring, (from LTR) (N)character(s), in a string
 #
 # Parameters:
