@@ -36,8 +36,10 @@ Binary prefixes can also be used: MiB=M, GiB=G.
 If '-l' is not specified, default value is '\$HOME/.swapfile'.
 If '-s' is not specified, default value is '1G'.
 
-External utilities dependency list:
-cat, chmod, dd, id, mkswap, rm, swapoff, swapon.
+External utilities hard dependency list:
+chmod, dd, id, mkswap, rm, swapoff, swapon.
+External utilities soft dependency list:
+cat.
 "
 }
 

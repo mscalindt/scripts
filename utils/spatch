@@ -29,8 +29,10 @@ Options:
       --help     display this help text and exit
       --         specify end of options
 
-External utilities dependency list:
-awk, curl, date, rm, sort.
+External utilities hard dependency list:
+curl, rm, sort.
+External utilities soft dependency list:
+awk, date.
 "
 }
 

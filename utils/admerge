@@ -32,8 +32,10 @@ In-merge options (merge with conflicts):
   s, status                  show status of the current merge; this option
                              disregards other options
 
-External utilities dependency list:
+External utilities hard dependency list:
 git, rm.
+External utilities soft dependency list:
+.
 "
 }
 
