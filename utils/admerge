@@ -605,14 +605,14 @@ _mc() {
 _qi() {
     if [ $# -eq 3 ]; then
         i=$(eval "echo $3") && [ ! "$i" ] && return 1
-        i=$(eval 'echo $2') && i=$(eval $i 2> /dev/null)
+        i=$(eval $2 2> /dev/null)
     elif [ $# -eq 2 ]; then
         case "$2" in
             '$'*)
                 i=$(eval "echo $2") && [ ! "$i" ] && return 1
                 printf "$1\n" "\033[1;37m" "\033[0m" && return 0
             ;;
-            *) i=$(eval 'echo $2') && i=$(eval $i 2> /dev/null) ;;
+            *) i=$(eval $2 2> /dev/null) ;;
         esac
     else
         printf "$1\n" "\033[1;37m" "\033[0m" && return 0
