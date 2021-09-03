@@ -809,7 +809,16 @@ spatch_exec() {
                        "$(date '+%b %-e, %T %:z %Y')")
     fi
 
-    [ -n "$tfile" ] && echo "$SFILE" > "$tfile" || echo "$SFILE"
+    if [ -n "$tfile" ]; then
+        if [ -d "${tfile%/*}" ]; then
+            echo "$SFILE" > "$tfile"
+        else
+            warn "'${tfile%/*}' is not a valid directory."
+            echo "$SFILE"
+        fi
+    else
+        echo "$SFILE"
+    fi
 }
 
 spatch_post() {
