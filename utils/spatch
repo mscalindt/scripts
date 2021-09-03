@@ -739,8 +739,8 @@ spatch_work() {
         err 127 "No URL download tool available. (curl/wget)"
     fi; hash $URL_TOOL > /dev/null 2>&1
 
-    rm -f /tmp/*.patch
-    cd /tmp || err 1 "Line '$LINENO' failed."
+    rm -f ${TMPDIR:-/tmp}/*.patch
+    cd ${TMPDIR:-/tmp} || err 1 "Line '$LINENO' failed."
 }
 
 spatch_exec() {
@@ -765,12 +765,12 @@ spatch_exec() {
         $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1 &
     done < "$FILE"; wait && [ -n "$verbose" ] && unset CNT
 
-    if ! fcount "/tmp" '1.patch' > /dev/null 2>&1; then
+    if ! fcount "${TMPDIR:-/tmp}" '1.patch' > /dev/null 2>&1; then
         spatch_post;
         err 1 "No patches found."
     else
         SFILE=$(
-            for PATCH in /tmp/*.patch; do
+            for PATCH in ${TMPDIR:-/tmp}/*.patch; do
                 CSTR=$(pline 1 "$PATCH")
                 CSTR=$(ltr_substr1 1 ' ' 1 ' ' "$CSTR")
                 DSTR=$(pline 3 "$PATCH")
@@ -813,7 +813,7 @@ spatch_exec() {
 }
 
 spatch_post() {
-    rm -f /tmp/*.patch
+    rm -f ${TMPDIR:-/tmp}/*.patch
 }
 
 spatch() {
