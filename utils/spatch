@@ -21,7 +21,8 @@ Options:
   -i, --invert-sort          sort from newest to oldest
   -l, --line-numbers         append line numbers to the sort output
   -o, --output PATH          PATH is an absolute or relative location to which
-                             the sort output shall be written
+                             the sort output shall be written; if the parent
+                             does not exist, output will be written to stdout
   -p, --preserve-url         preserve the URLs
   -t, --timestamp            append timestamp to the sort output
   -v, --verbose              show additional information unrelated to the sort
