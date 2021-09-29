@@ -724,7 +724,7 @@ spatch_env() {
 }
 
 spatch_check() {
-    [ ! -f "$FILE" ] && err 1 "'$FILE' is not a file."
+    [ ! -f "$FILE" ] && err 2 "'$FILE' is not a file."
 }
 
 spatch_work() {
