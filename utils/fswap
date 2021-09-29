@@ -275,8 +275,8 @@ _fwrite() {
 }
 
 fswap_env() {
-    [ -z $ssize ] && ssize=1G
-    [ -z $sfile ] && sfile="$HOME"/.swapfile
+    [ -z "$ssize" ] && ssize=1G
+    [ -z "$sfile" ] && sfile="$HOME"/.swapfile
 }
 
 fswap_info() {

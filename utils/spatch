@@ -757,7 +757,7 @@ spatch_exec() {
         URL=$(ltr_substr1 0 '://' 1 ' ' "$LINE ")
         URL="$TMP$URL"
 
-        [ -z $durl ] && \
+        [ -z "$durl" ] && \
             ! grep_str '.patch' "$URL" && URL=${URL}.patch
 
         [ -n "$verbose" ] && \

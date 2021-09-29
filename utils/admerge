@@ -634,7 +634,7 @@ admerge_env() {
 }
 
 admerge_check() {
-    [ -z $OBR ] && \
+    [ -z "$OBR" ] && \
         err 2 "Failed to identify current branch. (not in git repository?)"
 
     if [ $1 ]; then
