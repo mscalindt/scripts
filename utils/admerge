@@ -646,12 +646,6 @@ admerge_check() {
             err 2 "A merge is already in progress. ($ALOCK)"
         fi
     fi
-
-    if [ ! $1 ]; then
-        if [ -r "$AMSG" ]; then
-            err 1 "'$AMSG' exists, but no lock file is found. (manual lock rm?)"
-        fi
-    fi
 }
 
 admerge_lock() {
