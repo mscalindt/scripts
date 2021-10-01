@@ -648,6 +648,12 @@ admerge_check() {
             err 2 "A merge is already in progress. ($ALOCK)"
         fi
     fi
+
+    if [ ! $1 ]; then
+        if [ -r "$AMSG" ] && [ ! -r "$ALOCK" ]; then
+            rm -f "$AMSG"
+        fi
+    fi
 }
 
 admerge_lock() {
