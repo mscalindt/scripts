@@ -638,8 +638,10 @@ admerge_check() {
         err 2 "Failed to identify current branch. (not in git repository?)"
 
     if [ $1 ]; then
-        if [ ! -r "$ALOCK" ]; then
-            err 2 "No lock file found. (no merge in progress?)"
+        if [ $1 = abort ] || [ $1 = continue ] || [ $1 = status ]; then
+            if [ ! -r "$ALOCK" ]; then
+                err 2 "No lock file found. (no merge in progress?)"
+            fi
         fi
     else
         if [ -r "$ALOCK" ]; then
@@ -676,7 +678,7 @@ admerge_work() {
         _ac "S" && gitc_args="--gpg-sign ${gitc_args}"
     fi
 
-    if [ $1 ] && [ $1 = s ]; then
+    if [ $1 ] && [ $1 = status ]; then
         _qi "%bOur branch:%b $OBR"
         _qi "%bTheir branch:%b %s" '_aq 1'
         _qi "%bLock file location:%b $ALOCK"
@@ -688,9 +690,9 @@ admerge_work() {
 }
 
 admerge_exec() {
-    if [ $1 ] && [ $1 = a ]; then
+    if [ $1 ] && [ $1 = abort ]; then
         ! git merge --abort && exit 1
-    elif [ $1 ] && [ $1 = c ]; then
+    elif [ $1 ] && [ $1 = continue ]; then
         ! git commit ${gitc_args} && exit 1
     else
         ! git merge ${gitm_args} && \
@@ -705,23 +707,23 @@ admerge_post() {
 
 admerge_abort() {
     admerge_env;
-    admerge_check "a"
-    admerge_exec "a"
+    admerge_check "abort"
+    admerge_exec "abort"
     admerge_post;
 }
 
 admerge_continue() {
     admerge_env;
-    admerge_check "c"
+    admerge_check "continue"
     admerge_work;
-    admerge_exec "c"
+    admerge_exec "continue"
     admerge_post;
 }
 
 admerge_status() {
     admerge_env;
-    admerge_check "s"
-    admerge_work "s"
+    admerge_check "status"
+    admerge_work "status"
 }
 
 admerge() {
