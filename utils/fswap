@@ -351,8 +351,8 @@ fswap_post() {
 
 fswap() {
     fswap_env;
-    [ -n "$verbose" ] && fswap_info;
     fswap_check;
+    [ -n "$verbose" ] && fswap_info;
     fswap_work;
     fswap_exec;
     fswap_post;
