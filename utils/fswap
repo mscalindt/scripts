@@ -291,7 +291,7 @@ fswap_info() {
         TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
         [ -n "$TMP" ] && info "Swap intensity: '$TMP'."
     fi
- 
+
     if [ -n "$vfscp" ]; then
         info "VFS cache reclaim priority: '$vfscp'."
     else
