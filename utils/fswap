@@ -383,16 +383,11 @@ fswap_work() {
         *"B") bscount=1000 ;;
         *) bscount=1024 ;;
     esac
-
-    dd_args='if=/dev/zero'
-    dd_args="${dd_args} of=${sfile}"
-    dd_args="${dd_args} bs=${ssize}"
-    dd_args="${dd_args} count=${bscount}"
-    dd_args="${dd_args} status=progress"
 }
 
 fswap_exec() {
-    dd ${dd_args} || exit $?
+    dd if=/dev/zero of="$sfile" bs="$ssize" count=$bscount status=progress || \
+        exit $?
     chmod 600 "$sfile" || exit $?
     mkswap "$sfile" || exit $?
     swapon "$sfile" || exit $?
