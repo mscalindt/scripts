@@ -294,31 +294,73 @@ fswap_env() {
 fswap_info() {
     hash cat > /dev/null 2>&1
 
-    info "Swap size: '$ssize'."
-    info "Swap file: '$sfile'."
+    fswap_info_normal() {
+        info "Swap size: '$ssize'."
+        info "Swap file: '$sfile'."
 
-    if [ -n "$swappiness" ]; then
-        info "Swap intensity: '$swappiness'."
-    else
-        TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
-        [ -n "$TMP" ] && info "Swap intensity: '$TMP'."
-    fi
+        if [ -n "$swappiness" ]; then
+            info "Swap intensity: '$swappiness'."
+        else
+            TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
+            [ -n "$TMP" ] && info "Swap intensity: '$TMP'."
+        fi
 
-    if [ -n "$vfscp" ]; then
-        info "VFS cache reclaim priority: '$vfscp'."
-    else
-        TMP=$(cat /proc/sys/vm/vfs_cache_pressure 2> /dev/null)
-        [ -n "$TMP" ] && info "VFS cache reclaim priority: '$TMP'."
-    fi
+        if [ -n "$vfscp" ]; then
+            info "VFS cache reclaim priority: '$vfscp'."
+        else
+            TMP=$(cat /proc/sys/vm/vfs_cache_pressure 2> /dev/null)
+            [ -n "$TMP" ] && info "VFS cache reclaim priority: '$TMP'."
+        fi
+    }
 
-    TMP=$(cat /sys/module/zswap/parameters/enabled 2> /dev/null)
-    [ -n "$TMP" ] && info "zswap: '$TMP'."
+    fswap_info_verbose() {
+        if [ -n "$swappiness" ]; then
+            TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
+            [ -n "$TMP" ] && info_px "\033[1;35mOLD:\033[0m " "Swap" \
+                                     "intensity: '$TMP'."
+        fi
 
-    TMP=$(cat /sys/module/zswap/parameters/compressor 2> /dev/null)
-    [ -n "$TMP" ] && info "zswap compressor: '$TMP'."
+        if [ -n "$vfscp" ]; then
+            TMP=$(cat /proc/sys/vm/vfs_cache_pressure 2> /dev/null)
+            [ -n "$TMP" ] && info_px "\033[1;35mOLD:\033[0m " "VFS cache" \
+                                     "reclaim priority: '$TMP'."
+        fi
 
-    TMP=$(cat /sys/module/zswap/parameters/zpool 2> /dev/null)
-    [ -n "$TMP" ] && info "zswap allocator: '$TMP'."
+        if [ -n "$swappiness" ]; then
+            info_px "\033[1;34mNEW:\033[0m " "Swap intensity: '$swappiness'."
+        fi
+
+        if [ -n "$vfscp" ]; then
+            info_px "\033[1;34mNEW:\033[0m " "VFS cache reclaim priority:" \
+                    "'$vfscp'."
+        fi
+
+        TMP=$(cat /sys/module/zswap/parameters/enabled 2> /dev/null)
+        [ -n "$TMP" ] && info_px "\033[1;36mMISC:\033[0m " "zswap: '$TMP'."
+
+        TMP=$(cat /sys/module/zswap/parameters/compressor 2> /dev/null)
+        [ -n "$TMP" ] && info_px "\033[1;36mMISC:\033[0m " "zswap compressor:" \
+                                 "'$TMP'."
+
+        TMP=$(cat /sys/module/zswap/parameters/zpool 2> /dev/null)
+        [ -n "$TMP" ] && info_px "\033[1;36mMISC:\033[0m " "zswap allocator:" \
+                                 "'$TMP'."
+
+        info "Swap size: '$ssize'."
+        info "Swap file: '$sfile'."
+
+        if [ -z "$swappiness" ]; then
+            TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
+            [ -n "$TMP" ] && info "Swap intensity: '$TMP'."
+        fi
+
+        if [ -z "$vfscp" ]; then
+            TMP=$(cat /proc/sys/vm/vfs_cache_pressure 2> /dev/null)
+            [ -n "$TMP" ] && info "VFS cache reclaim priority: '$TMP'."
+        fi
+    }
+
+    [ -n "$verbose" ] && fswap_info_verbose || fswap_info_normal;
 }
 
 fswap_check() {
@@ -364,7 +406,7 @@ fswap_post() {
 fswap() {
     fswap_env;
     fswap_check;
-    [ -n "$verbose" ] && fswap_info;
+    fswap_info;
     fswap_work;
     fswap_exec;
     fswap_post;
