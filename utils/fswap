@@ -392,10 +392,10 @@ fswap_work() {
 }
 
 fswap_exec() {
-    dd ${dd_args}
-    chmod 600 "$sfile"
-    mkswap "$sfile"
-    swapon "$sfile"
+    dd ${dd_args} || exit $?
+    chmod 600 "$sfile" || exit $?
+    mkswap "$sfile" || exit $?
+    swapon "$sfile" || exit $?
 }
 
 fswap_post() {
