@@ -112,6 +112,18 @@ info() {
 }
 
 # Description:
+# Print info with printf prefix before text
+#
+# Parameters:
+# <"$1"> - printf prefix
+# <"$2+"> - text
+#
+info_px() {
+    i="$1" && shift
+    printf "%bINFO:%b $i%s\n" "\033[1;37m" "\033[0m" "$*"
+}
+
+# Description:
 # Get positional substring, (from LTR) (N)character(s), in a string
 #
 # Parameters:
