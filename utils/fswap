@@ -291,6 +291,11 @@ fswap_env() {
     [ -z "$sfile" ] && sfile="$HOME"/.swapfile
 }
 
+fswap_check() {
+    [ $(id -u) -ne 0 ] && err 2 "EUID is not 0. (no root)"
+    swapoff -a; [ -f "$sfile" ] && rm -f "$sfile"
+}
+
 fswap_info() {
     hash cat > /dev/null 2>&1
 
@@ -361,11 +366,6 @@ fswap_info() {
     }
 
     [ -n "$verbose" ] && fswap_info_verbose || fswap_info_normal;
-}
-
-fswap_check() {
-    [ $(id -u) -ne 0 ] && err 2 "EUID is not 0. (no root)"
-    swapoff -a; [ -f "$sfile" ] && rm -f "$sfile"
 }
 
 fswap_work() {
