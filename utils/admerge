@@ -697,9 +697,9 @@ admerge_work() {
 
 admerge_exec() {
     if [ $1 ] && [ $1 = abort ]; then
-        ! git merge --abort && exit 1
+        git merge --abort || exit $?
     elif [ $1 ] && [ $1 = continue ]; then
-        ! git commit ${gitc_args} && exit 1
+        git commit ${gitc_args} || exit $?
     else
         if ! git merge ${gitm_args}; then
             if git merge HEAD > /dev/null 2>&1; then
@@ -708,7 +708,8 @@ admerge_exec() {
                 exit 1
             fi
         fi
-        ! git commit ${gitc_args} && exit 1
+
+        git commit ${gitc_args} || exit $?
     fi
 }
 
