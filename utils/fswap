@@ -365,7 +365,7 @@ fswap_info() {
 
 fswap_check() {
     [ $(id -u) -ne 0 ] && err 2 "EUID is not 0. (no root)"
-    swapoff -a; [ -f "$sfile" ] && rm -fv "$sfile"
+    swapoff -a; [ -f "$sfile" ] && rm -f "$sfile"
 }
 
 fswap_work() {
