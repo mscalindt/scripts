@@ -812,7 +812,10 @@ spatch_exec() {
 
     if [ -n "$tfile" ]; then
         if [ -d "${tfile%/*}" ]; then
-            echo "$SFILE" > "$tfile"
+            echo "$SFILE" 2> /dev/null > "$tfile" || {
+                warn "Error code $? while trying to write output to '$tfile'."
+                echo "$SFILE"
+            }
         else
             warn "'${tfile%/*}' is not a valid directory."
             echo "$SFILE"
