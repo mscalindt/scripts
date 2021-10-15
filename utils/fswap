@@ -17,14 +17,14 @@ Create a swap file.
 Options:
   -c, --check                only check for an existing swap file and remove
                              it; this option disregards other options
-  -l, --location PATH        PATH is an absolute or relative location at which
+  -l, --location <PATH>      PATH is an absolute or relative location at which
                              the swap file shall be created
-  -s, --size SIZE            specify size for the swap file; see SIZE format
+  -s, --size <SIZE>          specify size for the swap file; see SIZE format
                              below
-  -S, --swappiness [0-200]   specify swap intensity; value persists until
+  -S, --swappiness <0-200>   specify swap intensity; value persists until
                              reboot
   -v, --verbose              increase script message verbosity
-  -V, --vfs-cache-pressure [0-2147483647]
+  -V, --vfs-cache-pressure <0-2147483647>
                              specify VFS cache reclaim priority; value persists
                              until reboot
       --help     display this help text and exit
