@@ -403,7 +403,7 @@ main() {
     ( return 1
         pkg_clr com.google.android.ext.services # Android Services Library
         pkg_clr com.google.android.deskclock # Clock
-        pkg_clr com.google.android.contact # Contacts
+        pkg_clr com.google.android.contacts # Contacts
         pkg_clr com.wos.face.service # Face detection
         pkg_clr com.google.android.gms # Google Play Services
         pkg_clr com.google.android.gsf # Google Services Framework
