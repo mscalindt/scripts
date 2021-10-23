@@ -1,0 +1,214 @@
+#!/bin/sh
+# Usage (intended): adb shell < drs_debloat
+# [DRS_sprout | Nokia 3.4] Android 11 00WW_2_410_SP01 TA-1283
+
+: <<'notice'
+ * SPDX-License-Identifier: GPL-3.0
+ *
+ * Copyright (C) 2021 Dimitar Yurukov <mscalindt@protonmail.com>
+ *
+notice
+
+pkg_rm() {
+    pm uninstall --user 0 "$1"
+}
+
+pkg_clr() {
+    pm clear --user 0 "$1"
+}
+
+main() {
+    set -x
+
+    # Unknown / Reverse engineer later to inspect requirability & bloatness
+    ( return 1
+        com.qualcomm.qti.uimGbaApp
+        com.qualcomm.qti.uim
+        com.qualcomm.uimremoteserver
+        com.qualcomm.uimremoteclient
+        com.android.providers.partnerbookmarks
+        com.qti.snapdragon.qdcm_ff
+        com.qti.dpmserviceapp
+        com.android.ons
+        com.google.android.apps.work.oobconfig
+        com.google.android.cellbroadcastreceiver
+        com.hmdglobal.app.omacp
+        com.hmdglobal.app.legalinformation
+        com.hmdglobal.app.activation
+        com.hmdglobal.app.customizationclient
+        com.hmdglobal.app.activation.overlay
+        android.autoinstalls.config.hmdglobal.doctorstrange
+        com.hmdglobal.app.setupwizardext
+        com.google.android.cellbroadcastservice
+        com.android.cellbroadcastreceiver.overlay.common
+        com.android.cellbroadcastreceiver
+        com.google.android.overlay.gmsconfig.common
+        com.google.android.overlay.gmsconfig.photos
+        com.google.android.overlay.gmsconfig.comms
+        com.google.android.overlay.gmsconfig.searchlauncherqs
+        com.google.android.overlay.gmsconfig.gsa
+        com.google.android.apps.setupwizard.searchselector
+        com.google.android.onetimeinitializer
+        com.qualcomm.qti.qms.service.connectionsecurity
+    )
+
+    # Removal not possible (bootloop)
+    ( return 1
+        pkg_rm com.google.android.ext.services
+    )
+
+    # Critical Android APIs (bad debloat)
+    ( return 1
+        # AR
+        {
+            pkg_rm com.google.ar.core
+        }
+
+        # Adaptive Battery
+        {
+            pkg_rm com.google.android.apps.turbo
+        }
+
+        # RCS / VoLTE
+        {
+            pkg_rm com.google.android.ims
+        }
+
+        # Smart Forwarding
+        {
+            pkg_rm com.qti.xdivert
+        }
+
+        # Telemetry Train
+        {
+            pkg_rm com.google.mainline.telemetry
+        }
+
+        # Wi-Fi Calling
+        {
+            pkg_rm com.google.android.wfcactivation
+            pkg_rm vendor.qti.iwlan
+        }
+
+        # Wi-Fi Direct
+        {
+            pkg_rm com.qualcomm.atfwd
+            pkg_rm com.qualcomm.wfd.service
+        }
+    )
+
+    # Critical Google APIs (bad debloat)
+    ( return 1
+        pkg_rm com.google.android.gms
+        pkg_rm com.google.android.gmsintegration
+        pkg_rm com.google.android.gsf
+        pkg_rm com.google.android.partnersetup
+        pkg_rm com.google.android.tts
+    )
+
+    # Critical HMD APIs (bad debloat)
+    ( return 1
+        pkg_rm com.wos.face.service
+    )
+
+    # Critical Google apps (bad debloat)
+    ( return 1
+        pkg_rm com.android.chrome # Google Chrome
+        pkg_rm com.android.vending # Play Store
+    )
+
+    # Safe Android APIs (safe debloat)
+    (
+        # Android Accessibility Suite
+        {
+            pkg_rm com.google.android.marvin.talkback
+        }
+
+        # Android Auto
+        {
+            pkg_rm com.google.android.projection.gearhead
+        }
+
+        # Digital Wellbeing | App stats
+        {
+            pkg_rm com.google.android.apps.wellbeing
+        }
+
+        # Widget for Android tips
+        {
+            pkg_rm com.android.protips
+        }
+    )
+
+    # Safe Google APIs (safe debloat)
+    (
+        com.google.android.googlequicksearchbox.overlay
+    )
+
+    # Safe HMD APIs (safe debloat)
+    (
+        pkg_rm com.android.partnerbrowsercustomizations.hmdglobal
+        pkg_rm com.hmdglobal.app.bokeheditor
+        pkg_rm com.hmdglobal.app.myphonehelper
+    )
+
+    # Safe Android apps (safe debloat)
+    (
+        pkg_rm com.android.stk # SIM Toolkit
+    )
+
+    # Safe Google apps (safe debloat)
+    (
+        #pkg_rm com.google.android.calculator # Calculator
+        #pkg_rm com.google.android.apps.nbu.files # Files
+        #pkg_rm com.google.android.inputmethod.latin # Gboard
+        #pkg_rm com.google.android.gm # Gmail
+        pkg_rm com.google.android.googlequicksearchbox # Google
+        pkg_rm com.google.android.apps.googleassistant # Google Assistant
+        #pkg_rm com.google.android.calendar # Google Calendar
+        pkg_rm com.google.android.apps.docs # Google Drive
+        pkg_rm com.google.android.apps.tachyon # Google Duo
+        pkg_rm com.google.android.keep # Google Keep
+        pkg_rm com.google.ar.lens # Google Lens
+        pkg_rm com.google.android.apps.maps # Google Maps
+        pkg_rm com.google.android.apps.magazines # Google News
+        pkg_rm com.google.android.apps.subscriptions.red # Google One
+        pkg_rm com.google.android.apps.walletnfcrel # Google Pay
+        pkg_rm com.google.android.apps.photos # Google Photos
+        pkg_rm com.google.android.apps.podcasts # Google Podcasts
+        #pkg_rm com.google.android.apps.wallpaper # Google Wallpapers
+        pkg_rm com.google.android.youtube # YouTube
+        pkg_rm com.google.android.apps.youtube.music # YouTube Music
+    )
+
+    # Safe HMD apps (safe debloat)
+    (
+        pkg_rm com.hmdglobal.app.camera # Camera
+        pkg_rm com.hmdglobal.app.fmradio # FM Radio
+        pkg_rm com.hmdglobal.support # My phone | My device
+    )
+
+    # Literal sh1t (asap remove)
+    (
+        pkg_rm com.amazon.appmanager
+        pkg_rm com.netflix.mediaclient
+        pkg_rm com.qualcomm.qti.qms.service.telemetry
+    )
+
+    # Apps&APIs to be reset to clean state
+    ( return 1
+        pkg_clr com.google.android.ext.services # Android Services Library
+        pkg_clr com.google.android.deskclock # Clock
+        pkg_clr com.google.android.contact # Contacts
+        pkg_clr com.wos.face.service # Face detection
+        pkg_clr com.google.android.gms # Google Play Services
+        pkg_clr com.google.android.gsf # Google Services Framework
+        pkg_clr com.google.android.apps.messaging # Messages
+        pkg_clr com.android.phone # Phone
+        pkg_clr com.android.vending # Play Store
+        pkg_clr com.android.settings # Settings
+        pkg_clr com.google.android.tts # Speech Services | Google Text-to-Speech
+    )
+}
+
+main "$@"
