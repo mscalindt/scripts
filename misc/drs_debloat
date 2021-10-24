@@ -364,7 +364,7 @@ main() {
     # Safe Google apps (safe debloat)
     (
         #pkg_rm com.google.android.calculator # Calculator
-        #pkg_rm com.google.android.apps.nbu.files # Files
+        pkg_rm com.google.android.apps.nbu.files # Files
         #pkg_rm com.google.android.inputmethod.latin # Gboard
         #pkg_rm com.google.android.gm # Gmail
         pkg_rm com.google.android.googlequicksearchbox # Google
