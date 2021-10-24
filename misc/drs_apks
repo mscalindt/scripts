@@ -1,0 +1,76 @@
+#!/bin/sh
+# Usage (intended): adb shell < drs_apks
+
+: <<'notice'
+ * SPDX-License-Identifier: GPL-3.0
+ *
+ * Copyright (C) 2021 Dimitar Yurukov <mscalindt@protonmail.com>
+ *
+notice
+
+pkg_install() {
+    DIR="/data/local/tmp/pkg_install"
+    FILE="/data/local/tmp/pkg_install/00.apk"
+
+    mkdir "$DIR" || return $?
+    curl --location "$1" --output "$FILE" || { rm -rf "$DIR"; return 1; }
+    pm install --user 0 "$FILE" || { rm -rf "$DIR"; return 1; }
+    rm -rf "$DIR" || return $?
+}
+
+pkg_install_chunks() {
+  {
+    DIR="/data/local/tmp/pkg_install"
+    FILE="/data/local/tmp/pkg_install/00.apk"
+    COUNT=0
+
+    mkdir "$DIR" || return $?
+
+    for URL in $*; do
+        [ -n "$FARGS" ] && FARGS="${FARGS} $FILE" || FARGS="$FILE"
+        curl --location "$URL" --output "$FILE" || \
+        {
+            rm -rf "$DIR"; return 1
+        }
+        COUNT=$((COUNT + 1))
+        FILE="/data/local/tmp/pkg_install/0${COUNT}.apk"
+    done
+    cat $FARGS > "$FILE" || { rm -rf "$DIR"; return 1; }
+
+    pm install --user 0 "$FILE" || { rm -rf "$DIR"; return 1; }
+
+    rm -rf "$DIR" || return $?
+  }
+}
+
+main() {
+    set -x
+
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/aimp_3.10.1052.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/fenix-93.2.0-arm64-v8a.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/translate_6.24.0.01.404535115.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/mytelenor_bulgaria-3.1.2.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/protonmail-1.13.31.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/protonvpn-2.9.0.28.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/sdmaid-5.1.10.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/signal-5.24.17.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/steam-2.3.13.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/telegramx-0.22.8.1361.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/via-4.3.1.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/vlc-3.3.4.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/xodopdf-7.1.10.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/simplegallerypro-6.21.6.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/termux-0.117.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/termux_api-0.49.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/termux_styling-0.29.apk"
+    pkg_install "https://github.com/mscalindt/stuff-risk/raw/main/apks/quickeditpro-1.8.4-rockz5555.apk"
+    pkg_install "https://github.com/mscalindt/stuff-risk/raw/main/apks/rootexplorer-4.10.3.apk"
+    pkg_install "https://github.com/mscalindt/stuff/raw/main/apks/gcam/MGC_8.0.018_A9_V0je_Clone.apk"
+
+    pkg_install_chunks \
+        "https://github.com/mscalindt/stuff/raw/main/apks/reddit-2021.39.1.apk.00" \
+        "https://github.com/mscalindt/stuff/raw/main/apks/reddit-2021.39.1.apk.01" \
+        "https://github.com/mscalindt/stuff/raw/main/apks/reddit-2021.39.1.apk.02"
+}
+
+main "$@"
