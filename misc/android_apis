@@ -33,22 +33,22 @@ adb_pkg_install_chunks() {
     FILE="/data/local/tmp/pkg_install/00.apk"
     COUNT=0
 
-    mkdir "$DIR" || return $?
+    mkdir "\$DIR" || return \$?
 
     for URL in $*; do
         [ -n "\$FARGS" ] && FARGS="\${FARGS} \$FILE" || FARGS="\$FILE"
         curl --location "\$URL" --output "\$FILE" || \
         {
-            rm -rf "$DIR"; return 1
+            rm -rf "\$DIR"; return 1
         }
         COUNT=\$((COUNT + 1))
         FILE="/data/local/tmp/pkg_install/0\${COUNT}.apk"
     done
-    cat \$FARGS > "\$FILE" || { rm -rf "$DIR"; return 1; }
+    cat \$FARGS > "\$FILE" || { rm -rf "\$DIR"; return 1; }
 
-    pm install --user 0 "\$FILE" || { rm -rf "$DIR"; return 1; }
+    pm install --user 0 "\$FILE" || { rm -rf "\$DIR"; return 1; }
 
-    rm -rf "$DIR" || return $?
+    rm -rf "\$DIR" || return \$?
   }
 EOF
 }
