@@ -16,10 +16,10 @@ adb_pkg_install() {
     DIR="/data/local/tmp/pkg_install"
     FILE="/data/local/tmp/pkg_install/00.apk"
 
-    mkdir "$DIR" || return $?
-    curl --location "$1" --output "$FILE" || { rm -rf "$DIR"; return 1; }
-    pm install --user 0 "$FILE" || { rm -rf "$DIR"; return 1; }
-    rm -rf "$DIR" || return $?
+    mkdir "\$DIR" || return \$?
+    curl --location "$1" --output "\$FILE" || { rm -rf "\$DIR"; return 1; }
+    pm install --user 0 "\$FILE" || { rm -rf "\$DIR"; return 1; }
+    rm -rf "\$DIR" || return \$?
 EOF
 }
 
