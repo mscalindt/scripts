@@ -56,7 +56,26 @@ EOF
 # > Remove (uninstall) a package for user 0 using ADB
 # Arguments: <"$1"> - package name
 adb_pkg_remove() {
-    adb shell pm uninstall --user 0 "$1"
+    adb shell \
+<<EOF
+  {
+    DIR="/storage/emulated/0/Android"
+
+    pm uninstall --user 0 "$1"
+
+    if [ -d "\$DIR/data/$1" ]; then
+        rm -rf "\$DIR/data/$1"
+    fi
+
+    if [ -d "\$DIR/media/$1" ]; then
+        rm -rf "\$DIR/media/$1"
+    fi
+
+    if [ -d "\$DIR/obb/$1" ]; then
+        rm -rf "\$DIR/obb/$1"
+    fi
+  }
+EOF
 }
 
 # > Reset (clear all data of) a package for user 0 using ADB
