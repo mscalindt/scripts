@@ -133,7 +133,13 @@ pkg_remove() {
 # > Reset (clear all data of) a package for user 0
 # Arguments: <"$1"> - package name
 pkg_reset() {
+    DIR="/storage/emulated/0/Android"
+
     pm clear --user 0 "$1"
+
+    if [ -d "$DIR/data/$1" ]; then
+        rm -rf "$DIR/data/$1"/*
+    fi
 }
 
 # > Restore (reinstall) deleted system package for user 0
