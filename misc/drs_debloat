@@ -10,11 +10,31 @@
 notice
 
 pkg_rm() {
+    DIR="/storage/emulated/0/Android"
+
     pm uninstall --user 0 "$1"
+
+    if [ -d "$DIR/data/$1" ]; then
+        rm -rf "$DIR/data/$1"
+    fi
+
+    if [ -d "$DIR/media/$1" ]; then
+        rm -rf "$DIR/media/$1"
+    fi
+
+    if [ -d "$DIR/obb/$1" ]; then
+        rm -rf "$DIR/obb/$1"
+    fi
 }
 
 pkg_clr() {
+    DIR="/storage/emulated/0/Android"
+
     pm clear --user 0 "$1"
+
+    if [ -d "$DIR/data/$1" ]; then
+        rm -rf "$DIR/data/$1"/*
+    fi
 }
 
 main() {
