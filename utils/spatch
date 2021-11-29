@@ -66,6 +66,15 @@ err() {
 # (1) directory is empty
 # (2) not a directory / does not exist
 #
+# Caveats:
+# 1. The number of files/directories the function (i.e. system) can process
+#    varies. The files/directories are stored as arguments, which means that the
+#    amount of things that can be processed depends on the system and version,
+#    on the number of files and their respective argument size, and on the
+#    number and size of environment variable names. For more information,
+#    related limits shall be checked: ARG_MAX.
+#    Fix: none; not applicable.
+#
 fcount() {
     [ -d "$1" ] && i="$1" || return 2
 
@@ -77,12 +86,14 @@ fcount() {
             ;;
             1)
                 set -- "$i"/* && iii="$1" && ii=$#
-                set -- "$i"/*/ && i=$# && ii=$((ii - i))
+                set -- "$i"/*/
+                [ -e "$1" ] && i=$# && ii=$((ii - i))
             ;;
             1*)
                 ii="${2#1}"
                 set -- "$i"/*"$ii" && iii="$1" && iiii=$#
-                set -- "$i"/*"$ii"/ && i=$# && ii=$((iiii - i))
+                set -- "$i"/*"$ii"/
+                [ -e "$1" ] && i=$# && ii=$((iiii - i))
             ;;
             2)
                 set -- "$i"/*/ && iii="$1" && ii=$#
@@ -690,6 +701,18 @@ pline() {
 # Returns:
 # $2 without $1 characters,
 # $2
+#
+# Caveats:
+# 1. Multibyte characters are not suitable as a delimiter ($1), as the removal
+#    of the characters is done by IFS splitting; any characters in a multibyte
+#    character will be stripped from the string. Essentially, this means that,
+#    for example, a multibyte character consisting of a whitespace character
+#    will remove all the whitespace characters in the string ($2).
+#    Fix: none; shell limitation.
+# 2. If the delimiter ($1) contains <whitespace> (' ') and the string ($2)
+#    contains multibyte characters consisting of a whitespace character, the
+#    multibyte characters will be rendered incorrect, resulting in a bad string.
+#    Fix: none; shell limitation.
 #
 remchars() {
     set -f
