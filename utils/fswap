@@ -308,9 +308,6 @@ fswap_info() {
     hash cat > /dev/null 2>&1
 
     fswap_info_normal() {
-        info "Swap size: '$ssize'."
-        info "Swap file: '$sfile'."
-
         if [ -n "$swappiness" ]; then
             info "Swap intensity: '$swappiness'."
         else
@@ -324,6 +321,9 @@ fswap_info() {
             TMP=$(cat /proc/sys/vm/vfs_cache_pressure 2> /dev/null)
             [ -n "$TMP" ] && info "VFS cache reclaim priority: '$TMP'."
         fi
+
+        info "Swap size: '$ssize'."
+        info "Swap file: '$sfile'."
     }
 
     fswap_info_verbose() {
