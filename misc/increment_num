@@ -103,7 +103,7 @@ increment() {
         increment_work_vars() {
             tmp_dir_loc=$(cd "$DIR"/.. && printf "%s" "$PWD")
             tmp_dir="$tmp_dir_loc"/TMPincrement
-            
+
             if [ -z $INCREMENT ]; then
                 INCREMENT=1
             fi
