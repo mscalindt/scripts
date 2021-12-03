@@ -62,12 +62,15 @@ err() {
 # <"$1"> - path
 #
 # Returns:
-# (0) absolute path
-# (1) path is already absolute
+# (0) absolute path / path is already absolute
 #
 get_fpath() {
-    case "$1" in "/"*) printf "%s" "$1" && return 1 ;; esac
-    printf "%s/%s" "$PWD" "$1" && return 0
+    case "$1" in
+        "/"*) printf "%s" "$1" ;;
+        *) printf "%s/%s" "$PWD" "$1" ;;
+    esac
+
+    return 0
 }
 
 # Description:
@@ -82,7 +85,7 @@ get_fpath() {
 #
 # Returns:
 # (0) substring exists
-# (1) no substring
+# (1) no match
 #
 grep_str() {
     if [ $# -eq 3 ]; then
