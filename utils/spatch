@@ -93,7 +93,11 @@ fcount() {
                 ii="${2#1}"
                 set -- "$i"/*"$ii" && iii="$1" && iiii=$#
                 set -- "$i"/*"$ii"/
-                [ -e "$1" ] && i=$# && ii=$((iiii - i))
+                if [ -e "$1" ]; then
+                    i=$# && ii=$((iiii - i))
+                else
+                    ii="$iiii"
+                fi
             ;;
             2)
                 set -- "$i"/*/ && iii="$1" && ii=$#
