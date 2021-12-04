@@ -532,7 +532,7 @@ _ac() {
 # (1) variable is empty/unset
 #
 _aw() {
-    [ $# -eq 2 ] && i=$(eval "printf "%s" "$2"") && [ ! "$i" ] && return 1
+    [ $# -eq 2 ] && i=$(eval "printf \"%s\" \"$2\"") && [ ! "$i" ] && return 1
 
     case "$1" in
         1) printf " " ;;
