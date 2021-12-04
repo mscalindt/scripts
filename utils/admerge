@@ -559,14 +559,14 @@ _aw() {
 #
 _mc() {
     if [ $# -eq 4 ]; then
-        i=$(eval "printf "%s" "$3"") && [ ! "$i" ] && return 1
+        i=$(eval "printf \"%s\" \"$3\"") && [ ! "$i" ] && return 1
         case $4 in
             0) i=$(git $2 ${OBR}..${TBR} 2> /dev/null) ;;
             1) i=$(git $2 ${OBR}...${TBR} 2> /dev/null) ;;
         esac
     elif [ $# -eq 3 ]; then
         case "$3" in
-            '$'*) i=$(eval "printf "%s" "$3"") && [ ! "$i" ] && return 1 ;;
+            '$'*) i=$(eval "printf \"%s\" \"$3\"") && [ ! "$i" ] && return 1 ;;
         esac
         case "$3" in
             0) i=$(git $2 ${OBR}..${TBR} 2> /dev/null) ;;
@@ -576,7 +576,7 @@ _mc() {
     elif [ $# -eq 2 ]; then
         case "$2" in
             '$'*)
-                i=$(eval "printf "%s" "$2"") && [ ! "$i" ] && return 1
+                i=$(eval "printf \"%s\" \"$2\"") && [ ! "$i" ] && return 1
                 printf "$1" && return 0
             ;;
             *) i=$(git $2 2> /dev/null) ;;
