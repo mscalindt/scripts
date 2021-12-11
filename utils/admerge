@@ -56,7 +56,7 @@ err() {
 # Check the existence/position of a substring in string
 #
 # Parameters:
-# <'$1'> - substring
+# <"$1"> - substring
 # <"$2"> - string
 # [$3] - mode('1' - $1 is first character(s) of $2,
 #             '2' - $1 is last character(s) of $2,
@@ -87,7 +87,7 @@ grep_str() {
 #
 # Parameters:
 # <$1> - from "N" LTR character('0' - max)
-# <'$2'> - from "X" character(s)
+# <"$2"> - from "X" character(s)
 # <"$3"> - string
 # [$4] - mode('0' - strip all leading whitespace characters,
 #             '1' - strip all trailing whitespace characters,
@@ -199,9 +199,9 @@ ltr_substr0() {
 #
 # Parameters:
 # <$1> - from "N" LTR character('0' - max)
-# <'$2'> - from "X" character(s)
+# <"$2"> - from "X" character(s)
 # <$3> - to "N" $2-TR character('0' - max)
-# <'$4'> - to "X" character(s)
+# <"$4"> - to "X" character(s)
 # <"$5"> - string
 # [$6] - mode('0' - strip all leading whitespace characters,
 #             '1' - strip all trailing whitespace characters,
@@ -439,7 +439,7 @@ pline() {
 # Remove specific character(s) in string
 #
 # Parameters:
-# <'$1'> - character(s)
+# <"$1"> - character(s)
 # <"$2"> - string
 #
 # Returns:
