@@ -302,7 +302,10 @@ fswap_env() {
 }
 
 fswap_check() {
-    [ $(id -u) -ne 0 ] && err 2 "EUID is not 0. (no root)"
+    case $(id -u) in
+        0) : ;;
+        *) err 2 "EUID is not 0. (no root)" ;;
+    esac
 
     swapoff -a || exit $?
 
@@ -325,26 +328,28 @@ fswap_info() {
 
     TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
     if [ -n "$TMP" ] && [ -n "$swappiness" ]; then
-        if [ "$TMP" -ne "$swappiness" ]; then
+        case $TMP in
+        $swappiness) info "Swap intensity: '$TMP'." ;;
+        *)
             info_px "\033[1;35mOLD:\033[0m " "Swap intensity: '$TMP'."
             info_px "\033[1;34mNEW:\033[0m " "Swap intensity: '$swappiness'."
-        else
-            info "Swap intensity: '$TMP'."
-        fi
+        ;;
+        esac
     elif [ -n "$TMP" ]; then
         info "Swap intensity: '$TMP'."
     fi
 
     TMP=$(cat /proc/sys/vm/vfs_cache_pressure 2> /dev/null)
     if [ -n "$TMP" ] && [ -n "$vfscp" ]; then
-        if [ "$TMP" -ne "$vfscp" ]; then
+        case $TMP in
+        $vfscp) info "VFS cache reclaim priority: '$TMP'." ;;
+        *)
             info_px "\033[1;35mOLD:\033[0m " "VFS cache reclaim priority:" \
                     "'$TMP'."
             info_px "\033[1;34mNEW:\033[0m " "VFS cache reclaim priority:" \
                     "'$vfscp'."
-        else
-            info "VFS cache reclaim priority: '$TMP'."
-        fi
+        ;;
+        esac
     elif [ -n "$TMP" ]; then
         info "VFS cache reclaim priority: '$TMP'."
     fi
