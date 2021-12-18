@@ -949,10 +949,9 @@ spatch_exec() {
         $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1 &
     done < "$FILE"; wait && [ -n "$verbose" ] && unset CNT
 
-    if [ $(fcount "${TMPDIR:-/tmp}" '1.patch' 3) -eq 0 ]; then
-        spatch_post;
-        err 1 "No patches found."
-    else
+    case $(fcount "${TMPDIR:-/tmp}" '1.patch' 3) in
+    0) spatch_post; err 1 "No patches found." ;;
+    *)
         SFILE=$(
             for PATCH in ${TMPDIR:-/tmp}/*.patch; do
                 CSTR=$(pline 1 "$PATCH")
@@ -968,7 +967,8 @@ spatch_exec() {
                 echo "$CSTR $DSTR"
             done
         )
-    fi
+    ;;
+    esac
 
     SFILE=$(echo "$SFILE" | sort -t " " -k4.1,4.4 -k3.1,3.3M -k2.1n \
                                         -k5.1,5.2 -k5.4,5.5 -k5.7,5.8)
