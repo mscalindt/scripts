@@ -711,23 +711,22 @@ admerge_check() {
     [ -z "$OBR" ] && \
         err 2 "Failed to identify current branch. (not in git repository?)"
 
-    if [ $1 ]; then
-        if [ $1 = abort ] || [ $1 = continue ] || [ $1 = status ]; then
-            if [ ! -r "$ALOCK" ]; then
-                err 2 "No lock file found. (no merge in progress?)"
-            fi
+    case $1 in
+    abort | continue | status)
+        if [ ! -r "$ALOCK" ]; then
+            err 2 "No lock file found. (no merge in progress?)"
         fi
-    else
+    ;;
+    *)
         if [ -r "$ALOCK" ]; then
             err 2 "A merge is already in progress. ($ALOCK)"
         fi
-    fi
 
-    if [ ! $1 ]; then
-        if [ -r "$AMSG" ] && [ ! -r "$ALOCK" ]; then
+        if [ -r "$AMSG" ]; then
             rm -f "$AMSG"
         fi
-    fi
+    ;;
+    esac
 }
 
 admerge_lock() {
@@ -758,7 +757,8 @@ admerge_work() {
         _ac "S" && gitc_args="--gpg-sign ${gitc_args}"
     fi
 
-    if [ $1 ] && [ $1 = status ]; then
+    case $1 in
+    status)
         _qi "%bOur branch:%b $OBR"
         _qi "%bTheir branch:%b %s" '_aq 1'
         _qi "%bLock file location:%b $ALOCK"
@@ -766,15 +766,15 @@ admerge_work() {
         _qi "%bCommit message file location:%b $AMSG"
         _qi "%bCommit message file content:%b\n%s" 'parse 3 "$AMSG"'
         _qi "%bStatus of files:%b\n%s" 'git -c color.ui=always status -s'
-    fi
+    ;;
+    esac
 }
 
 admerge_exec() {
-    if [ $1 ] && [ $1 = abort ]; then
-        git merge --abort || exit $?
-    elif [ $1 ] && [ $1 = continue ]; then
-        git commit ${gitc_args} || exit $?
-    else
+    case $1 in
+    abort) git merge --abort || exit $? ;;
+    continue) git commit ${gitc_args} || exit $? ;;
+    *)
         if ! git merge ${gitm_args}; then
             if git merge HEAD > /dev/null 2>&1; then
                 RC=1 && return 1
@@ -784,7 +784,8 @@ admerge_exec() {
         fi
 
         git commit ${gitc_args} || exit $?
-    fi
+    ;;
+    esac
 }
 
 admerge_post() {
