@@ -60,11 +60,11 @@ err() {
 #               '1X' - count only files ending with "X",
 #               '2' - count only directories,
 #               '2X' - count only directories ending with "X")
+# [$3] - mode('3' - exclude hidden files/directories)
 #
 # Returns:
 # (0) count
-# (1) directory is empty
-# (2) not a directory | directory does not exist
+# (1) not a directory | directory does not exist
 #
 # Caveats:
 # 1. The number of files/directories the function (i.e. system) can process
@@ -76,43 +76,134 @@ err() {
 #    Fix: none; not applicable.
 #
 fcount() {
-    [ -d "$1" ] && i="$1" || return 2
+    [ -d "$1" ] && i="$1" || return 1
+    iiii=0
 
-    if [ $# -eq 2 ]; then
+    if [ $# -eq 1 ]; then
+        set -- "$i"/*
+        [ -e "$1" ] && iiii=$#
+
+        set -- "$i"/.*
+        [ $# -ge 3 ] && iiii=$((iiii + $# - 2))
+    elif [ $# -eq 2 ] && [ "$2" = 3 ]; then
+        set -- "$i"/*
+        [ -e "$1" ] && iiii=$#
+    elif [ $# -eq 3 ]; then
         case "$2" in
             0*)
-                ii="${2#0}"
-                set -- "$i"/*"$ii" && iii="$1" && ii=$#
+                ii="${2#?}"
+
+                set -- "$i"/*"$ii"
+                [ -e "$1" ] && iiii=$#
             ;;
             1)
-                set -- "$i"/* && iii="$1" && ii=$#
+                set -- "$i"/*
+                [ -e "$1" ] && iiii=$#
+
                 set -- "$i"/*/
-                [ -e "$1" ] && i=$# && ii=$((ii - i))
+                [ -e "$1" ] && iiii=$((iiii - $#))
             ;;
             1*)
-                ii="${2#1}"
-                set -- "$i"/*"$ii" && iii="$1" && iiii=$#
+                ii="${2#?}"
+
+                set -- "$i"/*"$ii"
+                [ -e "$1" ] && iiii=$#
+
                 set -- "$i"/*"$ii"/
-                if [ -e "$1" ]; then
-                    i=$# && ii=$((iiii - i))
-                else
-                    ii="$iiii"
-                fi
+                [ -e "$1" ] && iiii=$((iiii - $#))
             ;;
             2)
-                set -- "$i"/*/ && iii="$1" && ii=$#
+                set -- "$i"/*/
+                [ -e "$1" ] && iiii=$#
             ;;
             2*)
-                ii="${2#2}"
-                set -- "$i"/*"$ii"/ && iii="$1" && ii=$#
+                ii="${2#?}"
+
+                set -- "$i"/*"$ii"/
+                [ -e "$1" ] && iiii=$#
             ;;
         esac
     else
-        set -- "$i"/* && iii="$1" && ii=$#
+        case "$2" in
+            0*)
+                ii="${2#?}"
+
+                set -- "$i"/*"$ii"
+                [ -e "$1" ] && iiii=$#
+
+                set -- "$i"/.*"$ii"
+                case "$ii" in
+                    ".") [ -e "$2" ] && iiii=$((iiii + $# - 1)) ;;
+                    "..") [ -e "$1" ] && iiii=$((iiii + $#)) ;;
+                    *)
+                        [ -e "$i/$ii" ] && iiii=$((iiii + 1))
+                        [ -e "$1" ] && iiii=$((iiii + $#))
+                    ;;
+                esac
+            ;;
+            1)
+                set -- "$i"/*
+                [ -e "$1" ] && iiii=$#
+
+                set -- "$i"/*/
+                [ -e "$1" ] && iiii=$((iiii - $#))
+
+                set -- "$i"/.*
+                [ -e "$3" ] && iiii=$((iiii + $# - 2))
+
+                set -- "$i"/.*/
+                [ -e "$3" ] && iiii=$((iiii - $# + 2))
+            ;;
+            1*)
+                ii="${2#?}"
+
+                [ -f "$i/$ii" ] && iiii=1
+
+                set -- "$i"/*"$ii"
+                [ -e "$1" ] && iiii=$((iiii + $#))
+
+                set -- "$i"/.*"$ii"
+                case "$ii" in
+                    ".") [ -e "$2" ] && iiii=$((iiii + $# - 1)) ;;
+                    *) [ -e "$1" ] && iiii=$((iiii + $#)) ;;
+                esac
+
+                set -- "$i"/.*"$ii"/
+                case "$ii" in
+                    ".") [ -e "$2" ] && iiii=$((iiii - $# + 1)) ;;
+                    *) [ -e "$1" ] && iiii=$((iiii - $#)) ;;
+                esac
+
+                set -- "$i"/*"$ii"/
+                [ -e "$1" ] && iiii=$((iiii - $#))
+            ;;
+            2)
+                set -- "$i"/*/
+                [ -e "$1" ] && iiii=$#
+
+                set -- "$i"/.*/
+                [ -e "$3" ] && iiii=$((iiii + $# - 2))
+            ;;
+            2*)
+                ii="${2#?}"
+
+                set -- "$i"/*"$ii"/
+                [ -e "$1" ] && iiii=$#
+
+                set -- "$i"/.*"$ii"/
+                case "$ii" in
+                    ".") [ -e "$2" ] && iiii=$((iiii + $# - 1)) ;;
+                    "..") [ -e "$1" ] && iiii=$((iiii + $#)) ;;
+                    *)
+                        [ -d "$i/$ii" ] && iiii=$((iiii + 1))
+                        [ -e "$1" ] && iiii=$((iiii + $#))
+                    ;;
+                esac
+            ;;
+        esac
     fi
 
-    [ -e "$iii" ] && printf "%d" "$ii" && return 0
-    return 1
+    printf "%d" "$iiii" && return 0
 }
 
 # Description:
@@ -630,50 +721,110 @@ ltr_substr1() {
 }
 
 # Description:
-# Parse the content of file
+# Parse the lines of a file
 #
 # Parameters:
 # <$1> - mode('0' - one-to-one copy,
-#             '1' - wrap parsed lines in one leading/trailing whitespace char,
-#             '2' - wrap parsed lines in two leading/trailing whitespace chars,
+#             '1' - wrap parsed lines in one leading/trailing whitespace
+#                   character,
+#             '2' - wrap parsed lines in two leading/trailing whitespace
+#                   characters,
 #             '3' - skip empty lines,
-#             '4' - strip trailing/leading whitespace chars)
+#             '4' - strip trailing/leading whitespace characters)
 # <"$2"> - file
+# [$3] - mode('5N' - stop parsing further than specified "N" line)
 #
 # Returns:
 # (0) output | empty output (file)
-# (1) file does not exist | file permission error
+# (1) not a file | file does not exist
+# (2) file access error
 #
 parse() {
-    case $1 in
-        0)
-            while IFS= read -r LINE || [ -n "$LINE" ]; do
-                printf "%s\n" "$LINE"
-            done < "$2"
-        ;;
-        1)
-            while IFS= read -r LINE || [ -n "$LINE" ]; do
-                printf " %s \n" "$LINE"
-            done < "$2"
-        ;;
-        2)
-            while IFS= read -r LINE || [ -n "$LINE" ]; do
-                printf "  %s  \n" "$LINE"
-            done < "$2"
-        ;;
-        3)
-            while IFS= read -r LINE || [ -n "$LINE" ]; do
-                [ -n "$LINE" ] && printf "%s\n" "$LINE"
-            done < "$2"
-        ;;
-        4)
-            while read -r LINE || [ -n "$LINE" ]; do
-                printf "%s\n" "$LINE"
-            done < "$2"
-        ;;
+    [ -f "$2" ] || return 1
+    [ -r "$2" ] || return 2
+
+    case $# in
+    3)
+        x=0
+        set -- $1 "$2" ${3#?}
+        case $1 in
+            0)
+                while IFS= read -r LINE; do
+                    x=$((x + 1))
+                    [ $x -eq $3 ] && break
+                    printf "%s\n" "$LINE"
+                done < "$2"
+                [ -n "$LINE" ] && printf "%s\n" "$LINE" || printf '\n'
+            ;;
+            1)
+                while IFS= read -r LINE; do
+                    x=$((x + 1))
+                    [ $x -eq $3 ] && break
+                    printf " %s \n" "$LINE"
+                done < "$2"
+                [ -n "$LINE" ] && printf " %s \n" "$LINE" || printf '\n'
+            ;;
+            2)
+                while IFS= read -r LINE; do
+                    x=$((x + 1))
+                    [ $x -eq $3 ] && break
+                    printf "  %s  \n" "$LINE"
+                done < "$2"
+                [ -n "$LINE" ] && printf "  %s  \n" "$LINE" || printf '\n'
+            ;;
+            3)
+                while IFS= read -r LINE || [ -n "$LINE" ] ; do
+                    x=$((x + 1))
+                    [ -n "$LINE" ] && printf "%s\n" "$LINE"
+                    [ $x -eq $3 ] && break
+                done < "$2"
+            ;;
+            4)
+                while read -r LINE; do
+                    x=$((x + 1))
+                    [ $x -eq $3 ] && break
+                    printf "%s\n" "$LINE"
+                done < "$2"
+                [ -n "$LINE" ] && printf "%s\n" "$LINE" || printf '\n'
+            ;;
+        esac
+    ;;
+    *)
+        case $1 in
+            0)
+                while IFS= read -r LINE; do
+                    printf "%s\n" "$LINE"
+                done < "$2"
+                [ -n "$LINE" ] && printf "%s\n" "$LINE" || printf '\n'
+            ;;
+            1)
+                while IFS= read -r LINE; do
+                    printf " %s \n" "$LINE"
+                done < "$2"
+                [ -n "$LINE" ] && printf " %s \n" "$LINE" || printf '\n'
+            ;;
+            2)
+                while IFS= read -r LINE; do
+                    printf "  %s  \n" "$LINE"
+                done < "$2"
+                [ -n "$LINE" ] && printf "  %s  \n" "$LINE" || printf '\n'
+            ;;
+            3)
+                while IFS= read -r LINE || [ -n "$LINE" ] ; do
+                    [ -n "$LINE" ] && printf "%s\n" "$LINE"
+                done < "$2"
+            ;;
+            4)
+                while read -r LINE; do
+                    printf "%s\n" "$LINE"
+                done < "$2"
+                [ -n "$LINE" ] && printf "%s\n" "$LINE" || printf '\n'
+            ;;
+        esac
+    ;;
     esac
 
-    return $?
+    return 0
 }
 
 # Description:
@@ -685,15 +836,21 @@ parse() {
 #
 # Returns:
 # (0) line's content | line empty
-# (1) line does not exist | file permission error
+# (1) line does not exist
+# (2) not a file | file does not exist
+# (3) file access error
 #
 pline() {
     x=0
 
-    while read -r LINE || [ -n "$LINE" ]; do
+    [ -f "$2" ] || return 2
+    [ -r "$2" ] || return 3
+
+    while read -r LINE; do
         x=$((x + 1))
         [ $x -eq $1 ] && printf "%s" "$LINE" && return 0
     done < "$2"
+    [ $((x + 1)) -eq $1 ] && printf "%s" "$LINE" && return 0
 
     return 1
 }
@@ -792,7 +949,7 @@ spatch_exec() {
         $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1 &
     done < "$FILE"; wait && [ -n "$verbose" ] && unset CNT
 
-    if ! fcount "${TMPDIR:-/tmp}" '1.patch' > /dev/null 2>&1; then
+    if [ $(fcount "${TMPDIR:-/tmp}" '1.patch' 3) -eq 0 ]; then
         spatch_post;
         err 1 "No patches found."
     else
