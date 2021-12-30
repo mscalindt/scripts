@@ -404,7 +404,6 @@ main() {
     [ -n "$ssize" ] && unset ssize
     [ -n "$swappiness" ] && unset swappiness
     [ -n "$vfscp" ] && unset vfscp
-    [ -n "$check" ] && unset check
     [ -n "$RC" ] && unset RC
 
     # Serve the script until no script parameters passed
@@ -415,6 +414,7 @@ main() {
         case "$1" in
             # Parse specific options first
             "--help") usage && return 0 ;;
+            "-c" | "--check") fswap_env; fswap_check; return 0 ;;
 
             # Parse options
             "--"*)
@@ -471,8 +471,6 @@ main() {
                         shift 2 && continue
                     fi
                 fi
-
-                if grep_str 'check' "$i" 3; then check=1; fi
 
                 if [ -n "$i" ] && [ ! $grep_str ]; then
                     warn "Unrecognized option: '$1'. See --help"
@@ -534,9 +532,6 @@ main() {
                     fi
                 fi
 
-                if grep_str 'c' "$i"; then check=1; fi
-
-                i=$(remchars 'c' "$i")
                 if [ -n "$i" ]; then
                     warn "Unrecognized option(s): '-$i'. See --help"
                 fi
@@ -549,12 +544,6 @@ main() {
             ;;
         esac
     done
-
-    # Take specific actions for special options
-    if [ -n "$check" ]; then
-        fswap_env && fswap_check
-        return 0
-    fi
 
     # Execute the core function
     fswap;
