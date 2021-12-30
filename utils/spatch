@@ -1069,7 +1069,7 @@ main() {
                 if grep_str 'timestamp' "$i" 3; then tstamp=1; fi
                 if grep_str 'verbose' "$i" 3; then verbose=1; fi
 
-                if [ ! $grep_str ]; then
+                if [ -n "$i" ] && [ ! $grep_str ]; then
                     warn "Unrecognized option: '$1'. See --help"
                 fi
                 shift

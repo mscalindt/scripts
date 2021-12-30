@@ -474,7 +474,7 @@ main() {
 
                 if grep_str 'check' "$i" 3; then check=1; fi
 
-                if [ ! $grep_str ]; then
+                if [ -n "$i" ] && [ ! $grep_str ]; then
                     warn "Unrecognized option: '$1'. See --help"
                 fi
                 shift
