@@ -860,7 +860,7 @@ main() {
                 if grep_str 'git-version' "$i" 3; then gver=1; fi
 
                 if [ -n "$i" ] && [ ! $grep_str ]; then
-                    warn "Unrecognized option: '$1'. See --help"
+                    warn "Unrecognized option: '--$i'. See --help"
                 fi
                 shift
             ;;
