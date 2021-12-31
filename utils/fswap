@@ -414,7 +414,6 @@ main() {
         case "$1" in
             # Parse specific options first
             "--help") usage && return 0 ;;
-            "-c" | "--check") fswap_env; fswap_check; return 0 ;;
 
             # Parse options
             "--"*)
@@ -471,6 +470,12 @@ main() {
                         vfscp="$2"
                         shift 2 && continue
                     fi
+                fi
+
+                # Parse specific options
+                if grep_str 'check' "$i" 3; then
+                    fswap_env; fswap_check
+                    return 0
                 fi
 
                 if [ -n "$i" ] && [ ! $grep_str ]; then
@@ -532,6 +537,12 @@ main() {
                         vfscp="$2"
                         shift 2 && continue
                     fi
+                fi
+
+                # Parse specific options
+                if grep_str 'c' "$i"; then
+                    fswap_env; fswap_check
+                    return 0
                 fi
 
                 if [ -n "$i" ]; then
