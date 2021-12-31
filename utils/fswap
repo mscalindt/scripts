@@ -420,6 +420,7 @@ main() {
             "--"*)
                 i=$(ltr_substr0 1 '--' "$1")
 
+                # Parse options
                 if grep_str 'location' "$i" 1; then
                     if grep_str 'location=' "$i" 1; then
                         sfile=$(ltr_substr0 1 '=' "$i")
@@ -480,6 +481,7 @@ main() {
             "-"*)
                 i=$(ltr_substr0 1 '-' "$1")
 
+                # Parse options
                 if grep_str 'l' "$i" 1; then
                     if grep_str 'l=' "$i" 1; then
                         sfile=$(ltr_substr0 1 '=' "$i")

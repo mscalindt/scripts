@@ -1046,6 +1046,7 @@ main() {
             "--"*)
                 i=$(ltr_substr0 1 '--' "$1")
 
+                # Parse options
                 if grep_str 'output' "$i" 1; then
                     if grep_str 'output=' "$i" 1; then
                         tfile=$(ltr_substr0 1 '=' "$i")
@@ -1062,6 +1063,7 @@ main() {
                     fi
                 fi
 
+                # Parse options
                 if grep_str 'direct-url' "$i" 3; then durl=1; fi
                 if grep_str 'invert-sort' "$i" 3; then invert=1; fi
                 if grep_str 'line-numbers' "$i" 3; then lnumbers=1; fi
@@ -1077,6 +1079,7 @@ main() {
             "-"*)
                 i=$(ltr_substr0 1 '-' "$1")
 
+                # Parse options
                 if grep_str 'o' "$i" 1; then
                     if grep_str 'o=' "$i" 1; then
                         tfile=$(ltr_substr0 1 '=' "$i")
@@ -1093,6 +1096,7 @@ main() {
                     fi
                 fi
 
+                # Parse options
                 if grep_str 'd' "$i"; then durl=1; fi
                 if grep_str 'i' "$i"; then invert=1; fi
                 if grep_str 'l' "$i"; then lnumbers=1; fi
