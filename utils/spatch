@@ -949,6 +949,7 @@ spatch_exec() {
     case $(fcount "${TMPDIR:-/tmp}" '1.patch' 3) in
     0) spatch_post; err 1 "No patches found." ;;
     *)
+        [ -n "$purl" ] && SFILE=$(parse 1 "$FILE")
         SFILE=$(
             for PATCH in ${TMPDIR:-/tmp}/*.patch; do
                 CSTR=$(pline 1 "$PATCH")
@@ -956,10 +957,7 @@ spatch_exec() {
                 DSTR=$(pline 3 "$PATCH")
                 DSTR=$(ltr_substr1 2 ' ' 4 ' ' "$DSTR")
 
-                if [ -n "$purl" ]; then
-                    SFILE=$(parse 1 "$FILE")
-                    CSTR=$(ltl_substr1 0 "$CSTR" 1 ' ' "$SFILE" 3)
-                fi
+                [ -n "$purl" ] && CSTR=$(ltl_substr1 0 "$CSTR" 1 ' ' "$SFILE" 3)
 
                 echo "$CSTR $DSTR"
             done
