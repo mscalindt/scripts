@@ -850,11 +850,11 @@ main() {
             "c" | "continue") admerge_continue && return 0 ;;
             "s" | "status") admerge_status && return 0 ;;
 
-            # Parse options
+            # Parse long options
             "--"*)
                 i=$(ltr_substr0 1 '--' "$1")
 
-                # Parse options
+                # Simple options
                 if grep_str 'sign-off' "$i" 3; then soff=1; fi
                 if grep_str 'gpg-sign' "$i" 3; then gsign=1; fi
                 if grep_str 'git-version' "$i" 3; then gver=1; fi
@@ -864,10 +864,11 @@ main() {
                 fi
                 shift
             ;;
+            # Parse short options
             "-"*)
                 i=$(ltr_substr0 1 '-' "$1")
 
-                # Parse options
+                # Simple options
                 if grep_str 's' "$i"; then soff=1; fi
                 if grep_str 'S' "$i"; then gsign=1; fi
                 if grep_str 'v' "$i"; then gver=1; fi
