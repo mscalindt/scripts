@@ -934,17 +934,16 @@ spatch_exec() {
             continue
         fi
 
-        TMP=$(ltl_substr1 0 '://' 1 ' ' " $LINE" 3)
-        URL=$(ltr_substr1 0 '://' 1 ' ' "$LINE ")
-        URL="$TMP$URL"
+        LINE=$(ltl_substr1 0 '://' 1 ' ' " $LINE" 3;
+               ltr_substr1 0 '://' 1 ' ' "$LINE ")
 
         [ -z "$durl" ] && \
-            ! grep_str '.patch' "$URL" && URL=${URL}.patch
+            ! grep_str '.patch' "$LINE" && LINE="$LINE".patch
 
         [ -n "$verbose" ] && \
-            NUM=$((1 + CNT)) && CNT=$NUM && info "URL ($NUM) - '$URL'."
+            NUM=$((1 + CNT)) && CNT=$NUM && info "URL ($NUM) - '$LINE'."
 
-        $URL_TOOL ${URL_TOOL_ARGS} $URL > /dev/null 2>&1 &
+        $URL_TOOL ${URL_TOOL_ARGS} "$LINE" > /dev/null 2>&1 &
     done < "$FILE"; wait && [ -n "$verbose" ] && unset CNT
 
     case $(fcount "${TMPDIR:-/tmp}" '1.patch' 3) in
