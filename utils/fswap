@@ -376,9 +376,9 @@ fswap_work() {
 }
 
 fswap_exec() {
-    dd if=/dev/zero of="$sfile" \
-       bs="$ssize" count=$bscount \
-       status=progress || exit $?
+    dd "if=/dev/zero" "of=$sfile" \
+       "bs=$ssize" "count=$bscount" \
+       "status=progress" || exit $?
     chmod 600 "$sfile" || exit $?
     mkswap "$sfile" || exit $?
     swapon "$sfile" || exit $?
