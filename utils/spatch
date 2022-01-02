@@ -1119,7 +1119,7 @@ main() {
     fi
 
     # Convert relative path to absolute path
-    TMP=$(get_fpath "$1") && set -- "$TMP"
+    set -- $(get_fpath "$1")
 
     # Execute the core function
     spatch "$1"
