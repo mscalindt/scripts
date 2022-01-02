@@ -911,8 +911,6 @@ spatch_check() {
 }
 
 spatch_work() {
-    SFILE=
-
     if command -v curl > /dev/null 2>&1; then
         URL_TOOL='curl'
         URL_TOOL_ARGS='-Of'
