@@ -474,7 +474,7 @@ main() {
 
                 # Specific simple options
                 if grep_str 'check' "$i" 3; then
-                    fswap_env; fswap_check
+                    fswap_env; fswap_check;
                     return 0
                 fi
 
@@ -542,7 +542,7 @@ main() {
 
                 # Specific simple options
                 if grep_str 'c' "$i"; then
-                    fswap_env; fswap_check
+                    fswap_env; fswap_check;
                     return 0
                 fi
 
