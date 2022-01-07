@@ -413,7 +413,7 @@ main() {
 
         case "$1" in
             # Parse specific options first
-            "--help") usage && return 0 ;;
+            "--help") usage; return 0 ;;
 
             # Parse long options
             "--"*)

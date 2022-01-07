@@ -845,10 +845,10 @@ main() {
         case "$1" in
             # Parse specific options first
             "--") shift && break ;;
-            "--help") usage && return 0 ;;
-            "a" | "abort") admerge_abort && return 0 ;;
-            "c" | "continue") admerge_continue && return 0 ;;
-            "s" | "status") admerge_status && return 0 ;;
+            "--help") usage; return 0 ;;
+            "a" | "abort") admerge_abort; return 0 ;;
+            "c" | "continue") admerge_continue; return 0 ;;
+            "s" | "status") admerge_status; return 0 ;;
 
             # Parse long options
             "--"*)
