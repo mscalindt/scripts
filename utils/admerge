@@ -10,7 +10,7 @@ notice
 
 usage() {
 printf "%s" "\
-Usage: admerge [options] [--] [BRANCH]
+Usage: admerge [merge options] [options] [--] [BRANCH]
 Do an advanced, better merge. (git wrapper)
 
 Options:

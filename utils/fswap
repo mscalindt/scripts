@@ -11,7 +11,7 @@ notice
 
 usage() {
 printf "%s" "\
-Usage: fswap [options] [-c]
+Usage: fswap [-c] [options]
 Create a swap file.
 
 Options:
