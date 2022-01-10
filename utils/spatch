@@ -943,7 +943,7 @@ spatch_exec() {
             ! grep_str '.patch' "$LINE" && LINE="$LINE".patch
 
         [ -n "$verbose" ] && \
-            NUM=$((1 + CNT)) && CNT=$NUM && info "URL ($NUM) - '$LINE'."
+            NUM=$((1 + CNT)) && CNT=$NUM && info "URL ($NUM): '$LINE'."
 
         $URL_TOOL ${URL_TOOL_ARGS} "$LINE" > /dev/null 2>&1 &
     done < "$FILE"; wait && [ -n "$verbose" ] && unset CNT
