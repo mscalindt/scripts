@@ -24,6 +24,8 @@ Options:
                              the sort output shall be written; if the parent
                              does not exist, output will be written to stdout
   -p, --preserve-url         preserve the URLs
+  -s, --short-commit         print a shorter SHA-1 (12 characters) of the
+                             commits
   -t, --timestamp            append timestamp to the sort output
   -v, --verbose              show additional information unrelated to the sort
                              output
@@ -954,6 +956,9 @@ spatch_exec() {
             for PATCH in ${TMPDIR:-/tmp}/*.patch; do
                 CSTR=$(pline 1 "$PATCH")
                 CSTR=$(ltr_substr1 1 ' ' 1 ' ' "$CSTR")
+
+                [ -n "$scommit" ] && CSTR="${CSTR%????????????????????????????}"
+
                 DSTR=$(pline 3 "$PATCH")
                 DSTR=$(ltr_substr1 2 ' ' 4 ' ' "$DSTR")
 
@@ -1063,6 +1068,7 @@ main() {
                 if grep_str 'invert-sort' "$i" 3; then invert=1; fi
                 if grep_str 'line-numbers' "$i" 3; then lnumbers=1; fi
                 if grep_str 'preserve-url' "$i" 3; then purl=1; fi
+                if grep_str 'short-commit' "$i" 3; then scommit=1; fi
                 if grep_str 'timestamp' "$i" 3; then tstamp=1; fi
                 if grep_str 'verbose' "$i" 3; then verbose=1; fi
 
@@ -1097,10 +1103,11 @@ main() {
                 if grep_str 'i' "$i"; then invert=1; fi
                 if grep_str 'l' "$i"; then lnumbers=1; fi
                 if grep_str 'p' "$i"; then purl=1; fi
+                if grep_str 's' "$i"; then scommit=1; fi
                 if grep_str 't' "$i"; then tstamp=1; fi
                 if grep_str 'v' "$i"; then verbose=1; fi
 
-                i=$(remchars 'dilptv' "$i")
+                i=$(remchars 'dilpstv' "$i")
                 if [ -n "$i" ]; then
                     warn "Unrecognized option(s): '-$i'. See --help"
                 fi
