@@ -399,12 +399,11 @@ fswap() {
 }
 
 main() {
-    # For security reasons, unset conditional variables if they exist
-    [ -n "$sfile" ] && unset sfile
-    [ -n "$ssize" ] && unset ssize
-    [ -n "$swappiness" ] && unset swappiness
-    [ -n "$vfscp" ] && unset vfscp
-    [ -n "$RC" ] && unset RC
+    # For practical reasons, unset conditional variables if they exist
+    # special:
+    unset RC
+    # options:
+    unset sfile ssize swappiness vfscp
 
     # Serve the script until no script parameters passed
     while [ "$1" ]; do

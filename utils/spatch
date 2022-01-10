@@ -1021,16 +1021,11 @@ spatch() {
 }
 
 main() {
-    # For security reasons, unset conditional variables if they exist
-    [ -n "$CNT" ] && unset CNT
-    [ -n "$tfile" ] && unset tfile
-    [ -n "$durl" ] && unset durl
-    [ -n "$invert" ] && unset invert
-    [ -n "$lnumbers" ] && unset lnumbers
-    [ -n "$purl" ] && unset purl
-    [ -n "$tstamp" ] && unset tstamp
-    [ -n "$verbose" ] && unset verbose
-    [ -n "$RC" ] && unset RC
+    # For practical reasons, unset conditional variables if they exist
+    # special:
+    unset RC CNT
+    # options:
+    unset tfile durl invert lnumbers purl scommit tstamp verbose
 
     # Serve the script until no script parameters passed
     while [ "$1" ]; do
