@@ -630,8 +630,8 @@ _mc() {
     4)
         i=$(eval "printf \"%s\" \"$3\"") && [ ! "$i" ] && return 1
         case $4 in
-            0) i=$(git $2 ${OBR}..${TBR} 2> /dev/null) ;;
-            1) i=$(git $2 ${OBR}...${TBR} 2> /dev/null) ;;
+            0) i=$(git $2 ${OBR}..${BRANCH} 2> /dev/null) ;;
+            1) i=$(git $2 ${OBR}...${BRANCH} 2> /dev/null) ;;
         esac
     ;;
     3)
@@ -639,8 +639,8 @@ _mc() {
             '$'*) i=$(eval "printf \"%s\" \"$3\"") && [ ! "$i" ] && return 1 ;;
         esac
         case "$3" in
-            0) i=$(git $2 ${OBR}..${TBR} 2> /dev/null) ;;
-            1) i=$(git $2 ${OBR}...${TBR} 2> /dev/null) ;;
+            0) i=$(git $2 ${OBR}..${BRANCH} 2> /dev/null) ;;
+            1) i=$(git $2 ${OBR}...${BRANCH} 2> /dev/null) ;;
             *) i=$(git $2 2> /dev/null) ;;
         esac
     ;;
@@ -711,7 +711,7 @@ admerge_env() {
     ALOCK="$PWD"/.git/admerge_lock
     AMSG="$PWD"/.git/admerge_msg
 
-    [ "$1" ] && TBR="$1" || TBR=
+    [ "$1" ] && BRANCH="$1" || BRANCH=
 }
 
 admerge_check() {
@@ -739,7 +739,7 @@ admerge_check() {
 admerge_lock() {
     {
     _aw "1"
-    _aw "$TBR"
+    _aw "$BRANCH"
     _aw "s" '$soff'
     _aw "S" '$gsign'
     _aw "2"
@@ -748,7 +748,7 @@ admerge_lock() {
 
 admerge_msg() {
     {
-    _mc "Merge '$TBR' into '$OBR'\n\n"
+    _mc "Merge '$BRANCH' into '$OBR'\n\n"
     _mc "Summary of commits (%d):\n" "rev-list --count" 0
     _mc "1" "log --oneline" 0
     _mc "3" "--version" '$gver'
@@ -756,7 +756,7 @@ admerge_msg() {
 }
 
 admerge_work() {
-    gitm_args="--no-ff --no-commit $TBR"
+    gitm_args="--no-ff --no-commit $BRANCH"
     gitc_args="-eF $AMSG --no-edit"
 
     if [ -r "$ALOCK" ]; then
