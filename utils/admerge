@@ -790,6 +790,10 @@ admerge_exec() {
             fi
         fi
 
+        if git merge HEAD > /dev/null 2>&1; then
+            return 0
+        fi
+
         git commit ${gitc_args} || exit $?
     ;;
     esac
