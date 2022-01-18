@@ -10,8 +10,16 @@ notice
 
 usage() {
 printf "%s" "\
-Usage: admerge [merge options] [options] [--] [BRANCH]
+Usage: admerge [a] [c] [s] [-sSv] [--] [BRANCH]
 Do an advanced, better merge. (git wrapper)
+
+In-merge options (merge with conflicts):
+  a, abort                   abort a merge in progress; this option disregards
+                             other options
+  c, continue                resume a merge; this option disregards other
+                             options
+  s, status                  show status of the current merge; this option
+                             disregards other options
 
 Options:
   -s, --sign-off             add Signed-off-by line at the end of the commit
@@ -23,14 +31,6 @@ Options:
                              message
       --help     display this help text and exit
       --         specify end of options
-
-In-merge options (merge with conflicts):
-  a, abort                   abort a merge in progress; this option disregards
-                             other options
-  c, continue                resume a merge; this option disregards other
-                             options
-  s, status                  show status of the current merge; this option
-                             disregards other options
 
 External utilities hard dependency list:
 git, rm.
