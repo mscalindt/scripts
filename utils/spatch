@@ -12,7 +12,7 @@ notice
 
 usage() {
 printf "%s" "\
-Usage: spatch [options] [--] FILE
+Usage: spatch [-dilpstv] [-o PATH] [--] FILE
 Sort commit/patch URLs by date.
 
 Options:
