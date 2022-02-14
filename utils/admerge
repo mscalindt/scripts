@@ -83,118 +83,6 @@ grep_str() {
 }
 
 # Description:
-# Get positional substring, (from LTR) (N)character(s), in a string
-#
-# Parameters:
-# <$1> - from "N" LTR character('0' - max)
-# <"$2"> - from "X" character(s)
-# <"$3"> - string
-# [$4] - mode('0' - strip all leading whitespace characters,
-#             '1' - strip all trailing whitespace characters,
-#             '2' - strip all leading/trailing whitespace characters)
-# [$5] - mode('3' - keep $2)
-# [$6] - mode('4' - verify the expansion)
-#
-# Returns:
-# (0) substring
-# (1) empty expansion (empty, or unspecified, or wrong -- shell specific)
-# (2) unspecified expansion (unspecified, or empty, or wrong -- shell specific)
-#
-# Returns (mode '4'):
-# (0) substring
-# (1) empty expansion ($2 is the last character by the given ruleset)
-# (2) unspecified expansion ($2 is not present at all)
-# (3) wrong expansion ($1 is greater than the total $2 in the string)
-#
-# Caveats:
-# 1. If mode 4 is NOT passed, you should NOT assume the expansion is
-#    respectively correct, even if the return code is 0. This is because every
-#    shell has its own unique string expander and unspecified results will vary
-#    between them; for example, if $2 is not present anymore or at all, one
-#    shell might return the same expansion, while another might return empty
-#    expansion. Also, the string expander on its own does NOT guarantee correct
-#    expansion at all.
-#    Fix: Use mode '4'. When mode 4 is passed, the function will do various
-#    checks on each expansion to accurately determine what the expansion will
-#    result into; this guarantees respectively correct expansion on any shell.
-#    Performance cost should be negligible on most shells.
-#
-ltr_substr0() {
-    if [ $# -eq 6 ] || \
-       [ $# -ge 5 ] && [ $5 -eq 4 ] || \
-       [ $# -ge 4 ] && [ $4 -eq 4 ]; then
-        case $1 in
-            0)
-                case "$3" in
-                    *"$2") return 1 ;;
-                    *"$2"*) : ;;
-                    *) return 2 ;;
-                esac
-
-                i="${3##*"$2"}"
-            ;;
-            *)
-                case $1"$3" in
-                    $1*"$2"*"$2"*) : ;;
-                    1*"$2") return 1 ;;
-                    $1*"$2"*) : ;;
-                    *) return 2 ;;
-                esac
-
-                x=0 && i="$3"
-                until [ $x -eq $1 ]; do
-                    i="${i#*"$2"}"
-
-                    case "$i" in
-                        *"$2"*"$2"*) : ;;
-                        *"$2") [ $((x + 2)) -eq $1 ] && return 1 ;;
-                        *"$2"*) : ;;
-                        *) [ $((x + 1)) -ne $1 ] && return 3 ;;
-                    esac
-
-                    x=$((x + 1))
-                done
-            ;;
-        esac
-    else
-        case $1 in
-            0)
-                i="${3##*"$2"}"
-            ;;
-            *)
-                x=0 && i="$3"
-                until [ $x -eq $1 ]; do
-                    i="${i#*"$2"}"
-                    x=$((x + 1))
-                done
-            ;;
-        esac
-
-        [ "$i" = "$3" ] && return 2
-    fi
-
-    if [ -n "$i" ]; then
-        if [ $# -ge 4 ] && [ $4 -eq 0 ]; then
-            i="${i#${i%%[![:space:]]*}}"
-        elif [ $# -ge 4 ] && [ $4 -eq 1 ]; then
-            i="${i%${i##*[![:space:]]}}"
-        elif [ $# -ge 4 ] && [ $4 -eq 2 ]; then
-            i="${i#${i%%[![:space:]]*}}"
-            i="${i%${i##*[![:space:]]}}"
-        fi
-
-        if [ $# -ge 5 ] && [ $5 -eq 3 ] || \
-           [ $# -ge 4 ] && [ $4 -eq 3 ]; then
-            i="$2$i"
-        fi
-
-        printf "%s" "$i" && return 0
-    fi
-
-    return 1
-}
-
-# Description:
 # Get positional substring, (from&to LTR) (N)character(s), in a string
 #
 # Parameters:
@@ -502,53 +390,6 @@ pline() {
 }
 
 # Description:
-# Remove specific character(s) in string
-#
-# Parameters:
-# <"$1"> - character(s)
-# <"$2"> - string
-#
-# Returns:
-# $2 without $1 characters,
-# $2
-#
-# Caveats:
-# 1. Multibyte characters are not suitable as a delimiter ($1), as the removal
-#    of the characters is done by IFS splitting; any characters in a multibyte
-#    character will be stripped from the string. Essentially, this means that,
-#    for example, a multibyte character consisting of a whitespace character
-#    will remove all the whitespace characters in the string ($2).
-#    Fix: none; shell limitation.
-# 2. If the delimiter ($1) contains <whitespace> (' ') and the string ($2)
-#    contains multibyte characters consisting of a whitespace character, the
-#    multibyte characters will be rendered incorrect, resulting in a bad string.
-#    Fix: none; shell limitation.
-#
-remchars() {
-    set -f
-
-    i=$IFS
-
-    IFS=$1
-    set -- $2
-    printf "%s" "$@"
-
-    IFS=$i
-
-    set +f
-}
-
-# Description:
-# Print a warning
-#
-# Parameters:
-# <"$1+"> - text
-#
-warn() {
-    printf "%bWARNING:%b %s\n" "\033[1;33m" "\033[0m" "$*"
-}
-
-# Description:
 # Get N attribute in the lock file
 #
 # Parameters:
@@ -834,58 +675,455 @@ admerge() {
     admerge_post;
 }
 
+main_functions() {
+    # Description:
+    # Signify invalid option
+    #
+    # Parameters:
+    # <"$1"> - option
+    #
+    opt_invalid() {
+        set -- "${0##*/}" "$1"
+        printf "%s: Invalid option: '%s'\n" "$1" "$2"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    }
+
+    # Description:
+    # Signify unknown (*) option
+    #
+    # Parameters:
+    # <"$1"> - option
+    #
+    opt_unknown() {
+        set -- "${0##*/}" "$1"
+        printf "%s: Unknown option: '%s'\n" "$1" "$2"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    }
+
+    # Description:
+    # Signify unrecognized ('--') option
+    #
+    # Parameters:
+    # <"$1"> - option
+    #
+    opt_unrecognized() {
+        set -- "${0##*/}" "$1"
+        printf "%s: Unrecognized option: '%s'\n" "$1" "$2"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    }
+
+    # Description:
+    # Return 0 if complex (arg) option in option holder [$i]
+    #
+    # Parameters (<1+>):
+    # ["$1"] - -*
+    # ["$2"] - --*
+    #
+    # Provides:
+    # <"$ii"> - option argument
+    # <"$n"> - shift count
+    #
+    copt() {
+        [ -z "$i" ] && return 1
+
+        case "$i" in
+        "--"*)
+            case "$1:$2" in
+                "--"*":$2") : ;;
+                "$1:--"*) set -- "$2" ;;
+                *) return 1 ;;
+            esac
+        ;;
+        "-"*)
+            case "$1:$2" in
+                "-"*":$2") : ;;
+                "$1:-"*) set -- "$2" ;;
+                *) return 1 ;;
+            esac
+        ;;
+        esac
+
+        [ -z "$ii" ] && {
+            case "$i" in
+                "$1")
+                    printf "%s: Option '%s' requires an argument.\n" \
+                           "${0##*/}" "$1"
+                    printf "%s: Try '%s --help' for more information.\n" \
+                           "${0##*/}" "${0##*/}"
+                    exit 2
+                ;;
+            esac
+        }
+
+        case "$i" in
+        "--"*)
+            case "$i" in
+                "$1=")
+                    printf "%s: Invalid argument specification for: '%s'\n" \
+                           "${0##*/}" "$1"
+                    printf "%s: Try '%s --help' for more information.\n" \
+                           "${0##*/}" "${0##*/}"
+                    exit 2
+                ;;
+            esac
+        ;;
+        esac
+
+        case "$i" in
+        "--"*)
+            case "$i " in
+            "$1 ")
+                n=2
+                unset i; return 0
+            ;;
+            "$1="*)
+                ii="${i#"$1"=}"; n=1
+                unset i; return 0
+            ;;
+            esac
+        ;;
+        "-"*)
+            case "$i " in
+            "$1 ")
+                n=2
+                unset i; return 0
+            ;;
+            "$1"*)
+                ii="${i#"$1"}"; n=1
+                unset i; return 0
+            ;;
+            esac
+        ;;
+        esac
+
+        return 1
+    }
+
+    # Description:
+    # Return 0 if perhaps complex (arg) option in option holder [$i]
+    #
+    # Parameters (<1+>):
+    # ["$1"] - -*
+    # ["$2"] - --*
+    #
+    # Provides:
+    # ["$ii"] - option argument
+    # <"$n"> - shift count
+    #
+    copt_optional() {
+        [ -z "$i" ] && return 1
+
+        case "$i" in
+        "--"*)
+            case "$1:$2" in
+                "--"*":$2") : ;;
+                "$1:--"*) set -- "$2" ;;
+                *) return 1 ;;
+            esac
+        ;;
+        "-"*)
+            case "$1:$2" in
+                "-"*":$2") : ;;
+                "$1:-"*) set -- "$2" ;;
+                *) return 1 ;;
+            esac
+        ;;
+        esac
+
+        case "$i" in
+        "--"*)
+            case "$i" in
+                "$1=")
+                    printf "%s: Invalid argument specification for: '%s'\n" \
+                           "${0##*/}" "$1"
+                    printf "%s: Try '%s --help' for more information.\n" \
+                           "${0##*/}" "${0##*/}"
+                    exit 2
+                ;;
+            esac
+        ;;
+        esac
+
+        case "$i" in
+        "--"*)
+            case "$i" in
+            "$1")
+                n=1
+                unset i ii; return 0
+            ;;
+            "$1="*)
+                ii="${i#"$1"=}"; n=1
+                unset i; return 0
+            ;;
+            esac
+        ;;
+        "-"*)
+            case "$i" in
+            "$1")
+                n=1
+                unset i ii; return 0
+            ;;
+            "$1"*)
+                ii="${i#"$1"}"; n=1
+                unset i; return 0
+            ;;
+            esac
+        ;;
+        esac
+
+        return 1
+    }
+
+    # Description:
+    # Return 0 if specific complex (arg) option in option holder [$i]
+    #
+    # Parameters:
+    # <"$1"+> - *
+    #
+    # Provides:
+    # <"$ii"> - option argument
+    # <"$n"> - shift count
+    #
+    scopt() {
+        [ -z "$i" ] && return 1
+
+        while [ "$1" ]; do
+            [ -z "$ii" ] && {
+                case "$i" in
+                    "$1")
+                        printf "%s: Option '%s' requires an argument.\n" \
+                               "${0##*/}" "$1"
+                        printf "%s: Try '%s --help' for more information.\n" \
+                               "${0##*/}" "${0##*/}"
+                        exit 2
+                    ;;
+                esac
+            }
+
+            case "$i" in
+                "$1=")
+                    printf "%s: Invalid argument specification for: '%s'\n" \
+                           "${0##*/}" "$1"
+                    printf "%s: Try '%s --help' for more information.\n" \
+                           "${0##*/}" "${0##*/}"
+                    exit 2
+                ;;
+            esac
+
+            case "$i " in
+            "$1 ")
+                n=2
+                unset i; return 0
+            ;;
+            "$1="*)
+                ii="${i#"$1"=}"; n=1
+                unset i; return 0
+            ;;
+            *)
+                shift
+            ;;
+            esac
+        done
+
+        return 1
+    }
+
+    # Description:
+    # Return 0 if specific perhaps complex (arg) option in option holder [$i]
+    #
+    # Parameters:
+    # <"$1"+> - *
+    #
+    # Provides:
+    # ["$ii"] - option argument
+    # <"$n"> - shift count
+    #
+    scopt_optional() {
+        [ -z "$i" ] && return 1
+
+        while [ "$1" ]; do
+            case "$i" in
+                "$1=")
+                    printf "%s: Invalid argument specification for: '%s'\n" \
+                           "${0##*/}" "$1"
+                    printf "%s: Try '%s --help' for more information.\n" \
+                           "${0##*/}" "${0##*/}"
+                    exit 2
+                ;;
+            esac
+
+            case "$i" in
+            "$1")
+                n=1
+                unset i ii; return 0
+            ;;
+            "$1="*)
+                ii="${i#"$1"=}"; n=1
+                unset i; return 0
+            ;;
+            *)
+                shift
+            ;;
+            esac
+        done
+
+        return 1
+    }
+
+    # Description:
+    # Return 0 if simple (!arg) option in option holder [$i]
+    #
+    # Parameters (<1+>):
+    # ["$1"] - -*
+    # ["$2"] - --*
+    #
+    sopt() {
+        [ -z "$i" ] && return 1
+
+        case "$i" in
+        "--"*)
+            case "$1:$2" in
+                "--"*":$2") : ;;
+                "$1:--"*) set -- "$2" ;;
+                *) return 1 ;;
+            esac
+        ;;
+        "-"*)
+            case "$1:$2" in
+                "-"*":$2") : ;;
+                "$1:-"*) set -- "$2" ;;
+                *) return 1 ;;
+            esac
+        ;;
+        esac
+
+        case "$i" in
+        "--"*)
+            case "$i" in
+            "$1")
+                n=1
+                unset i; return 0
+            ;;
+            esac
+        ;;
+        "-"*)
+            case "$i" in
+            "$1"*)
+                [ -n "$optind" ] && optind="$optind @$1@" || optind="@$1@"
+                i="-${i#??}"; n=1
+                return 0
+            ;;
+            esac
+        ;;
+        esac
+
+        return 1
+    }
+
+    # Description:
+    # Return 0 if specific simple (!arg) option in option holder [$i]
+    #
+    # Parameters:
+    # <"$1"+> - *
+    #
+    ssopt() {
+        [ -z "$i" ] && return 1
+
+        while [ "$1" ]; do
+            case "$i" in
+            "$1")
+                n=1
+                unset i; return 0
+            ;;
+            *)
+                shift
+            ;;
+            esac
+        done
+
+        return 1
+    }
+}
+
+# Description:
+# Substitute the function call with script options
+#
+# Parameters:
+# <"$1"> - mode('0' - print standard ('-'; '--') utility options,
+#               '1' - print miscellaneous (*) options)
+#
+main_options() {
+    if [ $1 -eq 0 ]; then
+        sopt "-s" "--sign-off" && { soff=1; }
+        sopt "-S" "--gpg-sign" && { gsign=1; }
+        sopt "-v" "--git-version" && { gver=1; }
+    elif [ $1 -eq 1 ]; then
+        ssopt "a" "abort" && { admerge_abort; exit 0; }
+        ssopt "c" "continue" && { admerge_continue; exit 0; }
+        ssopt "s" "status" && { admerge_status; exit 0; }
+    fi
+}
+
 main() {
     # For practical reasons, unset conditional variables if they exist
-    # special:
+    # > special:
     unset RC
-    # options:
+    # > options:
     unset soff gsign gver
 
-    # Serve the script until no script parameters passed
+    # Source common functions
+    main_functions;
+
+    # Parse options
     while [ "$1" ]; do
-        # Reset variables from previous loop run
-        [ -n "$grep_str" ] && unset grep_str
+        # Simulate global $N (positional parameters) shift
+        #  > option functions modify when appropriate
+        n=1
 
-        case "$1" in
-            # Parse specific options first
-            "--") shift && break ;;
-            "--help") usage; return 0 ;;
-            "a" | "abort") admerge_abort; return 0 ;;
-            "c" | "continue") admerge_continue; return 0 ;;
-            "s" | "status") admerge_status; return 0 ;;
+        # Simulate global $1/$2 (option/argument) handling
+        #  > option functions modify when appropriate
+        i="$1"; ii="$2"
 
-            # Parse long options
+        # Parse standard options
+        #  > required to parse them first
+        ssopt "-" && { opt_invalid "$1"; exit 2; }
+        ssopt "--" && { shift && break; }
+        ssopt "--help" && { usage; exit 0; }
+
+        # Loop on the option holder until fully parsed
+        #  > as we might need to loop on its characters
+        while [ -n "$i" ]; do
+            unset optind
+
+            case "$i" in
+                "-"*) main_options 0 ;;
+                *) main_options 1 ;;
+            esac
+
+            case "$i" in
             "--"*)
-                i=$(ltr_substr0 1 '--' "$1")
-
-                # Simple options
-                if grep_str 'sign-off' "$i" 3; then soff=1; fi
-                if grep_str 'gpg-sign' "$i" 3; then gsign=1; fi
-                if grep_str 'git-version' "$i" 3; then gver=1; fi
-
-                if [ -n "$i" ] && [ ! $grep_str ]; then
-                    warn "Unrecognized option: '--$i'. See --help"
-                fi
-                shift
+                opt_unrecognized "$i"; exit 2
             ;;
-            # Parse short options
             "-"*)
-                i=$(ltr_substr0 1 '-' "$1")
-
-                # Simple options
-                if grep_str 's' "$i"; then soff=1; fi
-                if grep_str 'S' "$i"; then gsign=1; fi
-                if grep_str 'v' "$i"; then gver=1; fi
-
-                i=$(remchars 'sSv' "$i")
-                if [ -n "$i" ]; then
-                    warn "Unrecognized option(s): '-$i'. See --help"
+                if [ -z "$optind" ]; then
+                    opt_invalid "${i%"${i#??}"}"; exit 2
                 fi
-                shift
-            ;;
 
-            *) break ;;
-        esac
+                case ${#i} in
+                    1) unset optind; break ;;
+                esac
+            ;;
+            *)
+                if [ -n "$i" ]; then
+                    break 2
+                fi
+            ;;
+            esac
+        done
+
+        # Move on positional parameters
+        #  > either with default value or with option value
+        shift $n
     done
 
     # Catch wrong input
