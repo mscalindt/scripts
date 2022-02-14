@@ -53,6 +53,7 @@ Options:
   -v, --git-version          print the git version at the end of the commit
                              message
       --help     display this help text and exit
+      --version  display version information and exit
       --         specify end of options
 
 External utilities hard dependency list:
@@ -60,6 +61,12 @@ git, rm.
 External utilities soft dependency list:
 .
 "
+}
+
+version() {
+    _version; echo
+    _copyright; echo
+    _license; _notice;
 }
 
 # Description:
@@ -1112,6 +1119,7 @@ main() {
         ssopt "-" && { opt_invalid "$1"; exit 2; }
         ssopt "--" && { shift && break; }
         ssopt "--help" && { usage; exit 0; }
+        ssopt "--version" && { version; exit 0; }
 
         # Loop on the option holder until fully parsed
         #  > as we might need to loop on its characters

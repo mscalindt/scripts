@@ -50,6 +50,7 @@ Options:
                              specify VFS cache reclaim priority; value persists
                              until reboot
       --help     display this help text and exit
+      --version  display version information and exit
 
 The SIZE argument is an integer followed by a unit.
 Units are M, G (powers of 1024) or MB, GB (powers of 1000).
@@ -63,6 +64,12 @@ chmod, dd, id, mkswap, rm, swapoff, swapon.
 External utilities soft dependency list:
 cat.
 "
+}
+
+version() {
+    _version; echo
+    _copyright; echo
+    _license; _notice;
 }
 
 # Description:
@@ -662,6 +669,7 @@ main() {
         ssopt "-" && { opt_invalid "$1"; exit 2; }
         ssopt "--" && { opt_invalid "$1"; exit 2; }
         ssopt "--help" && { usage; exit 0; }
+        ssopt "--version" && { version; exit 0; }
 
         # Loop on the option holder until fully parsed
         #  > as we might need to loop on its characters
