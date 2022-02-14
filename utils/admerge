@@ -1,12 +1,35 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0
 # shellcheck disable=SC2048 # ShellCheck incorrect pedantic warning
 
-: <<'notice'
- * SPDX-License-Identifier: GPL-3.0
- *
- * Copyright (C) 2021-2022 Dimitar Yurukov <mscalindt@protonmail.com>
- *
-notice
+_copyright() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'COPYRIGHT'
+Copyright (C) 2021-2022 Dimitar Yurukov <mscalindt@protonmail.com>
+COPYRIGHT
+}
+
+_license() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'LICENSE'
+License GPLv3: GNU GPL version 3
+LICENSE
+}
+
+_notice() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'NOTICE'
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+NOTICE
+}
+
+_version() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'VERSION'
+admerge 0.0.0
+VERSION
+}
 
 usage() {
 printf "%s" "\
