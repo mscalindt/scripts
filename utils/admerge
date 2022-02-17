@@ -714,8 +714,8 @@ main_functions() {
     #
     opt_invalid() {
         set -- "${0##*/}" "$1"
-        printf "%s: Invalid option: '%s'\n" "$1" "$2"
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+        printf "%s: Invalid option: '%s'\n" "$1" "$2" 1>&2
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1" 1>&2
     }
 
     # Description:
@@ -726,8 +726,8 @@ main_functions() {
     #
     opt_unknown() {
         set -- "${0##*/}" "$1"
-        printf "%s: Unknown option: '%s'\n" "$1" "$2"
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+        printf "%s: Unknown option: '%s'\n" "$1" "$2" 1>&2
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1" 1>&2
     }
 
     # Description:
@@ -738,8 +738,8 @@ main_functions() {
     #
     opt_unrecognized() {
         set -- "${0##*/}" "$1"
-        printf "%s: Unrecognized option: '%s'\n" "$1" "$2"
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+        printf "%s: Unrecognized option: '%s'\n" "$1" "$2" 1>&2
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1" 1>&2
     }
 
     # Description:
@@ -777,9 +777,9 @@ main_functions() {
             case "$i" in
                 "$1")
                     printf "%s: Option '%s' requires an argument.\n" \
-                           "${0##*/}" "$1"
+                           "${0##*/}" "$1" 1>&2
                     printf "%s: Try '%s --help' for more information.\n" \
-                           "${0##*/}" "${0##*/}"
+                           "${0##*/}" "${0##*/}" 1>&2
                     exit 2
                 ;;
             esac
@@ -790,9 +790,9 @@ main_functions() {
             case "$i" in
                 "$1=")
                     printf "%s: Invalid argument specification for: '%s'\n" \
-                           "${0##*/}" "$1"
+                           "${0##*/}" "$1" 1>&2
                     printf "%s: Try '%s --help' for more information.\n" \
-                           "${0##*/}" "${0##*/}"
+                           "${0##*/}" "${0##*/}" 1>&2
                     exit 2
                 ;;
             esac
@@ -865,9 +865,9 @@ main_functions() {
             case "$i" in
                 "$1=")
                     printf "%s: Invalid argument specification for: '%s'\n" \
-                           "${0##*/}" "$1"
+                           "${0##*/}" "$1" 1>&2
                     printf "%s: Try '%s --help' for more information.\n" \
-                           "${0##*/}" "${0##*/}"
+                           "${0##*/}" "${0##*/}" 1>&2
                     exit 2
                 ;;
             esac
@@ -922,9 +922,9 @@ main_functions() {
                 case "$i" in
                     "$1")
                         printf "%s: Option '%s' requires an argument.\n" \
-                               "${0##*/}" "$1"
+                               "${0##*/}" "$1" 1>&2
                         printf "%s: Try '%s --help' for more information.\n" \
-                               "${0##*/}" "${0##*/}"
+                               "${0##*/}" "${0##*/}" 1>&2
                         exit 2
                     ;;
                 esac
@@ -933,9 +933,9 @@ main_functions() {
             case "$i" in
                 "$1=")
                     printf "%s: Invalid argument specification for: '%s'\n" \
-                           "${0##*/}" "$1"
+                           "${0##*/}" "$1" 1>&2
                     printf "%s: Try '%s --help' for more information.\n" \
-                           "${0##*/}" "${0##*/}"
+                           "${0##*/}" "${0##*/}" 1>&2
                     exit 2
                 ;;
             esac
@@ -975,9 +975,9 @@ main_functions() {
             case "$i" in
                 "$1=")
                     printf "%s: Invalid argument specification for: '%s'\n" \
-                           "${0##*/}" "$1"
+                           "${0##*/}" "$1" 1>&2
                     printf "%s: Try '%s --help' for more information.\n" \
-                           "${0##*/}" "${0##*/}"
+                           "${0##*/}" "${0##*/}" 1>&2
                     exit 2
                 ;;
             esac
