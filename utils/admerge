@@ -33,7 +33,7 @@ VERSION
 
 usage() {
 printf "%s" "\
-Usage: admerge [a] [c] [s] [-sSv] [--] [BRANCH]
+Usage: admerge <a|c|s|BRANCH> [options]
 Do an advanced, better merge. (git wrapper)
 
 In-merge options (merge with conflicts):
@@ -583,8 +583,6 @@ admerge_env() {
     OBR=$(git symbolic-ref --short HEAD 2> /dev/null)
     ALOCK="$PWD"/.git/admerge_lock
     AMSG="$PWD"/.git/admerge_msg
-
-    [ "$1" ] && BRANCH="$1" || BRANCH=
 }
 
 admerge_check() {
@@ -702,7 +700,7 @@ admerge_status() {
 
 admerge() {
     _admerge;
-    admerge_env "$1"
+    admerge_env;
     admerge_check;
     admerge_lock;
     admerge_msg;
@@ -1073,7 +1071,7 @@ main_options() {
 main() {
     # For practical reasons, unset conditional variables if they exist
     # > special:
-    unset RC
+    unset RC BRANCH
     # > options:
     unset soff gsign gver
 
@@ -1124,7 +1122,12 @@ main() {
                 :
             ;;
             *)
-                break 2
+                case ":$BRANCH" in
+                    :) BRANCH="$i" ;;
+                    *) err 2 "Too many operands. (1 - [$BRANCH] ; 2 - [$i])" ;;
+                esac
+
+                break
             ;;
             esac
         done
@@ -1134,15 +1137,13 @@ main() {
         shift $n
     done
 
-    # Catch wrong input
-    if [ ! "$1" ]; then
-        err 2 "No branch/tag specified."
-    elif [ "$2" ]; then
-        err 2 "Too many operands. ($#)"
-    fi
+    # Here and no branch specified -> bad input
+    case ":$BRANCH" in
+        :) err 2 "No branch/tag specified." ;;
+    esac
 
     # Execute the core function
-    admerge "$1"
+    admerge;
 
     # Check if RC is set, otherwise explicit success
     [ -n "$RC" ] && return $RC || return 0
