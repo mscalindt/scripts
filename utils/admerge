@@ -1067,7 +1067,7 @@ main_options() {
 main() {
     # For practical reasons, unset conditional variables if they exist
     # > special:
-    unset RC optind
+    unset RC
     # > options:
     unset soff gsign gver
 
@@ -1094,6 +1094,8 @@ main() {
         # Loop on the option holder until fully parsed
         #  > as we might need to loop on its characters
         while [ -n "$i" ]; do
+            unset optind
+
             case "$i" in
                 "-"*) main_options 0 ;;
                 *) main_options 1 ;;

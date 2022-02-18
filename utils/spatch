@@ -1265,7 +1265,7 @@ main_options() {
 main() {
     # For practical reasons, unset conditional variables if they exist
     # > special:
-    unset RC CNT optind
+    unset RC CNT
     # > options:
     unset durl invert lnumbers purl scommit tstamp verbose tfile
 
@@ -1292,6 +1292,8 @@ main() {
         # Loop on the option holder until fully parsed
         #  > as we might need to loop on its characters
         while [ -n "$i" ]; do
+            unset optind
+
             case "$i" in
                 "-"*) main_options 0 ;;
             esac
