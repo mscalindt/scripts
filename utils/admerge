@@ -575,9 +575,11 @@ _qi() {
     return 1
 }
 
-admerge_env() {
+_admerge() {
     hash git > /dev/null 2>&1
+}
 
+admerge_env() {
     OBR=$(git symbolic-ref --short HEAD 2> /dev/null)
     ALOCK="$PWD"/.git/admerge_lock
     AMSG="$PWD"/.git/admerge_msg
@@ -675,6 +677,7 @@ admerge_post() {
 }
 
 admerge_abort() {
+    _admerge;
     admerge_env;
     admerge_check "abort"
     admerge_exec "abort"
@@ -682,6 +685,7 @@ admerge_abort() {
 }
 
 admerge_continue() {
+    _admerge;
     admerge_env;
     admerge_check "continue"
     admerge_work;
@@ -690,12 +694,14 @@ admerge_continue() {
 }
 
 admerge_status() {
+    _admerge;
     admerge_env;
     admerge_check "status"
     admerge_work "status"
 }
 
 admerge() {
+    _admerge;
     admerge_env "$1"
     admerge_check;
     admerge_lock;
