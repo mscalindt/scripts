@@ -1308,7 +1308,7 @@ main() {
                 esac
 
                 case ${#i} in
-                    1) unset i optind ;;
+                    1) unset optind && break ;;
                 esac
             ;;
             :)
