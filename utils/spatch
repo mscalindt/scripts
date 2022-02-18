@@ -56,6 +56,10 @@ Options:
       --version  display version information and exit
       --         specify end of options
 
+The sort output, when '-o'/'--output' is not given, is written to file
+descriptor 1; if file descriptor 3 is open, the sort output will be written
+there as well.
+
 External utilities hard dependency list:
 curl, rm, sort.
 External utilities soft dependency list:
@@ -886,6 +890,9 @@ spatch_exec() {
         fi
     else
         echo "$SFILE"
+        if { >&3; } 2> /dev/null; then
+            echo "$SFILE" 1>&3
+        fi
     fi
 }
 
