@@ -754,7 +754,7 @@ main_functions() {
     # <"$n"> - shift count
     #
     copt() {
-        [ -z "$i" ] && return 1
+        case ":$i" in :) return 1 ;; esac
 
         case "$i" in
         "--"*)
@@ -773,55 +773,46 @@ main_functions() {
         ;;
         esac
 
-        [ -z "$ii" ] && {
-            case "$i" in
-                "$1")
-                    printf "%s: Option '%s' requires an argument.\n" \
-                           "${0##*/}" "$1" 1>&2
-                    printf "%s: Try '%s --help' for more information.\n" \
-                           "${0##*/}" "${0##*/}" 1>&2
-                    exit 2
-                ;;
-            esac
-        }
+        case "$ii:$i " in
+            :"$1 ")
+                printf "%s: Option '%s' requires an argument.\n" \
+                       "${0##*/}" "$1" 1>&2
+                printf "%s: Try '%s --help' for more information.\n" \
+                       "${0##*/}" "${0##*/}" 1>&2
+                exit 2
+           ;;
+        esac
 
         case "$i" in
         "--"*)
-            case "$i" in
-                "$1=")
+            case "$i " in
+                "$1= ")
                     printf "%s: Invalid argument specification for: '%s'\n" \
                            "${0##*/}" "$1" 1>&2
                     printf "%s: Try '%s --help' for more information.\n" \
                            "${0##*/}" "${0##*/}" 1>&2
                     exit 2
                 ;;
-            esac
-        ;;
-        esac
-
-        case "$i" in
-        "--"*)
-            case "$i " in
-            "$1 ")
-                n=2
-                unset i; return 0
-            ;;
-            "$1="*)
-                ii="${i#"$1"=}"; n=1
-                unset i; return 0
-            ;;
+                "$1 ")
+                    n=2
+                    unset i; return 0
+                ;;
+                "$1="*)
+                    ii="${i#"$1"=}"; n=1
+                    unset i; return 0
+                ;;
             esac
         ;;
         "-"*)
             case "$i " in
-            "$1 ")
-                n=2
-                unset i; return 0
-            ;;
-            "$1"*)
-                ii="${i#"$1"}"; n=1
-                unset i; return 0
-            ;;
+                "$1 ")
+                    n=2
+                    unset i; return 0
+                ;;
+                "$1"*)
+                    ii="${i#"$1"}"; n=1
+                    unset i; return 0
+                ;;
             esac
         ;;
         esac
@@ -841,7 +832,7 @@ main_functions() {
     # <"$n"> - shift count
     #
     copt_optional() {
-        [ -z "$i" ] && return 1
+        case ":$i" in :) return 1 ;; esac
 
         case "$i" in
         "--"*)
@@ -850,18 +841,7 @@ main_functions() {
                 "$1:--"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
-        ;;
-        "-"*)
-            case "$1:$2" in
-                "-"*":$2") : ;;
-                "$1:-"*) set -- "$2" ;;
-                *) return 1 ;;
-            esac
-        ;;
-        esac
 
-        case "$i" in
-        "--"*)
             case "$i" in
                 "$1=")
                     printf "%s: Invalid argument specification for: '%s'\n" \
@@ -870,33 +850,32 @@ main_functions() {
                            "${0##*/}" "${0##*/}" 1>&2
                     exit 2
                 ;;
-            esac
-        ;;
-        esac
-
-        case "$i" in
-        "--"*)
-            case "$i" in
-            "$1")
-                n=1
-                unset i ii; return 0
-            ;;
-            "$1="*)
-                ii="${i#"$1"=}"; n=1
-                unset i; return 0
-            ;;
+                "$1")
+                    n=1
+                    unset i ii; return 0
+                ;;
+                "$1="*)
+                    ii="${i#"$1"=}"; n=1
+                    unset i; return 0
+                ;;
             esac
         ;;
         "-"*)
+            case "$1:$2" in
+                "-"*":$2") : ;;
+                "$1:-"*) set -- "$2" ;;
+                *) return 1 ;;
+            esac
+
             case "$i" in
-            "$1")
-                n=1
-                unset i ii; return 0
-            ;;
-            "$1"*)
-                ii="${i#"$1"}"; n=1
-                unset i; return 0
-            ;;
+                "$1")
+                    n=1
+                    unset i ii; return 0
+                ;;
+                "$1"*)
+                    ii="${i#"$1"}"; n=1
+                    unset i; return 0
+                ;;
             esac
         ;;
         esac
@@ -915,43 +894,35 @@ main_functions() {
     # <"$n"> - shift count
     #
     scopt() {
-        [ -z "$i" ] && return 1
+        case ":$i" in :) return 1 ;; esac
 
         while [ "$1" ]; do
-            [ -z "$ii" ] && {
-                case "$i" in
-                    "$1")
-                        printf "%s: Option '%s' requires an argument.\n" \
-                               "${0##*/}" "$1" 1>&2
-                        printf "%s: Try '%s --help' for more information.\n" \
-                               "${0##*/}" "${0##*/}" 1>&2
-                        exit 2
-                    ;;
-                esac
-            }
-
-            case "$i" in
-                "$1=")
+            case "$ii:$i " in
+                :"$1 ")
+                    printf "%s: Option '%s' requires an argument.\n" \
+                           "${0##*/}" "$1" 1>&2
+                    printf "%s: Try '%s --help' for more information.\n" \
+                           "${0##*/}" "${0##*/}" 1>&2
+                    exit 2
+                ;;
+                "$ii:$1= ")
                     printf "%s: Invalid argument specification for: '%s'\n" \
                            "${0##*/}" "$1" 1>&2
                     printf "%s: Try '%s --help' for more information.\n" \
                            "${0##*/}" "${0##*/}" 1>&2
                     exit 2
                 ;;
-            esac
-
-            case "$i " in
-            "$1 ")
-                n=2
-                unset i; return 0
-            ;;
-            "$1="*)
-                ii="${i#"$1"=}"; n=1
-                unset i; return 0
-            ;;
-            *)
-                shift
-            ;;
+                "$ii:$1 ")
+                    n=2
+                    unset i; return 0
+                ;;
+                "$ii:$1="*)
+                    ii="${i#"$1"=}"; n=1
+                    unset i; return 0
+                ;;
+                *)
+                    shift
+                ;;
             esac
         done
 
@@ -969,7 +940,7 @@ main_functions() {
     # <"$n"> - shift count
     #
     scopt_optional() {
-        [ -z "$i" ] && return 1
+        case ":$i" in :) return 1 ;; esac
 
         while [ "$1" ]; do
             case "$i" in
@@ -980,20 +951,17 @@ main_functions() {
                            "${0##*/}" "${0##*/}" 1>&2
                     exit 2
                 ;;
-            esac
-
-            case "$i" in
-            "$1")
-                n=1
-                unset i ii; return 0
-            ;;
-            "$1="*)
-                ii="${i#"$1"=}"; n=1
-                unset i; return 0
-            ;;
-            *)
-                shift
-            ;;
+                "$1")
+                    n=1
+                    unset i ii; return 0
+                ;;
+                "$1="*)
+                    ii="${i#"$1"=}"; n=1
+                    unset i; return 0
+                ;;
+                *)
+                    shift
+                ;;
             esac
         done
 
@@ -1008,7 +976,7 @@ main_functions() {
     # ["$2"] - --*
     #
     sopt() {
-        [ -z "$i" ] && return 1
+        case ":$i" in :) return 1 ;; esac
 
         case "$i" in
         "--"*)
@@ -1017,6 +985,13 @@ main_functions() {
                 "$1:--"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
+
+            case "$i" in
+                "$1")
+                    n=1
+                    unset i; return 0
+                ;;
+            esac
         ;;
         "-"*)
             case "$1:$2" in
@@ -1024,25 +999,17 @@ main_functions() {
                 "$1:-"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
-        ;;
-        esac
 
-        case "$i" in
-        "--"*)
             case "$i" in
-            "$1")
-                n=1
-                unset i; return 0
-            ;;
-            esac
-        ;;
-        "-"*)
-            case "$i" in
-            "$1"*)
-                [ -n "$optind" ] && optind="$optind @$1@" || optind="@$1@"
-                i="-${i#??}"; n=1
-                return 0
-            ;;
+                "$1"*)
+                    case ":$optind" in
+                        :) optind="@$1@" ;;
+                        *) optind="$optind @$1@" ;;
+                    esac
+
+                    i="-${i#??}"; n=1
+                    return 0
+               ;;
             esac
         ;;
         esac
@@ -1057,17 +1024,17 @@ main_functions() {
     # <"$1"+> - *
     #
     ssopt() {
-        [ -z "$i" ] && return 1
+        case ":$i" in :) return 1 ;; esac
 
         while [ "$1" ]; do
             case "$i" in
-            "$1")
-                n=1
-                unset i; return 0
-            ;;
-            *)
-                shift
-            ;;
+                "$1")
+                    n=1
+                    unset i; return 0
+                ;;
+                *)
+                    shift
+                ;;
             esac
         done
 
@@ -1083,21 +1050,24 @@ main_functions() {
 #               '1' - print miscellaneous (*) options)
 #
 main_options() {
-    if [ $1 -eq 0 ]; then
+    case $1 in
+    0)
         sopt "-s" "--sign-off" && { soff=1; }
         sopt "-S" "--gpg-sign" && { gsign=1; }
         sopt "-v" "--git-version" && { gver=1; }
-    elif [ $1 -eq 1 ]; then
+    ;;
+    1)
         ssopt "a" "abort" && { admerge_abort; exit 0; }
         ssopt "c" "continue" && { admerge_continue; exit 0; }
         ssopt "s" "status" && { admerge_status; exit 0; }
-    fi
+    ;;
+    esac
 }
 
 main() {
     # For practical reasons, unset conditional variables if they exist
     # > special:
-    unset RC
+    unset RC optind
     # > options:
     unset soff gsign gver
 
@@ -1124,30 +1094,29 @@ main() {
         # Loop on the option holder until fully parsed
         #  > as we might need to loop on its characters
         while [ -n "$i" ]; do
-            unset optind
-
             case "$i" in
                 "-"*) main_options 0 ;;
                 *) main_options 1 ;;
             esac
 
-            case "$i" in
-            "--"*)
+            case ":$i" in
+            :"--"*)
                 opt_unrecognized "$i"; exit 2
             ;;
-            "-"*)
-                if [ -z "$optind" ]; then
-                    opt_invalid "${i%"${i#??}"}"; exit 2
-                fi
+            :"-"*)
+                case ":$optind" in
+                    :) opt_invalid "${i%"${i#??}"}"; exit 2 ;;
+                esac
 
                 case ${#i} in
-                    1) unset optind; break ;;
+                    1) unset i optind ;;
                 esac
             ;;
+            :)
+                :
+            ;;
             *)
-                if [ -n "$i" ]; then
-                    break 2
-                fi
+                break 2
             ;;
             esac
         done
