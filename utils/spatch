@@ -1368,9 +1368,9 @@ main() {
 
     # Catch wrong input
     if [ ! "$1" ]; then
-        err 2 "No file specified."
+        opd_min; exit 2
     elif [ "$2" ]; then
-        err 2 "Too many operands. ($#)"
+        opd_cmax $#; exit 2
     fi
 
     # Convert relative path to absolute path
