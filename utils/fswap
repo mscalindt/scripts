@@ -164,8 +164,6 @@ fswap_check() {
 }
 
 fswap_info() {
-    hash cat > /dev/null 2>&1
-
     TMP=$(cat /sys/module/zswap/parameters/enabled 2> /dev/null)
     [ -n "$TMP" ] && info_px "\033[1;36mMISC:\033[0m " "zswap: '$TMP'."
 
