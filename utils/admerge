@@ -1146,7 +1146,7 @@ main() {
             *)
                 case ":$BRANCH" in
                     :) BRANCH="$i" ;;
-                    *) err 2 "Too many operands. (1 - [$BRANCH] ; 2 - [$i])" ;;
+                    *) opd_max "$BRANCH" "$i"; exit 2 ;;
                 esac
 
                 break
@@ -1161,7 +1161,7 @@ main() {
 
     # Here and no branch specified -> bad input
     case ":$BRANCH" in
-        :) err 2 "No branch/tag specified." ;;
+        :) opd_min; exit 2 ;;
     esac
 
     # Execute the core function
