@@ -251,6 +251,28 @@ fswap() {
 
 main_functions() {
     # Description:
+    # Signify invalid operand count (min)[0>X]
+    #
+    opd_min() {
+        set -- "${0##*/}"
+        printf "%s: No operand specified.\n" "$1" 1>&2
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1" 1>&2
+    }
+
+    # Description:
+    # Signify invalid operand count (max)[2>1]
+    #
+    # Parameters:
+    # <"$1"> - first operand
+    # <"$2"> - second operand
+    #
+    opd_max() {
+        set -- "${0##*/}" "$1" "$2"
+        printf "%s: Too many operands: '[%s]; [%s]'\n" "$1" "$2" "$3" 1>&2
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1" 1>&2
+    }
+
+    # Description:
     # Signify invalid option
     #
     # Parameters:
