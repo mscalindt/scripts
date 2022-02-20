@@ -563,41 +563,6 @@ _mc() {
     return 1
 }
 
-# Description:
-# Return info format
-#
-# Parameters:
-# <"$1"> - printf format
-# ['$2'] - command
-# ['$3'] - test variable
-#
-# Returns:
-# (0) format
-# (1) variable is empty/unset | no command output
-#
-_qi() {
-    case $# in
-    3)
-        i=$(eval "printf \"%s\" \"$3\"") && [ ! "$i" ] && return 1
-        i=$(eval $2 2> /dev/null)
-    ;;
-    2)
-        case "$2" in
-            '$'*)
-                i=$(eval "printf \"%s\" \"$2\"") && [ ! "$i" ] && return 1
-                printf "$1\n" "\033[1;37m" "\033[0m" && return 0
-            ;;
-            *) i=$(eval $2 2> /dev/null) ;;
-        esac
-    ;;
-    *) printf "$1\n" "\033[1;37m" "\033[0m" && return 0 ;;
-    esac
-
-    [ -n "$i" ] && printf "$1\n" "\033[1;37m" "\033[0m" "$i" && return 0
-
-    return 1
-}
-
 _admerge() {
     hash git > /dev/null 2>&1
 }
@@ -609,25 +574,17 @@ admerge_env() {
 }
 
 admerge_check() {
-    [ -z "$OBR" ] && \
-        err 2 "Failed to identify current branch. (not in git repository?)"
-
-    case $1 in
-    abort | continue | status)
-        if [ ! -r "$ALOCK" ]; then
-            err 2 "No lock file found. (no merge in progress?)"
-        fi
-    ;;
-    *)
-        if [ -r "$ALOCK" ]; then
-            err 2 "A merge is already in progress. ($ALOCK)"
-        fi
-
-        if [ -r "$AMSG" ]; then
-            rm -f "$AMSG"
-        fi
-    ;;
+    case ":$OBR" in
+        :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
     esac
+
+    if [ -r "$ALOCK" ]; then
+        err 2 "A merge is already in progress. ($ALOCK)"
+    fi
+
+    if [ -r "$AMSG" ]; then
+        rm -f "$AMSG"
+    fi
 }
 
 admerge_lock() {
@@ -657,40 +614,22 @@ admerge_work() {
         _ac "s" && gitc_args="--signoff ${gitc_args}"
         _ac "S" && gitc_args="--gpg-sign ${gitc_args}"
     fi
-
-    case $1 in
-    status)
-        _qi "%bOur branch:%b $OBR"
-        _qi "%bTheir branch:%b %s" '_aq 1'
-        _qi "%bLock file location:%b $ALOCK"
-        _qi "%bLock file content:%b '%s'" 'pline 1 "$ALOCK"'
-        _qi "%bCommit message file location:%b $AMSG"
-        _qi "%bCommit message file content:%b\n%s" 'parse 3 "$AMSG"'
-        _qi "%bStatus of files:%b\n%s" 'git -c color.ui=always status -s'
-    ;;
-    esac
 }
 
 admerge_exec() {
-    case $1 in
-    abort) git merge --abort || exit $? ;;
-    continue) git commit ${gitc_args} || exit $? ;;
-    *)
-        if ! git merge ${gitm_args}; then
-            if git merge HEAD > /dev/null 2>&1; then
-                RC=1 && return 1
-            else
-                exit 1
-            fi
-        fi
-
+    if ! git merge ${gitm_args}; then
         if git merge HEAD > /dev/null 2>&1; then
-            return 0
+            RC=1 && return 1
+        else
+            exit 1
         fi
+    fi
 
-        git commit ${gitc_args} || exit $?
-    ;;
-    esac
+    if git merge HEAD > /dev/null 2>&1; then
+        return 0
+    fi
+
+    git commit ${gitc_args} || exit $?
 }
 
 admerge_post() {
@@ -700,25 +639,82 @@ admerge_post() {
 admerge_abort() {
     _admerge;
     admerge_env;
-    admerge_check "abort"
-    admerge_exec "abort"
+
+    case ":$OBR" in
+        :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
+    esac
+
+    if [ ! -r "$ALOCK" ]; then
+        err 2 "No lock file found. (no merge in progress?)"
+    fi
+
+    git merge --abort || exit $?
+
     admerge_post;
 }
 
 admerge_continue() {
     _admerge;
     admerge_env;
-    admerge_check "continue"
+
+    case ":$OBR" in
+        :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
+    esac
+
+    if [ ! -r "$ALOCK" ]; then
+        err 2 "No lock file found. (no merge in progress?)"
+    fi
+
     admerge_work;
-    admerge_exec "continue"
+
+    git commit ${gitc_args} || exit $?
+
     admerge_post;
 }
 
 admerge_status() {
     _admerge;
     admerge_env;
-    admerge_check "status"
-    admerge_work "status"
+
+    case ":$OBR" in
+        :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
+    esac
+
+    if [ ! -r "$ALOCK" ]; then
+        err 2 "No lock file found. (no merge in progress?)"
+    fi
+
+    printf "%bOur branch: [%b\n%s\n%b]%b\n" \
+           "\033[1;37m" "\033[0m" \
+           "$OBR" \
+           "\033[1;37m" "\033[0m"
+    printf "%bTheir branch: [%b\n%s\n%b]%b\n" \
+           "\033[1;37m" "\033[0m" \
+           "$(_aq 1)" \
+           "\033[1;37m" "\033[0m"
+
+    printf "%bLock file location: [%b\n%s\n%b]%b\n" \
+           "\033[1;37m" "\033[0m" \
+           "$ALOCK" \
+           "\033[1;37m" "\033[0m"
+    printf "%bLock file content: [%b\n%s\n%b]%b\n" \
+           "\033[1;37m" "\033[0m" \
+           "$(pline 1 "$ALOCK")" \
+           "\033[1;37m" "\033[0m"
+
+    printf "%bCommit message file location: [%b\n%s\n%b]%b\n" \
+           "\033[1;37m" "\033[0m" \
+           "$AMSG" \
+           "\033[1;37m" "\033[0m"
+    printf "%bCommit message file content: [%b\n%s\n%b]%b\n" \
+           "\033[1;37m" "\033[0m" \
+           "$(parse 0 "$AMSG")" \
+           "\033[1;37m" "\033[0m"
+
+    printf "%bStatus of files: [%b\n%s\n%b]%b\n" \
+           "\033[1;37m" "\033[0m" \
+           "$(git -c color.ui=always status -s)" \
+           "\033[1;37m" "\033[0m"
 }
 
 admerge() {
