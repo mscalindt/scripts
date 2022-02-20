@@ -165,43 +165,52 @@ fswap_check() {
 
 fswap_info() {
     TMP=$(cat /sys/module/zswap/parameters/enabled 2> /dev/null)
-    [ -n "$TMP" ] && info_px "\033[1;36mMISC:\033[0m " "zswap: '$TMP'."
+    case ":$TMP" in
+        :) : ;;
+        *) info_px "\033[1;36mMISC:\033[0m " "zswap: '$TMP'." ;;
+    esac
 
     TMP=$(cat /sys/module/zswap/parameters/compressor 2> /dev/null)
-    [ -n "$TMP" ] && info_px "\033[1;36mMISC:\033[0m " "zswap compressor:" \
-                             "'$TMP'."
+    case ":$TMP" in
+        :) : ;;
+        *) info_px "\033[1;36mMISC:\033[0m " "zswap compressor: '$TMP'." ;;
+    esac
 
     TMP=$(cat /sys/module/zswap/parameters/zpool 2> /dev/null)
-    [ -n "$TMP" ] && info_px "\033[1;36mMISC:\033[0m " "zswap allocator:" \
-                             "'$TMP'."
+    case ":$TMP" in
+        :) : ;;
+        *) info_px "\033[1;36mMISC:\033[0m " "zswap allocator: '$TMP'." ;;
+    esac
 
     TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
-    if [ -n "$TMP" ] && [ -n "$swappiness" ]; then
-        case $TMP in
-        $swappiness) info "Swap intensity: '$TMP'." ;;
+    case "$swappiness:$TMP" in
+        :)
+            :
+        ;;
+        :* | "$TMP":"$swappiness")
+            info "Swap intensity: '$TMP'."
+        ;;
         *)
             info_px "\033[1;35mOLD:\033[0m " "Swap intensity: '$TMP'."
             info_px "\033[1;34mNEW:\033[0m " "Swap intensity: '$swappiness'."
         ;;
-        esac
-    elif [ -n "$TMP" ]; then
-        info "Swap intensity: '$TMP'."
-    fi
+    esac
 
     TMP=$(cat /proc/sys/vm/vfs_cache_pressure 2> /dev/null)
-    if [ -n "$TMP" ] && [ -n "$vfscp" ]; then
-        case $TMP in
-        $vfscp) info "VFS cache reclaim priority: '$TMP'." ;;
+    case "$vfscp:$TMP" in
+        :)
+            :
+        ;;
+        :* | "$TMP":"$vfscp")
+            info "VFS cache reclaim priority: '$TMP'."
+        ;;
         *)
             info_px "\033[1;35mOLD:\033[0m " "VFS cache reclaim priority:" \
                     "'$TMP'."
             info_px "\033[1;34mNEW:\033[0m " "VFS cache reclaim priority:" \
                     "'$vfscp'."
         ;;
-        esac
-    elif [ -n "$TMP" ]; then
-        info "VFS cache reclaim priority: '$TMP'."
-    fi
+    esac
 
     info "Swap size: '$ssize'."
     info "Swap file: '$sfile'."
