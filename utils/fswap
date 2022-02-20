@@ -10,11 +10,35 @@ Copyright (C) 2021-2022 Dimitar Yurukov <mscalindt@protonmail.com>
 COPYRIGHT
 }
 
+_description() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'DESCRIPTION'
+Create a swap file.
+DESCRIPTION
+}
+
 _license() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
 <<'LICENSE'
 License GPLv3: GNU GPL version 3
 LICENSE
+}
+
+_misc() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'MISC'
+The SIZE argument is an integer followed by a unit.
+Units are M, G (powers of 1024) or MB, GB (powers of 1000).
+Binary prefixes can also be used: MiB=M, GiB=G.
+
+If '-l' is not specified, default value is '$HOME/.swapfile'.
+If '-s' is not specified, default value is '1G'.
+
+External utilities hard dependency list:
+chmod, dd, id, mkswap, rm, swapoff, swapon.
+External utilities soft dependency list:
+cat.
+MISC
 }
 
 _notice() {
@@ -25,18 +49,9 @@ There is NO WARRANTY, to the extent permitted by law.
 NOTICE
 }
 
-_version() {
+_options() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
-<<'VERSION'
-fswap 0.0.0
-VERSION
-}
-
-usage() {
-printf "%s" "\
-Usage: fswap [-c] [options]
-Create a swap file.
-
+<<'OPTIONS'
 Options:
   -c, --check                only check for an existing swap file and remove
                              it; this option disregards other options
@@ -51,19 +66,27 @@ Options:
                              until reboot
       --help     display this help text and exit
       --version  display version information and exit
+OPTIONS
+}
 
-The SIZE argument is an integer followed by a unit.
-Units are M, G (powers of 1024) or MB, GB (powers of 1000).
-Binary prefixes can also be used: MiB=M, GiB=G.
+_usage() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'USAGE'
+Usage: fswap [-c] [options]
+USAGE
+}
 
-If '-l' is not specified, default value is '\$HOME/.swapfile'.
-If '-s' is not specified, default value is '1G'.
+_version() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'VERSION'
+fswap 0.0.0
+VERSION
+}
 
-External utilities hard dependency list:
-chmod, dd, id, mkswap, rm, swapoff, swapon.
-External utilities soft dependency list:
-cat.
-"
+usage() {
+    _usage; _description; echo
+    _options; echo
+    _misc;
 }
 
 version() {

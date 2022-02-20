@@ -11,11 +11,32 @@ Copyright (C) 2020-2022 Dimitar Yurukov <mscalindt@protonmail.com>
 COPYRIGHT
 }
 
+_description() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'DESCRIPTION'
+Sort commit/patch URLs by date.
+DESCRIPTION
+}
+
 _license() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
 <<'LICENSE'
 License GPLv3: GNU GPL version 3
 LICENSE
+}
+
+_misc() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'MISC'
+The sort output, when '-o'/'--output' is not given, is written to file
+descriptor 1; if file descriptor 3 is open, the sort output will be written
+there as well.
+
+External utilities hard dependency list:
+curl, rm, sort.
+External utilities soft dependency list:
+awk, date.
+MISC
 }
 
 _notice() {
@@ -26,18 +47,9 @@ There is NO WARRANTY, to the extent permitted by law.
 NOTICE
 }
 
-_version() {
+_options() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
-<<'VERSION'
-spatch 0.0.0
-VERSION
-}
-
-usage() {
-printf "%s" "\
-Usage: spatch [-dilpstv] [-o PATH] [--] FILE
-Sort commit/patch URLs by date.
-
+<<'OPTIONS'
 Options:
   -d, --direct-url           assume URLs are valid patch links even if they do
                              not end with .patch
@@ -55,16 +67,27 @@ Options:
       --help     display this help text and exit
       --version  display version information and exit
       --         specify end of options
+OPTIONS
+}
 
-The sort output, when '-o'/'--output' is not given, is written to file
-descriptor 1; if file descriptor 3 is open, the sort output will be written
-there as well.
+_usage() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'USAGE'
+Usage: spatch [-dilpstv] [-o PATH] [--] FILE
+USAGE
+}
 
-External utilities hard dependency list:
-curl, rm, sort.
-External utilities soft dependency list:
-awk, date.
-"
+_version() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'VERSION'
+spatch 0.0.0
+VERSION
+}
+
+usage() {
+    _usage; _description; echo
+    _options; echo
+    _misc;
 }
 
 version() {

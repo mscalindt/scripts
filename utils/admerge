@@ -9,11 +9,28 @@ Copyright (C) 2021-2022 Dimitar Yurukov <mscalindt@protonmail.com>
 COPYRIGHT
 }
 
+_description() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'DESCRIPTION'
+Do an advanced, better merge. (git wrapper)
+DESCRIPTION
+}
+
 _license() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
 <<'LICENSE'
 License GPLv3: GNU GPL version 3
 LICENSE
+}
+
+_misc() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'MISC'
+External utilities hard dependency list:
+git, rm.
+External utilities soft dependency list:
+.
+MISC
 }
 
 _notice() {
@@ -24,18 +41,9 @@ There is NO WARRANTY, to the extent permitted by law.
 NOTICE
 }
 
-_version() {
+_options() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
-<<'VERSION'
-admerge 0.0.0
-VERSION
-}
-
-usage() {
-printf "%s" "\
-Usage: admerge <a|c|s|BRANCH> [options]
-Do an advanced, better merge. (git wrapper)
-
+<<'OPTIONS'
 In-merge options (merge with conflicts):
   a, abort                   abort a merge in progress; this option disregards
                              other options
@@ -55,12 +63,27 @@ Options:
       --help     display this help text and exit
       --version  display version information and exit
       --         specify end of options
+OPTIONS
+}
 
-External utilities hard dependency list:
-git, rm.
-External utilities soft dependency list:
-.
-"
+_usage() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'USAGE'
+Usage: admerge <a|c|s|BRANCH> [options]
+USAGE
+}
+
+_version() {
+    while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
+<<'VERSION'
+admerge 0.0.0
+VERSION
+}
+
+usage() {
+    _usage; _description; echo
+    _options; echo
+    _misc;
 }
 
 version() {
