@@ -1190,6 +1190,18 @@ main() {
         shift $n
     done
 
+    # Parse operands
+    while [ "$1" ]; do
+        i="$1"
+
+        case ":$BRANCH" in
+            :) BRANCH="$i" ;;
+            *) opd_max "$BRANCH" "$i"; exit 2 ;;
+        esac
+
+        shift
+    done
+
     # Here and no branch specified -> bad input
     case ":$BRANCH" in
         :) opd_min; exit 2 ;;
