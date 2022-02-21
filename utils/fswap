@@ -57,6 +57,7 @@ Options:
                              it; this option disregards other options
   -l, --location <PATH>      PATH is an absolute or relative location at which
                              the swap file shall be created
+      --no-color             colorless output on all streams
   -s, --size <SIZE>          specify size for the swap file; see SIZE format
                              below
   -S, --swappiness <0-200>   specify swap intensity; value persists until
@@ -72,7 +73,7 @@ OPTIONS
 _usage() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
 <<'USAGE'
-Usage: fswap [-c] [options]
+Usage: fswap [options] [-c]
 USAGE
 }
 
@@ -100,9 +101,22 @@ version() {
 #
 # Parameters:
 # <$1> - exit code
-# <"$2+"> - text
+# <"$2"+> - text
 #
 err() {
+    i=$1 && shift
+    printf "\nERROR: %s\n\n" "$*" 1>&2
+    exit $i
+}
+
+# Description:
+# Print colorful error and exit
+#
+# Parameters:
+# <$1> - exit code
+# <"$2"+> - text
+#
+err_clr() {
     i=$1 && shift
     printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$*" 1>&2
     exit $i
@@ -130,9 +144,19 @@ get_fpath() {
 # Print info
 #
 # Parameters:
-# <"$1+"> - text
+# <"$1"+> - text
 #
 info() {
+    printf "INFO: %s\n" "$*"
+}
+
+# Description:
+# Print colorful info
+#
+# Parameters:
+# <"$1"+> - text
+#
+info_clr() {
     printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$*"
 }
 
@@ -141,9 +165,21 @@ info() {
 #
 # Parameters:
 # <"$1"> - printf prefix
-# <"$2+"> - text
+# <"$2"+> - text
 #
 info_px() {
+    i="$1" && shift
+    printf "INFO: $i%s\n" "$*"
+}
+
+# Description:
+# Print colorful info with printf prefix before text
+#
+# Parameters:
+# <"$1"> - printf prefix
+# <"$2"+> - text
+#
+info_px_clr() {
     i="$1" && shift
     printf "%bINFO:%b $i%s\n" "\033[1;37m" "\033[0m" "$*"
 }
@@ -152,9 +188,19 @@ info_px() {
 # Print a warning
 #
 # Parameters:
-# <"$1+"> - text
+# <"$1"+> - text
 #
 warn() {
+    printf "WARNING: %s\n" "$*"
+}
+
+# Description:
+# Print a colorful warning
+#
+# Parameters:
+# <"$1"+> - text
+#
+warn_clr() {
     printf "%bWARNING:%b %s\n" "\033[1;33m" "\033[0m" "$*"
 }
 
@@ -168,6 +214,21 @@ warn() {
 _fwrite() {
     [ -w "$2" ] && printf -- "%s\n" "$1" > "$2" || \
     warn "Could not apply '$1' on '$2'. (!-w)"
+}
+
+_fswap() {
+    case ":$ncolor" in
+        :)
+            err() { err_clr "$@"; }
+            info() { info_clr "$@"; }
+            info_px() { info_px_clr "$@"; }
+            warn() { warn_clr "$@"; }
+            fswap_info() { fswap_info_clr; }
+        ;;
+        *)
+            :
+        ;;
+    esac
 }
 
 fswap_env() {
@@ -187,6 +248,57 @@ fswap_check() {
 }
 
 fswap_info() {
+    TMP=$(cat /sys/module/zswap/parameters/enabled 2> /dev/null)
+    case ":$TMP" in
+        :) : ;;
+        *) info "MISC: zswap: '$TMP'." ;;
+    esac
+
+    TMP=$(cat /sys/module/zswap/parameters/compressor 2> /dev/null)
+    case ":$TMP" in
+        :) : ;;
+        *) info "MISC: zswap compressor: '$TMP'." ;;
+    esac
+
+    TMP=$(cat /sys/module/zswap/parameters/zpool 2> /dev/null)
+    case ":$TMP" in
+        :) : ;;
+        *) info "MISC: zswap allocator: '$TMP'." ;;
+    esac
+
+    TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
+    case "$swappiness:$TMP" in
+        :)
+            :
+        ;;
+        :* | "$TMP":"$swappiness")
+            info "Swap intensity: '$TMP'."
+        ;;
+        *)
+            info "OLD: Swap intensity: '$TMP'."
+            info "NEW: Swap intensity: '$swappiness'."
+        ;;
+    esac
+
+    TMP=$(cat /proc/sys/vm/vfs_cache_pressure 2> /dev/null)
+    case "$vfscp:$TMP" in
+        :)
+            :
+        ;;
+        :* | "$TMP":"$vfscp")
+            info "VFS cache reclaim priority: '$TMP'."
+        ;;
+        *)
+            info "OLD: VFS cache reclaim priority: '$TMP'."
+            info "NEW: VFS cache reclaim priority: '$vfscp'."
+        ;;
+    esac
+
+    info "Swap size: '$ssize'."
+    info "Swap file: '$sfile'."
+}
+
+fswap_info_clr() {
     TMP=$(cat /sys/module/zswap/parameters/enabled 2> /dev/null)
     case ":$TMP" in
         :) : ;;
@@ -271,6 +383,7 @@ fswap_post() {
 }
 
 fswap() {
+    _fswap;
     fswap_env;
     fswap_check;
     fswap_info;
@@ -659,6 +772,7 @@ main_functions() {
 main_options() {
     case $1 in
     0)
+        sopt "--no-color" && { ncolor=1; }
         sopt "-c" "--check" && { fswap_env; fswap_check; exit 0; }
 
         copt "-l" "--location" && {
@@ -682,7 +796,7 @@ main() {
     # > special:
     unset RC
     # > options:
-    unset sfile ssize swappiness vfscp
+    unset ncolor sfile ssize swappiness vfscp
 
     # Source common functions
     main_functions;

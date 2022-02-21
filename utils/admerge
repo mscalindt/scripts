@@ -53,6 +53,7 @@ In-merge options (merge with conflicts):
                              disregards other options
 
 Options:
+      --no-color             colorless output on all streams
   -s, --sign-off             add Signed-off-by line at the end of the commit
                              message; requires preconfigured signoff info for
                              seamless work
@@ -69,7 +70,7 @@ OPTIONS
 _usage() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
 <<'USAGE'
-Usage: admerge <a|c|s|BRANCH> [options]
+Usage: admerge [options] <a|c|s|BRANCH>
 USAGE
 }
 
@@ -97,9 +98,22 @@ version() {
 #
 # Parameters:
 # <$1> - exit code
-# <"$2+"> - text
+# <"$2"+> - text
 #
 err() {
+    i=$1 && shift
+    printf "\nERROR: %s\n\n" "$*" 1>&2
+    exit $i
+}
+
+# Description:
+# Print colorful error and exit
+#
+# Parameters:
+# <$1> - exit code
+# <"$2"+> - text
+#
+err_clr() {
     i=$1 && shift
     printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$*" 1>&2
     exit $i
@@ -564,6 +578,17 @@ _mc() {
 }
 
 _admerge() {
+    case ":$ncolor" in
+        :)
+            err() { err_clr "$@"; }
+            admerge_status() { admerge_status_clr; }
+            git() { command git -c color.ui=always "$@"; }
+        ;;
+        *)
+            git() { command git -c color.ui=never "$@"; }
+        ;;
+    esac
+
     hash git > /dev/null 2>&1
 }
 
@@ -637,7 +662,6 @@ admerge_post() {
 }
 
 admerge_abort() {
-    _admerge;
     admerge_env;
 
     case ":$OBR" in
@@ -654,7 +678,6 @@ admerge_abort() {
 }
 
 admerge_continue() {
-    _admerge;
     admerge_env;
 
     case ":$OBR" in
@@ -673,7 +696,29 @@ admerge_continue() {
 }
 
 admerge_status() {
-    _admerge;
+    admerge_env;
+
+    case ":$OBR" in
+        :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
+    esac
+
+    if [ ! -r "$ALOCK" ]; then
+        err 2 "No lock file found. (no merge in progress?)"
+    fi
+
+    printf "Our branch: [\n%s\n]\n" "$OBR"
+    printf "Their branch: [\n%s\n]\n" "$(_aq 1)"
+
+    printf "Lock file location: [\n%s\n]\n" "$ALOCK"
+    printf "Lock file content: [\n%s\n]\n" "$(pline 1 "$ALOCK")"
+
+    printf "Commit message file location: [\n%s\n]\n" "$AMSG"
+    printf "Commit message file content: [\n%s\n]\n" "$(parse 0 "$AMSG")"
+
+    printf "Status of files: [\n%s\n]\n" "$(git status -s)"
+}
+
+admerge_status_clr() {
     admerge_env;
 
     case ":$OBR" in
@@ -713,7 +758,7 @@ admerge_status() {
 
     printf "%bStatus of files: [%b\n%s\n%b]%b\n" \
            "\033[1;37m" "\033[0m" \
-           "$(git -c color.ui=always status -s)" \
+           "$(git status -s)" \
            "\033[1;37m" "\033[0m"
 }
 
@@ -1109,14 +1154,15 @@ main_functions() {
 main_options() {
     case $1 in
     0)
+        sopt "--no-color" && { ncolor=1; }
         sopt "-s" "--sign-off" && { soff=1; }
         sopt "-S" "--gpg-sign" && { gsign=1; }
         sopt "-v" "--git-version" && { gver=1; }
     ;;
     1)
-        ssopt "a" "abort" && { admerge_abort; exit 0; }
-        ssopt "c" "continue" && { admerge_continue; exit 0; }
-        ssopt "s" "status" && { admerge_status; exit 0; }
+        ssopt "a" "abort" && { _admerge; admerge_abort; exit 0; }
+        ssopt "c" "continue" && { _admerge; admerge_continue; exit 0; }
+        ssopt "s" "status" && { _admerge; admerge_status; exit 0; }
     ;;
     esac
 }
@@ -1126,7 +1172,7 @@ main() {
     # > special:
     unset RC BRANCH
     # > options:
-    unset soff gsign gver
+    unset ncolor soff gsign gver
 
     # Source common functions
     main_functions;
