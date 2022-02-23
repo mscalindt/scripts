@@ -1412,6 +1412,9 @@ main() {
             esac
 
             case ":$i" in
+            :)
+                :
+            ;;
             :"--"*)
                 opt_unrecognized "$i"; exit 2
             ;;
@@ -1423,9 +1426,6 @@ main() {
                 case ${#i} in
                     1) unset optind && break ;;
                 esac
-            ;;
-            :)
-                :
             ;;
             *)
                 break 2

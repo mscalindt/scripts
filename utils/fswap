@@ -271,7 +271,7 @@ fswap_info() {
         :)
             :
         ;;
-        :* | "$TMP":"$swappiness")
+        :"$TMP" | "$TMP":"$swappiness")
             info "Swap intensity: '$TMP'."
         ;;
         *)
@@ -285,7 +285,7 @@ fswap_info() {
         :)
             :
         ;;
-        :* | "$TMP":"$vfscp")
+        :"$TMP" | "$TMP":"$vfscp")
             info "VFS cache reclaim priority: '$TMP'."
         ;;
         *)
@@ -322,7 +322,7 @@ fswap_info_clr() {
         :)
             :
         ;;
-        :* | "$TMP":"$swappiness")
+        :"$TMP" | "$TMP":"$swappiness")
             info "Swap intensity: '$TMP'."
         ;;
         *)
@@ -336,7 +336,7 @@ fswap_info_clr() {
         :)
             :
         ;;
-        :* | "$TMP":"$vfscp")
+        :"$TMP" | "$TMP":"$vfscp")
             info "VFS cache reclaim priority: '$TMP'."
         ;;
         *)
@@ -828,6 +828,9 @@ main() {
             esac
 
             case ":$i" in
+            :)
+                :
+            ;;
             :"--"*)
                 opt_unrecognized "$i"; exit 2
             ;;
@@ -839,9 +842,6 @@ main() {
                 case ${#i} in
                     1) unset optind && break ;;
                 esac
-            ;;
-            :)
-                :
             ;;
             *)
                 opt_unknown "$i"; exit 2
