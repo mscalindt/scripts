@@ -853,9 +853,6 @@ _spatch() {
             info() { info_clr "$@"; }
             warn() { warn_clr "$@"; }
         ;;
-        *)
-            :
-        ;;
     esac
 }
 

@@ -225,9 +225,6 @@ _fswap() {
             warn() { warn_clr "$@"; }
             fswap_info() { fswap_info_clr; }
         ;;
-        *)
-            :
-        ;;
     esac
 }
 
