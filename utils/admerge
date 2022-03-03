@@ -578,7 +578,7 @@ _mc() {
 }
 
 _admerge() {
-    case ":$ncolor" in
+    case ":$ncolor$NO_COLOR" in
         :)
             err() { err_clr "$@"; }
             admerge_status() { admerge_status_clr; }

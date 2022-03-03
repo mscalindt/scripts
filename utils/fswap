@@ -217,7 +217,7 @@ _fwrite() {
 }
 
 _fswap() {
-    case ":$ncolor" in
+    case ":$ncolor$NO_COLOR" in
         :)
             err() { err_clr "$@"; }
             info() { info_clr "$@"; }
