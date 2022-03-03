@@ -580,11 +580,16 @@ _mc() {
 _admerge() {
     case ":$ncolor$NO_COLOR" in
         :)
+            ES_inf="\033[1;37m"
+            ES_res="\033[0m"
+
             err() { err_clr "$@"; }
-            admerge_status() { admerge_status_clr; }
             git() { command git -c color.ui=always "$@"; }
         ;;
         *)
+            ES_inf=
+            ES_res=
+
             git() { command git -c color.ui=never "$@"; }
         ;;
     esac
@@ -706,60 +711,37 @@ admerge_status() {
         err 2 "No lock file found. (no merge in progress?)"
     fi
 
-    printf "Our branch: [\n%s\n]\n" "$OBR"
-    printf "Their branch: [\n%s\n]\n" "$(_aq 1)"
-
-    printf "Lock file location: [\n%s\n]\n" "$ALOCK"
-    printf "Lock file content: [\n%s\n]\n" "$(pline 1 "$ALOCK")"
-
-    printf "Commit message file location: [\n%s\n]\n" "$AMSG"
-    printf "Commit message file content: [\n%s\n]\n" "$(parse 0 "$AMSG")"
-
-    printf "Status of files: [\n%s\n]\n" "$(git status -s)"
-}
-
-admerge_status_clr() {
-    admerge_env;
-
-    case ":$OBR" in
-        :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
-    esac
-
-    if [ ! -r "$ALOCK" ]; then
-        err 2 "No lock file found. (no merge in progress?)"
-    fi
-
     printf "%bOur branch: [%b\n%s\n%b]%b\n" \
-           "\033[1;37m" "\033[0m" \
+           "${ES_inf}" "${ES_res}" \
            "$OBR" \
-           "\033[1;37m" "\033[0m"
+           "${ES_inf}" "${ES_res}"
     printf "%bTheir branch: [%b\n%s\n%b]%b\n" \
-           "\033[1;37m" "\033[0m" \
+           "${ES_inf}" "${ES_res}" \
            "$(_aq 1)" \
-           "\033[1;37m" "\033[0m"
+           "${ES_inf}" "${ES_res}"
 
     printf "%bLock file location: [%b\n%s\n%b]%b\n" \
-           "\033[1;37m" "\033[0m" \
+           "${ES_inf}" "${ES_res}" \
            "$ALOCK" \
-           "\033[1;37m" "\033[0m"
+           "${ES_inf}" "${ES_res}"
     printf "%bLock file content: [%b\n%s\n%b]%b\n" \
-           "\033[1;37m" "\033[0m" \
+           "${ES_inf}" "${ES_res}" \
            "$(pline 1 "$ALOCK")" \
-           "\033[1;37m" "\033[0m"
+           "${ES_inf}" "${ES_res}"
 
     printf "%bCommit message file location: [%b\n%s\n%b]%b\n" \
-           "\033[1;37m" "\033[0m" \
+           "${ES_inf}" "${ES_res}" \
            "$AMSG" \
-           "\033[1;37m" "\033[0m"
+           "${ES_inf}" "${ES_res}"
     printf "%bCommit message file content: [%b\n%s\n%b]%b\n" \
-           "\033[1;37m" "\033[0m" \
+           "${ES_inf}" "${ES_res}" \
            "$(parse 0 "$AMSG")" \
-           "\033[1;37m" "\033[0m"
+           "${ES_inf}" "${ES_res}"
 
     printf "%bStatus of files: [%b\n%s\n%b]%b\n" \
-           "\033[1;37m" "\033[0m" \
+           "${ES_inf}" "${ES_res}" \
            "$(git status -s)" \
-           "\033[1;37m" "\033[0m"
+           "${ES_inf}" "${ES_res}"
 }
 
 admerge() {
