@@ -299,19 +299,19 @@ fswap_info_clr() {
     TMP=$(cat /sys/module/zswap/parameters/enabled 2> /dev/null)
     case ":$TMP" in
         :) : ;;
-        *) info_px "\033[1;36mMISC:\033[0m " "zswap: '$TMP'." ;;
+        *) info_px "\033[1;37mMISC:\033[0m " "zswap: '$TMP'." ;;
     esac
 
     TMP=$(cat /sys/module/zswap/parameters/compressor 2> /dev/null)
     case ":$TMP" in
         :) : ;;
-        *) info_px "\033[1;36mMISC:\033[0m " "zswap compressor: '$TMP'." ;;
+        *) info_px "\033[1;37mMISC:\033[0m " "zswap compressor: '$TMP'." ;;
     esac
 
     TMP=$(cat /sys/module/zswap/parameters/zpool 2> /dev/null)
     case ":$TMP" in
         :) : ;;
-        *) info_px "\033[1;36mMISC:\033[0m " "zswap allocator: '$TMP'." ;;
+        *) info_px "\033[1;37mMISC:\033[0m " "zswap allocator: '$TMP'." ;;
     esac
 
     TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
@@ -323,8 +323,8 @@ fswap_info_clr() {
             info "Swap intensity: '$TMP'."
         ;;
         *)
-            info_px "\033[1;35mOLD:\033[0m " "Swap intensity: '$TMP'."
-            info_px "\033[1;34mNEW:\033[0m " "Swap intensity: '$swappiness'."
+            info_px "\033[1;31mOLD:\033[0m " "Swap intensity: '$TMP'."
+            info_px "\033[1;32mNEW:\033[0m " "Swap intensity: '$swappiness'."
         ;;
     esac
 
@@ -337,9 +337,9 @@ fswap_info_clr() {
             info "VFS cache reclaim priority: '$TMP'."
         ;;
         *)
-            info_px "\033[1;35mOLD:\033[0m " "VFS cache reclaim priority:" \
+            info_px "\033[1;31mOLD:\033[0m " "VFS cache reclaim priority:" \
                     "'$TMP'."
-            info_px "\033[1;34mNEW:\033[0m " "VFS cache reclaim priority:" \
+            info_px "\033[1;32mNEW:\033[0m " "VFS cache reclaim priority:" \
                     "'$vfscp'."
         ;;
     esac
