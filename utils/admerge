@@ -757,6 +757,65 @@ admerge() {
 
 main_functions() {
     # Description:
+    # Within single quotes escape single quote(s) in string
+    #
+    # Parameters:
+    # <"$1"+> - string
+    #
+    # Returns:
+    # (0) escaped string | string
+    #
+    esc_sq() {
+        case ":$1" in :) return 0 ;; esac
+
+        case "$1" in
+            *"'"*)
+                ii="${1%%\'*}'\\''"
+                i="${ii}${1#*\'}"
+
+                while :; do case "$i" in
+                    "$ii"*"'"*)
+                        iii="${i#*"$ii"}" && iii="${iii%%\'*}"
+                        i="${ii}${iii}'\\''${i#*"${ii}${iii}"\'}"
+                        ii="${ii}${iii}'\\''"
+                    ;;
+                    *)
+                        break
+                    ;;
+                esac done
+            ;;
+            *)
+                i="$1"
+            ;;
+        esac
+
+        printf "'%s'" "$i"; shift
+
+        while [ "$1" ]; do
+            case "$1" in
+                *"'"*) : ;;
+                *) printf " '%s'" "$1"; shift && continue ;;
+            esac
+
+            ii="${1%%\'*}'\\''"
+            i="${ii}${1#*\'}"
+
+            while :; do case "$i" in
+                "$ii"*"'"*)
+                    iii="${i#*"$ii"}" && iii="${iii%%\'*}"
+                    i="${ii}${iii}'\\''${i#*"${ii}${iii}"\'}"
+                    ii="${ii}${iii}'\\''"
+                ;;
+                *)
+                    break
+                ;;
+            esac done
+
+            printf " '%s'" "$i"; shift
+        done
+    }
+
+    # Description:
     # Signify invalid operand count (min)[0>X]
     #
     opd_min() {
@@ -1127,6 +1186,98 @@ main_functions() {
 }
 
 # Description:
+# Reorder positional parameters (string priority = LIFO)
+#
+# Parameters:
+# <$1> - mode('0' - normal operation,
+#             '1' - respect end of options)
+# <"$2"+> - string
+# <$3> - --
+# <"$4"> - $@
+#
+# Provides:
+# ["$i"] - string to evaluate (eval set -- "$i")
+#
+main_sargs_ro() {
+    iii=$1; shift
+
+    ii=$(
+        esc_sq "$1"; shift
+
+        while :; do case "$1" in
+            --) shift && break ;;
+            *) printf " "; esc_sq "$1"; shift ;;
+        esac done
+    )
+
+    while :; do case "$1" in
+        --) shift && break ;;
+        *) shift ;;
+    esac done
+
+    case ":$*" in :) i=; return 0 ;; esac
+
+    set -- "$(esc_sq "$@")"; i="$1"
+    eval set -- "$ii"
+
+    case $iii in
+        0)
+            while [ "$1" ]; do
+                ii="$1"
+
+                case "$ii" in
+                    *"'"*) ii=$(esc_sq "$ii") ;;
+                    *) ii="'$ii'" ;;
+                esac
+
+                case ":$i" in
+                    :"$ii"*) : ;;
+                    *"$ii") i="$ii ${i%% "$ii"*}${i#*"$ii"}" ;;
+                    *"$ii"*) i="$ii ${i%%"$ii"*}${i#*"$ii" }" ;;
+                esac
+
+                shift
+            done
+        ;;
+        1)
+            case "$i" in
+                "'--'"*) return 0 ;;
+            esac
+
+            while [ "$1" ]; do
+                ii="$1"
+
+                case "$ii" in
+                    *"'"*) ii=$(esc_sq "$ii") ;;
+                    *) ii="'$ii'" ;;
+                esac
+
+                case "$i" in
+                    *"'--'"*)
+                        iii="${i%% "'--'"*}"
+
+                        case ":$iii" in
+                            :"$ii"*) : ;;
+                            *"$ii") i="$ii ${i%% "$ii"*}${i#*"$ii"}" ;;
+                            *"$ii"*) i="$ii ${i%%"$ii"*}${i#*"$ii" }" ;;
+                        esac
+                    ;;
+                    *)
+                        case ":$i" in
+                            :"$ii"*) : ;;
+                            *"$ii") i="$ii ${i%% "$ii"*}${i#*"$ii"}" ;;
+                            *"$ii"*) i="$ii ${i%%"$ii"*}${i#*"$ii" }" ;;
+                        esac
+                    ;;
+                esac
+
+                shift
+            done
+        ;;
+    esac
+}
+
+# Description:
 # Substitute the function call with script options
 #
 # Parameters:
@@ -1158,6 +1309,11 @@ main() {
 
     # Source common functions
     main_functions;
+
+    # Reorder the positional parameters if needed
+    #  > to prioritize specific options first
+    main_sargs_ro 1 "--no-color" -- "$@"
+    case ":$i" in :) : ;; *) eval set -- "$i" ;; esac
 
     # Parse options
     while [ "$1" ]; do
