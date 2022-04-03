@@ -880,7 +880,7 @@ main_options() {
     case $1 in
     0)
         sopt "--no-color" && { ncolor=1; }
-        sopt "-c" "--check" && { fswap_env; fswap_check; exit 0; }
+        sopt "-c" "--check" && { _fswap; fswap_env; fswap_check; exit 0; }
 
         copt "-l" "--location" && {
             sfile=$(get_fpath "$ii")
