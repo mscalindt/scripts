@@ -612,7 +612,7 @@ admerge_check() {
         err 2 "A merge is already in progress. ($ALOCK)"
     fi
 
-    if [ -r "$AMSG" ]; then
+    if [ -f "$AMSG" ]; then
         rm -f "$AMSG"
     fi
 }
