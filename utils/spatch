@@ -950,6 +950,9 @@ spatch_exec() {
             echo "$SFILE" 2> /dev/null > "$tfile" || {
                 warn "Error code $? while trying to write output to '$tfile'."
                 echo "$SFILE"
+                if { >&3; } 2> /dev/null; then
+                    echo "$SFILE" 1>&3
+                fi
             }
         else
             warn "'${tfile%/*}' is not a valid directory."
