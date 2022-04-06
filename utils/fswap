@@ -239,8 +239,8 @@ _fswap() {
 }
 
 fswap_env() {
-    [ -z "$ssize" ] && ssize=1G
-    [ -z "$sfile" ] && sfile="$HOME"/.swapfile
+    [ "$ssize" ] || ssize=1G
+    [ "$sfile" ] || sfile="$HOME"/.swapfile
 }
 
 fswap_check() {
@@ -256,22 +256,13 @@ fswap_check() {
 
 fswap_info() {
     TMP=$(cat /sys/module/zswap/parameters/enabled 2> /dev/null)
-    case ":$TMP" in
-        :) : ;;
-        *) info_px "${ES_inf}MISC:${ES_res} " "zswap: '$TMP'." ;;
-    esac
+    [ "$TMP" ] && info_px "${ES_inf}MISC:${ES_res} " "zswap: '$TMP'."
 
     TMP=$(cat /sys/module/zswap/parameters/compressor 2> /dev/null)
-    case ":$TMP" in
-        :) : ;;
-        *) info_px "${ES_inf}MISC:${ES_res} " "zswap compressor: '$TMP'." ;;
-    esac
+    [ "$TMP" ] && info_px "${ES_inf}MISC:${ES_res} " "zswap compressor: '$TMP'."
 
     TMP=$(cat /sys/module/zswap/parameters/zpool 2> /dev/null)
-    case ":$TMP" in
-        :) : ;;
-        *) info_px "${ES_inf}MISC:${ES_res} " "zswap allocator: '$TMP'." ;;
-    esac
+    [ "$TMP" ] && info_px "${ES_inf}MISC:${ES_res} " "zswap allocator: '$TMP'."
 
     TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
     case "$swappiness:$TMP" in
@@ -309,12 +300,10 @@ fswap_info() {
 
 fswap_work() {
     case "$ssize" in
-        *"M" | *"MiB") ssize="${ssize%M*}" && ssize="${ssize}K" ;;
-        *"G" | *"GiB") ssize="${ssize%G*}" && ssize="${ssize}M" ;;
-
-        *"MB") ssize="${ssize%MB}" && ssize="${ssize}KB" ;;
-        *"GB") ssize="${ssize%GB}" && ssize="${ssize}MB" ;;
-
+        *"M" | *"MiB") ssize="${ssize%M*}K" ;;
+        *"G" | *"GiB") ssize="${ssize%G*}M" ;;
+        *"MB") ssize="${ssize%MB}KB" ;;
+        *"GB") ssize="${ssize%GB}MB" ;;
         *) err 2 "Wrong swap size specified. Supported units: M,G[B]" ;;
     esac
 
@@ -327,15 +316,15 @@ fswap_work() {
 fswap_exec() {
     dd "if=/dev/zero" "of=$sfile" \
        "bs=$ssize" "count=$bscount" \
-       "status=progress" || exit $?
-    chmod 600 "$sfile" || exit $?
-    mkswap "$sfile" || exit $?
-    swapon "$sfile" || exit $?
+       "status=progress" && \
+    chmod 600 "$sfile" && \
+    mkswap "$sfile" && \
+    swapon "$sfile"
 }
 
 fswap_post() {
-    [ -n "$swappiness" ] && _fwrite $swappiness /proc/sys/vm/swappiness
-    [ -n "$vfscp" ] && _fwrite $vfscp /proc/sys/vm/vfs_cache_pressure
+    [ "$swappiness" ] && _fwrite $swappiness /proc/sys/vm/swappiness
+    [ "$vfscp" ] && _fwrite $vfscp /proc/sys/vm/vfs_cache_pressure
 }
 
 fswap() {
@@ -344,7 +333,7 @@ fswap() {
     fswap_check;
     fswap_info;
     fswap_work;
-    fswap_exec;
+    fswap_exec || exit $?
     fswap_post;
 }
 
@@ -911,7 +900,7 @@ main() {
     # Reorder the positional parameters if needed
     #  > to prioritize specific options first
     main_sargs_ro 0 "--no-color" "-l" "--location" -- "$@"
-    case ":$i" in :) : ;; *) eval set -- "$i" ;; esac
+    [ "$i" ] && eval set -- "$i"
 
     # Parse options
     while [ "$1" ]; do
@@ -932,7 +921,7 @@ main() {
 
         # Loop on the option holder until fully parsed
         #  > as we might need to loop on its characters
-        while [ -n "$i" ]; do
+        while [ "$i" ]; do
             unset optind
 
             case "$i" in
@@ -970,7 +959,7 @@ main() {
     fswap;
 
     # Check if RC is set, otherwise explicit success
-    [ -n "$RC" ] && return $RC || return 0
+    [ "$RC" ] && return $RC || return 0
 }
 
 main "$@"

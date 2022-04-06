@@ -604,37 +604,25 @@ admerge_env() {
 }
 
 admerge_check() {
-    case ":$OBR" in
-        :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
-    esac
-
-    if [ -f "$ALOCK" ]; then
-        err 2 "A merge is already in progress. ($ALOCK)"
-    fi
-
-    if [ -f "$AMSG" ]; then
-        rm -f "$AMSG"
-    fi
+    [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
+    [ -f "$ALOCK" ] && err 2 "A merge is already in progress. ($ALOCK)"
+    [ -f "$AMSG" ] && rm -f "$AMSG"
 }
 
 admerge_lock() {
-    {
     _aw "1"
     _aw "$BRANCH"
     _aw "s" '$soff'
     _aw "S" '$gsign'
     _aw "2"
-    } >> "$ALOCK"
-}
+} >> "$ALOCK"
 
 admerge_msg() {
-    {
     _mc "Merge '$BRANCH' into '$OBR'\n\n"
     _mc "Summary of commits (%d):\n" "rev-list --count" 0
     _mc "1" "log --oneline" 0
     _mc "3" "--version" '$gver'
-    } >> "$AMSG"
-}
+} >> "$AMSG"
 
 admerge_work() {
     gitm_args="--no-ff --no-commit $BRANCH"
@@ -669,13 +657,8 @@ admerge_post() {
 admerge_abort() {
     admerge_env;
 
-    case ":$OBR" in
-        :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
-    esac
-
-    if [ ! -f "$ALOCK" ]; then
-        err 2 "No lock file found. (no merge in progress?)"
-    fi
+    [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
+    [ -f "$ALOCK" ] || err 2 "No lock file found. (no merge in progress?)"
 
     git merge --abort || exit $?
 
@@ -685,13 +668,8 @@ admerge_abort() {
 admerge_continue() {
     admerge_env;
 
-    case ":$OBR" in
-        :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
-    esac
-
-    if [ ! -f "$ALOCK" ]; then
-        err 2 "No lock file found. (no merge in progress?)"
-    fi
+    [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
+    [ -f "$ALOCK" ] || err 2 "No lock file found. (no merge in progress?)"
 
     admerge_work;
 
@@ -703,13 +681,8 @@ admerge_continue() {
 admerge_status() {
     admerge_env;
 
-    case ":$OBR" in
-        :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
-    esac
-
-    if [ ! -f "$ALOCK" ]; then
-        err 2 "No lock file found. (no merge in progress?)"
-    fi
+    [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
+    [ -f "$ALOCK" ] || err 2 "No lock file found. (no merge in progress?)"
 
     printf "%bOur branch: [%b\n%s\n%b]%b\n" \
            "${ES_inf}" "${ES_res}" \
@@ -1313,7 +1286,7 @@ main() {
     # Reorder the positional parameters if needed
     #  > to prioritize specific options first
     main_sargs_ro 1 "--no-color" -- "$@"
-    case ":$i" in :) : ;; *) eval set -- "$i" ;; esac
+    [ "$i" ] && eval set -- "$i"
 
     # Parse options
     while [ "$1" ]; do
@@ -1334,7 +1307,7 @@ main() {
 
         # Loop on the option holder until fully parsed
         #  > as we might need to loop on its characters
-        while [ -n "$i" ]; do
+        while [ "$i" ]; do
             unset optind
 
             case "$i" in
@@ -1386,7 +1359,7 @@ main() {
         shift
     done
 
-    # Here and no branch specified -> bad input
+    # Here and no branch specified = bad input
     case ":$BRANCH" in
         :) opd_min; exit 2 ;;
     esac
@@ -1395,7 +1368,7 @@ main() {
     admerge;
 
     # Check if RC is set, otherwise explicit success
-    [ -n "$RC" ] && return $RC || return 0
+    [ "$RC" ] && return $RC || return 0
 }
 
 main "$@"
