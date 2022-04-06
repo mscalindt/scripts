@@ -608,7 +608,7 @@ admerge_check() {
         :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
     esac
 
-    if [ -r "$ALOCK" ]; then
+    if [ -f "$ALOCK" ]; then
         err 2 "A merge is already in progress. ($ALOCK)"
     fi
 
@@ -673,7 +673,7 @@ admerge_abort() {
         :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
     esac
 
-    if [ ! -r "$ALOCK" ]; then
+    if [ ! -f "$ALOCK" ]; then
         err 2 "No lock file found. (no merge in progress?)"
     fi
 
@@ -689,7 +689,7 @@ admerge_continue() {
         :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
     esac
 
-    if [ ! -r "$ALOCK" ]; then
+    if [ ! -f "$ALOCK" ]; then
         err 2 "No lock file found. (no merge in progress?)"
     fi
 
@@ -707,7 +707,7 @@ admerge_status() {
         :) err 2 "Failed to identify current branch. (not in .git dir?)" ;;
     esac
 
-    if [ ! -r "$ALOCK" ]; then
+    if [ ! -f "$ALOCK" ]; then
         err 2 "No lock file found. (no merge in progress?)"
     fi
 
