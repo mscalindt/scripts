@@ -954,6 +954,9 @@ spatch_exec() {
         else
             warn "'${tfile%/*}' is not a valid directory."
             echo "$SFILE"
+            if { >&3; } 2> /dev/null; then
+                echo "$SFILE" 1>&3
+            fi
         fi
     else
         echo "$SFILE"
