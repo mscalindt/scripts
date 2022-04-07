@@ -129,15 +129,13 @@ err_clr() {
 # <"$1"> - path
 #
 # Returns:
-# (0) absolute path / path is already absolute
+# (0) absolute $1 | $1
 #
 get_fpath() {
     case "$1" in
-        "/"*) printf "%s" "$1" ;;
+        /*) printf "%s" "$1" ;;
         *) printf "%s/%s" "$PWD" "$1" ;;
     esac
-
-    return 0
 }
 
 # Description:
@@ -145,6 +143,9 @@ get_fpath() {
 #
 # Parameters:
 # <"$1"+> - text
+#
+# Returns:
+# (0) text
 #
 info() {
     printf "INFO: %s\n" "$*"
@@ -156,6 +157,9 @@ info() {
 # Parameters:
 # <"$1"+> - text
 #
+# Returns:
+# (0) text
+#
 info_clr() {
     printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$*"
 }
@@ -166,6 +170,9 @@ info_clr() {
 # Parameters:
 # <"$1"> - printf prefix
 # <"$2"+> - text
+#
+# Returns:
+# (0) text
 #
 info_px() {
     i="$1" && shift
@@ -179,6 +186,9 @@ info_px() {
 # <"$1"> - printf prefix
 # <"$2"+> - text
 #
+# Returns:
+# (0) text
+#
 info_px_clr() {
     i="$1" && shift
     printf "%bINFO:%b $i%s\n" "\033[1;37m" "\033[0m" "$*"
@@ -190,6 +200,9 @@ info_px_clr() {
 # Parameters:
 # <"$1"+> - text
 #
+# Returns:
+# (0) text
+#
 warn() {
     printf "WARNING: %s\n" "$*"
 }
@@ -199,6 +212,9 @@ warn() {
 #
 # Parameters:
 # <"$1"+> - text
+#
+# Returns:
+# (0) text
 #
 warn_clr() {
     printf "%bWARNING:%b %s\n" "\033[1;33m" "\033[0m" "$*"
