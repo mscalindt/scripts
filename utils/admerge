@@ -453,8 +453,8 @@ pline() {
 # <$1> - N
 #
 # Returns:
-# (0) N attribute
-# (1) N attribute does not exist
+# (0) attribute
+# (1) attribute does not exist
 #
 _alock_get() {
     x=$(($1 + $1 - 1))
