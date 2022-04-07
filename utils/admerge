@@ -477,7 +477,7 @@ _alock_get() {
 # (0) attribute exists
 # (1) no attribute
 #
-_ac() {
+_alock_test() {
     i=$(pline 1 "$ALOCK") && grep_str "@$1@" "$i" && return 0
 
     return 1
@@ -619,8 +619,8 @@ admerge_work() {
     gitc_args="-eF $AMSG --no-edit"
 
     if [ -r "$ALOCK" ]; then
-        _ac "s" && gitc_args="--signoff ${gitc_args}"
-        _ac "S" && gitc_args="--gpg-sign ${gitc_args}"
+        _alock_test "s" && gitc_args="--signoff ${gitc_args}"
+        _alock_test "S" && gitc_args="--gpg-sign ${gitc_args}"
     fi
 }
 
