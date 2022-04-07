@@ -456,7 +456,7 @@ pline() {
 # (0) N attribute
 # (1) N attribute does not exist
 #
-_aq() {
+_alock_get() {
     x=$1
     i=$(pline 1 "$ALOCK")
     x=$((x - 1 + x))
@@ -680,7 +680,7 @@ admerge_status() {
            "${ES_inf}" "${ES_res}"
     printf "%bTheir branch: [%b\n%s\n%b]%b\n" \
            "${ES_inf}" "${ES_res}" \
-           "$(_aq 1)" \
+           "$(_alock_get 1)" \
            "${ES_inf}" "${ES_res}"
 
     printf "%bLock file location: [%b\n%s\n%b]%b\n" \
