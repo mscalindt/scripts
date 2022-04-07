@@ -1,0 +1,722 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0
+# Copyright (C) 2022 Dimitar Yurukov <mscalindt@protonmail.com>
+# UGLY AND SLOW, WRITTEN IN 30 MINUTES (ON M... ENOUGH DETAILS); DO NOT USE
+# "$1" - FILE
+
+err() {
+    i=$1 && shift
+    printf "\nERROR: %s\n\n" "$*" 1>&2
+    exit $i
+}
+
+fcount() {
+    [ -d "$1" ] || return 1
+
+    i="$1"
+    iii=0
+
+    case "$2" in
+        0*|1*|2*) ii="${2#?}" ;;
+    esac
+
+    case $#:"$2" in
+        1:)
+            set -- "$i"/*
+            [ -e "$1" ] && iii=$#
+
+            set -- "$i"/.*
+            [ $# -ge 3 ] && iii=$((iii + $# - 2))
+        ;;
+        2:0*)
+            set -- "$i"/*"$ii"
+            [ -e "$1" ] && iii=$#
+
+            set -- "$i"/.*"$ii"
+            case "$ii" in
+                ".")
+                    [ -e "$2" ] && iii=$((iii + $# - 1))
+                ;;
+                "..")
+                    [ -e "$1" ] && iii=$((iii + $#))
+                ;;
+                *)
+                    [ -e "$i/$ii" ] && iii=$((iii + 1))
+                    [ -e "$1" ] && iii=$((iii + $#))
+                ;;
+            esac
+        ;;
+        2:1)
+            set -- "$i"/*
+            [ -e "$1" ] && iii=$#
+
+            set -- "$i"/*/
+            [ -e "$1" ] && iii=$((iii - $#))
+
+            set -- "$i"/.*
+            [ -e "$3" ] && iii=$((iii + $# - 2))
+
+            set -- "$i"/.*/
+            [ -e "$3" ] && iii=$((iii - $# + 2))
+        ;;
+        2:1*)
+            [ -f "$i/$ii" ] && iii=1
+
+            set -- "$i"/*"$ii"
+            [ -e "$1" ] && iii=$((iii + $#))
+
+            set -- "$i"/.*"$ii"
+            case "$ii" in
+                ".") [ -e "$2" ] && iii=$((iii + $# - 1)) ;;
+                *) [ -e "$1" ] && iii=$((iii + $#)) ;;
+            esac
+
+            set -- "$i"/.*"$ii"/
+            case "$ii" in
+                ".") [ -e "$2" ] && iii=$((iii - $# + 1)) ;;
+                *) [ -e "$1" ] && iii=$((iii - $#)) ;;
+            esac
+
+            set -- "$i"/*"$ii"/
+            [ -e "$1" ] && iii=$((iii - $#))
+        ;;
+        2:2)
+            set -- "$i"/*/
+            [ -e "$1" ] && iii=$#
+
+            set -- "$i"/.*/
+            [ -e "$3" ] && iii=$((iii + $# - 2))
+        ;;
+        2:2*)
+            set -- "$i"/*"$ii"/
+            [ -e "$1" ] && iii=$#
+
+            set -- "$i"/.*"$ii"/
+            case "$ii" in
+                ".")
+                    [ -e "$2" ] && iii=$((iii + $# - 1))
+                ;;
+                "..")
+                    [ -e "$1" ] && iii=$((iii + $#))
+                ;;
+                *)
+                    [ -d "$i/$ii" ] && iii=$((iii + 1))
+                    [ -e "$1" ] && iii=$((iii + $#))
+                ;;
+            esac
+        ;;
+        2:3)
+            set -- "$i"/*
+            [ -e "$1" ] && iii=$#
+        ;;
+        3:0*)
+            set -- "$i"/*"$ii"
+            [ -e "$1" ] && iii=$#
+        ;;
+        3:1)
+            set -- "$i"/*
+            [ -e "$1" ] && iii=$#
+
+            set -- "$i"/*/
+            [ -e "$1" ] && iii=$((iii - $#))
+        ;;
+        3:1*)
+            set -- "$i"/*"$ii"
+            [ -e "$1" ] && iii=$#
+
+            set -- "$i"/*"$ii"/
+            [ -e "$1" ] && iii=$((iii - $#))
+        ;;
+        3:2)
+            set -- "$i"/*/
+            [ -e "$1" ] && iii=$#
+        ;;
+        3:2*)
+            set -- "$i"/*"$ii"/
+            [ -e "$1" ] && iii=$#
+        ;;
+    esac
+
+    printf "%d" "$iii"
+}
+
+get_fpath() {
+    case "$1" in
+        /*) printf "%s" "$1" ;;
+        *) printf "%s/%s" "$PWD" "$1" ;;
+    esac
+}
+
+grep_str() {
+    case $#:$3 in
+        2:) case "$2" in *"$1"*) return 0 ;; esac ;;
+        3:1) case "$2" in "$1"*) return 0 ;; esac ;;
+        3:2) case "$2" in *"$1") return 0 ;; esac ;;
+        3:3) case "$2" in "$1") return 0 ;; esac ;;
+    esac
+
+    return 1
+}
+
+ltl_substr0() {
+    case $#:$5$4 in
+        6:*|5:4*|4:4)
+            case $1 in
+                0)
+                    case "$3" in
+                        *"$2"*"$2"*) : ;;
+                        "$2"*) return 1 ;;
+                        *"$2"*) : ;;
+                        *) return 2 ;;
+                    esac
+
+                    i="${3%"$2"*}"
+                ;;
+                *)
+                    case $1"$3" in
+                        1"$2"*) return 1 ;;
+                        $1*"$2"*) : ;;
+                        *) return 2 ;;
+                    esac
+
+                    x=0 && i="$3"
+                    until [ $x -eq $1 ]; do
+                        i="${i#*"$2"}"
+
+                        case "$i" in
+                            *"$2"*) : ;;
+                            *) [ $((x + 1)) -eq $1 ] || return 3 ;;
+                        esac
+
+                        x=$((x + 1))
+                    done
+
+                    case ":$i" in
+                        :) i="${3%"$2"}" ;;
+                        *) i="${3%"$2""$i"}" ;;
+                    esac
+                ;;
+            esac
+        ;;
+        *)
+            case $1 in
+                0)
+                    i="${3%"$2"*}"
+                ;;
+                *)
+                    x=0 && i="$3"
+                    until [ $x -eq $1 ]; do
+                        i="${i#*"$2"}"
+                        x=$((x + 1))
+                    done
+                    i="${3%"$2""$i"}"
+                ;;
+            esac
+
+            [ "$i" = "$3" ] && return 2
+        ;;
+    esac
+
+    [ "$i" ] || return 1
+
+    case $4 in
+        0)
+            i="${i#${i%%[![:space:]]*}}"
+        ;;
+        1)
+            i="${i%${i##*[![:space:]]}}"
+        ;;
+        2)
+            i="${i#${i%%[![:space:]]*}}"
+            i="${i%${i##*[![:space:]]}}"
+        ;;
+    esac
+
+    case $5$4 in
+        *3*) i="$i$2" ;;
+    esac
+
+    printf "%s" "$i"
+}
+
+ltl_substr1() {
+    case $#:$7$6 in
+        8:*|7:6*|6:6)
+            case $1 in
+                0)
+                    case "$5" in
+                        *"$2"*"$2"*) : ;;
+                        "$2"*) return 1 ;;
+                        *"$2"*) : ;;
+                        *) return 2 ;;
+                    esac
+
+                    i="${5%"$2"*}"
+                ;;
+                *)
+                    case $1"$5" in
+                        1"$2"*) return 1 ;;
+                        $1*"$2"*) : ;;
+                        *) return 2 ;;
+                    esac
+
+                    x=0 && i="$5"
+                    until [ $x -eq $1 ]; do
+                        i="${i#*"$2"}"
+
+                        case "$i" in
+                            *"$2"*) : ;;
+                            *) [ $((x + 1)) -eq $1 ] || return 3 ;;
+                        esac
+
+                        x=$((x + 1))
+                    done
+
+                    case ":$i" in
+                        :) i="${5%"$2"}" ;;
+                        *) i="${5%"$2""$i"}" ;;
+                    esac
+                ;;
+            esac
+
+            case $3 in
+                0)
+                    case "$i" in
+                        *"$4"*"$4"*) : ;;
+                        *"$4") return 4 ;;
+                        *"$4"*) : ;;
+                        *) return 5 ;;
+                    esac
+
+                    i="${i#*"$4"}"
+                ;;
+                *)
+                    case $3"$i" in
+                        1*"$4") return 4 ;;
+                        $3*"$4"*) : ;;
+                        *) return 5 ;;
+                    esac
+
+                    x=0 && ii="$i"
+                    until [ $x -eq $3 ]; do
+                        i="${i%"$4"*}"
+
+                        case "$i" in
+                            *"$4"*) : ;;
+                            *) [ $((x + 1)) -eq $3 ] || return 6 ;;
+                        esac
+
+                        x=$((x + 1))
+                    done
+
+                    case ":$i" in
+                        :) i="${ii#"$4"}" ;;
+                        *) i="${ii#"$i""$4"}" ;;
+                    esac
+                ;;
+            esac
+        ;;
+        *)
+            case $1 in
+                0)
+                    i="${5%"$2"*}"
+                ;;
+                *)
+                    x=0 && i="$5"
+                    until [ $x -eq $1 ]; do
+                        i="${i#*"$2"}"
+                        x=$((x + 1))
+                    done
+                    i="${5%"$2""$i"}"
+                ;;
+            esac
+
+            [ "$i" = "$5" ] && return 2
+            iii="$i"
+
+            case $3 in
+                0)
+                    i="${i#*"$4"}"
+                ;;
+                *)
+                    x=0 && ii="$i"
+                    until [ $x -eq $3 ]; do
+                        i="${i%"$4"*}"
+                        x=$((x + 1))
+                    done
+                    i="${ii#"$i""$4"}"
+                ;;
+            esac
+
+            [ "$i" = "$iii" ] && return 2
+        ;;
+    esac
+
+    [ "$i" ] || return 1
+
+    case $6 in
+        0)
+            i="${i#${i%%[![:space:]]*}}"
+        ;;
+        1)
+            i="${i%${i##*[![:space:]]}}"
+        ;;
+        2)
+            i="${i#${i%%[![:space:]]*}}"
+            i="${i%${i##*[![:space:]]}}"
+        ;;
+    esac
+
+    case $7$6 in
+        *3*) i="$i$2" ;;
+        *4*) i="$4$i" ;;
+        *5*) i="$4$i$2" ;;
+    esac
+
+    printf "%s" "$i"
+}
+
+ltr_substr0() {
+    case $#:$5$4 in
+        6:*|5:4*|4:4)
+            case $1 in
+                0)
+                    case "$3" in
+                        *"$2") return 1 ;;
+                        *"$2"*) : ;;
+                        *) return 2 ;;
+                    esac
+
+                    i="${3##*"$2"}"
+                ;;
+                *)
+                    case $1"$3" in
+                        $1*"$2"*"$2"*) : ;;
+                        1*"$2") return 1 ;;
+                        $1*"$2"*) : ;;
+                        *) return 2 ;;
+                    esac
+
+                    x=0 && i="$3"
+                    until [ $x -eq $1 ]; do
+                        i="${i#*"$2"}"
+
+                        case "$i" in
+                            *"$2"*"$2"*) : ;;
+                            *"$2") [ $((x + 2)) -eq $1 ] && return 1 ;;
+                            *"$2"*) : ;;
+                            *) [ $((x + 1)) -eq $1 ] || return 3 ;;
+                        esac
+
+                        x=$((x + 1))
+                    done
+                ;;
+            esac
+        ;;
+        *)
+            case $1 in
+                0)
+                    i="${3##*"$2"}"
+                ;;
+                *)
+                    x=0 && i="$3"
+                    until [ $x -eq $1 ]; do
+                        i="${i#*"$2"}"
+                        x=$((x + 1))
+                    done
+                ;;
+            esac
+
+            [ "$i" = "$3" ] && return 2
+        ;;
+    esac
+
+    [ "$i" ] || return 1
+
+    case $4 in
+        0)
+            i="${i#${i%%[![:space:]]*}}"
+        ;;
+        1)
+            i="${i%${i##*[![:space:]]}}"
+        ;;
+        2)
+            i="${i#${i%%[![:space:]]*}}"
+            i="${i%${i##*[![:space:]]}}"
+        ;;
+    esac
+
+    case $5$4 in
+        *3*) i="$2$i" ;;
+    esac
+
+    printf "%s" "$i"
+}
+
+ltr_substr1() {
+    case $#:$7$6 in
+        8:*|7:6*|6:6)
+            case $1 in
+                0)
+                    case "$5" in
+                        *"$2") return 1 ;;
+                        *"$2"*) : ;;
+                        *) return 2 ;;
+                    esac
+
+                    i="${5##*"$2"}"
+                ;;
+                *)
+                    case $1"$5" in
+                        $1*"$2"*"$2"*) : ;;
+                        1*"$2") return 1 ;;
+                        $1*"$2"*) : ;;
+                        *) return 2 ;;
+                    esac
+
+                    x=0 && i="$5"
+                    until [ $x -eq $1 ]; do
+                        i="${i#*"$2"}"
+
+                        case "$i" in
+                            *"$2"*"$2"*) : ;;
+                            *"$2") [ $((x + 2)) -eq $1 ] && return 1 ;;
+                            *"$2"*) : ;;
+                            *) [ $((x + 1)) -eq $1 ] || return 3 ;;
+                        esac
+
+                        x=$((x + 1))
+                    done
+                ;;
+            esac
+
+            case $3 in
+                0)
+                    case "$i" in
+                        *"$4"*"$4"*) : ;;
+                        "$4"*) return 4 ;;
+                        *"$4"*) : ;;
+                        *) return 5 ;;
+                    esac
+
+                    i="${i%"$4"*}"
+                ;;
+                *)
+                    case $3"$i" in
+                        1"$4"*) return 4 ;;
+                        $3*"$4"*) : ;;
+                        *) return 5 ;;
+                    esac
+
+                    x=0 && ii="$i"
+                    until [ $x -eq $3 ]; do
+                        i="${i#*"$4"}"
+
+                        case "$i" in
+                            *"$4"*) : ;;
+                            *) [ $((x + 1)) -eq $3 ] || return 6 ;;
+                        esac
+
+                        x=$((x + 1))
+                    done
+
+                    case ":$i" in
+                        :) i="${ii%"$4"}" ;;
+                        *) i="${ii%"$4""$i"}" ;;
+                    esac
+                ;;
+            esac
+        ;;
+        *)
+            case $1 in
+                0)
+                    i="${5##*"$2"}"
+                ;;
+                *)
+                    x=0 && i="$5"
+                    until [ $x -eq $1 ]; do
+                        i="${i#*"$2"}"
+                        x=$((x + 1))
+                    done
+                ;;
+            esac
+
+            [ "$i" = "$5" ] && return 2
+            iii="$i"
+
+            case $3 in
+                0)
+                    i="${i%"$4"*}"
+                ;;
+                *)
+                    x=0 && ii="$i"
+                    until [ $x -eq $3 ]; do
+                        i="${i#*"$4"}"
+                        x=$((x + 1))
+                    done
+                    i="${ii%"$4""$i"}"
+                ;;
+            esac
+
+            [ "$i" = "$iii" ] && return 2
+        ;;
+    esac
+
+    [ "$i" ] || return 1
+
+    case $6 in
+        0)
+            i="${i#${i%%[![:space:]]*}}"
+        ;;
+        1)
+            i="${i%${i##*[![:space:]]}}"
+        ;;
+        2)
+            i="${i#${i%%[![:space:]]*}}"
+            i="${i%${i##*[![:space:]]}}"
+        ;;
+    esac
+
+    case $7$6 in
+        *3*) i="$2$i" ;;
+        *4*) i="$i$4" ;;
+        *5*) i="$2$i$4" ;;
+    esac
+
+    printf "%s" "$i"
+}
+
+pline() {
+    x=0
+
+    [ -f "$2" ] || return 2
+    [ -r "$2" ] || return 3
+
+    while read -r LINE; do
+        x=$((x + 1))
+        case $x in $1) printf "%s" "$LINE"; return 0 ;; esac
+    done < "$2"
+
+    case $((x + 1)) in $1) printf "%s" "$LINE"; return 0 ;; esac
+
+    return 1
+}
+
+main() {
+    set -- $(get_fpath "$1")
+    FILE="$1"
+
+    [ -f "$FILE" ] || err 2 "'$FILE' is not a file."
+
+    if command -v curl > /dev/null 2>&1; then
+        URL_TOOL='curl'
+        URL_TOOL_ARGS='-Of'
+    elif command -v wget > /dev/null 2>&1; then
+        URL_TOOL='wget'
+        URL_TOOL_ARGS=
+    else
+        err 127 "No URL download tool available. (curl/wget)"
+    fi
+
+    hash $URL_TOOL > /dev/null 2>&1
+
+    rm -f ${TMPDIR:-/tmp}/*.patch
+    cd ${TMPDIR:-/tmp} || err 1 "Line '$LINENO' failed."
+
+    while read -r LINE || [ "$LINE" ]; do
+        if ! grep_str '://' " $LINE "; then
+            continue
+        fi
+
+        LINE=$(
+            ltl_substr1 0 '://' 1 ' ' " $LINE" 3;
+            ltr_substr1 0 '://' 1 ' ' "$LINE "
+        )
+
+        grep_str '.patch' "$LINE" || LINE="$LINE".patch
+
+        $URL_TOOL ${URL_TOOL_ARGS} "$LINE" > /dev/null 2>&1 &
+    done < "$FILE"; wait
+
+    case $(fcount "${TMPDIR:-/tmp}" '1.patch' 3) in
+        0) rm -f ${TMPDIR:-/tmp}/*.patch; err 1 "No patches found." ;;
+    esac
+
+    SFILE=$(
+        for PATCH in ${TMPDIR:-/tmp}/*.patch; do
+            CSTR=$(pline 1 "$PATCH")
+            CSTR=$(ltr_substr1 1 ' ' 1 ' ' "$CSTR")
+
+            CSTR="${CSTR%????????????????????????????}"
+
+            DSTR=$(pline 3 "$PATCH")
+            DSTR=$(ltr_substr1 2 ' ' 4 ' ' "$DSTR")
+
+            echo "$CSTR $DSTR"
+        done
+    )
+
+    SFILE=$(
+        echo "$SFILE" | sort -t " " -k4.1,4.4 -k3.1,3.3M -k2.1n \
+                                    -k5.1,5.2 -k5.4,5.5 -k5.7,5.8
+    )
+
+    SFILE=$(
+        echo "$SFILE" | \
+        while read -r LINE; do
+            printf "%s\n" "$(ltl_substr0 1 " " "$LINE")"
+        done
+    )
+
+    URLS=$(
+    while read -r LINE || [ "$LINE" ]; do
+        if ! grep_str '://' " $LINE "; then
+            continue
+        fi
+
+        LINE=$(
+            ltl_substr1 0 '://' 1 ' ' " $LINE" 3;
+            ltr_substr1 0 '://' 1 ' ' "$LINE "
+        )
+
+        printf " %s \n" "$LINE"
+    done < "$FILE"; wait
+    )
+
+    SHAS=$(
+        printf "%s\n" "$SFILE" | \
+        while read -r LINE; do
+            printf "%s\n" "$LINE"
+        done
+    )
+
+    SFILE=$(
+        printf "%s\n" "$SFILE" | \
+        while read -r LINE; do
+            for PATCH in ${TMPDIR:-/tmp}/"$LINE"*.patch; do
+                NUM=$((1 + CNT)); CNT=$NUM
+                CTITLE=$(pline 4 "$PATCH")
+                CTITLE=$(ltr_substr0 2 " " "$CTITLE")
+                printf "%s (\"%s\") [%d]\n" "$LINE" "$CTITLE" "$NUM"
+            done
+        done
+    )
+
+        SFILE2=$(
+            printf "%s\n" "$SHAS" | \
+            while read -r LINE; do
+                NUM=$((1 + CNT)); CNT=$NUM
+                URL=$(
+                ltl_substr1 0 "$LINE" 1 ' ' "$URLS" 3;
+                ltr_substr1 0 "$LINE" 1 ' ' "$URLS"
+                )
+                printf "[%d] %s\n" "$NUM" "$URL"
+            done
+        )
+
+    printf "%s\n\n%s\n" "$SFILE" "$SFILE2"
+
+    rm -f ${TMPDIR:-/tmp}/*.patch
+}
+
+main "$@"
