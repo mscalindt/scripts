@@ -470,8 +470,8 @@ _alock_get() {
 # <"$1"> - attribute
 #
 # Returns:
-# (0) attribute exists
-# (1) no attribute
+# (0) match
+# (1) no match
 #
 _alock_test() {
     i=$(pline 1 "$ALOCK")
