@@ -474,9 +474,9 @@ _alock_get() {
 # (1) no attribute
 #
 _alock_test() {
-    i=$(pline 1 "$ALOCK") && grep_str "@$1@" "$i" && return 0
+    i=$(pline 1 "$ALOCK")
 
-    return 1
+    grep_str "@$1@" "$i" || return 1
 }
 
 # Description:
