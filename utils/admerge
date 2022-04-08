@@ -483,24 +483,13 @@ _alock_test() {
 # Return lock format for an attribute
 #
 # Parameters:
-# <"$1"> - attribute('1' - begin lock format,
-#                    '2' - end lock format)
-# ['$2'] - test variable
+# <"$1"> - attribute
 #
 # Returns:
 # (0) format
-# (1) variable is empty/unset
 #
 _alock_write() {
-    case $# in
-        2) i=$(eval "printf \"%s\" \"$2\"") && [ ! "$i" ] && return 1 ;;
-    esac
-
-    case "$1" in
-        1) printf " " ;;
-        2) printf " \n" ;;
-        *) printf "@%s@ " "$1" ;;
-    esac
+    printf "@%s@ " "$1"
 }
 
 # Description:
@@ -596,11 +585,14 @@ admerge_check() {
 }
 
 admerge_lock() {
-    _alock_write "1"
+    printf " "
+
     _alock_write "$BRANCH"
-    _alock_write "s" '$soff'
-    _alock_write "S" '$gsign'
-    _alock_write "2"
+
+    [ "$soff" ] && _alock_write "s"
+    [ "$gsign" ] && _alock_write "S"
+
+    echo " "
 } >> "$ALOCK"
 
 admerge_msg() {
