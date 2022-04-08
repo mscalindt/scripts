@@ -480,7 +480,7 @@ _alock_test() {
 }
 
 # Description:
-# Return lock format for an attribute
+# Return attribute format for the lock file
 #
 # Parameters:
 # <"$1"> - attribute
