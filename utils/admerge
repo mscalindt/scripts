@@ -587,7 +587,11 @@ admerge_abort() {
     [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
     [ -f "$ALOCK" ] || err 2 "No lock file found. (no merge in progress?)"
 
-    git merge --abort || exit $?
+    if ! git merge --abort; then
+        if ! git merge HEAD > /dev/null 2>&1; then
+            exit 1
+        fi
+    fi
 
     admerge_post;
 }
