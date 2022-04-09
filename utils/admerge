@@ -570,6 +570,9 @@ admerge_exec() {
         fi
     fi
 
+    # Return code of git will not be reliable on a literal "HEAD" merge; for
+    # such case, do a merge of "HEAD" to abort prematurely if we are not in a
+    # merge.
     if git merge HEAD > /dev/null 2>&1; then
         return 0
     fi
