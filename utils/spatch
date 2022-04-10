@@ -1170,24 +1170,24 @@ main_functions() {
                     exit 2
                 ;;
                 "$1 ")
-                    n=2
-                    unset i; return 0
+                    i=; n=2
+                    return 0
                 ;;
                 "$1="*)
-                    ii="${i#"$1"=}"; n=1
-                    unset i; return 0
+                    i=; ii="${i#"$1"=}"; n=1
+                    return 0
                 ;;
             esac
         ;;
         "-"*)
             case "$i " in
                 "$1 ")
-                    n=2
-                    unset i; return 0
+                    i=; n=2
+                    return 0
                 ;;
                 "$1"*)
-                    ii="${i#"$1"}"; n=1
-                    unset i; return 0
+                    i=; ii="${i#"$1"}"; n=1
+                    return 0
                 ;;
             esac
         ;;
@@ -1227,12 +1227,12 @@ main_functions() {
                     exit 2
                 ;;
                 "$1")
-                    n=1
-                    unset i ii; return 0
+                    i=; ii=; n=1
+                    return 0
                 ;;
                 "$1="*)
-                    ii="${i#"$1"=}"; n=1
-                    unset i; return 0
+                    i=; ii="${i#"$1"=}"; n=1
+                    return 0
                 ;;
             esac
         ;;
@@ -1245,12 +1245,12 @@ main_functions() {
 
             case "$i" in
                 "$1")
-                    n=1
-                    unset i ii; return 0
+                    i=; ii=; n=1
+                    return 0
                 ;;
                 "$1"*)
-                    ii="${i#"$1"}"; n=1
-                    unset i; return 0
+                    i=; ii="${i#"$1"}"; n=1
+                    return 0
                 ;;
             esac
         ;;
@@ -1289,12 +1289,12 @@ main_functions() {
                     exit 2
                 ;;
                 "$ii:$1 ")
-                    n=2
-                    unset i; return 0
+                    i=; n=2
+                    return 0
                 ;;
                 "$ii:$1="*)
-                    ii="${i#"$1"=}"; n=1
-                    unset i; return 0
+                    i=; ii="${i#"$1"=}"; n=1
+                    return 0
                 ;;
                 *)
                     shift
@@ -1328,12 +1328,12 @@ main_functions() {
                     exit 2
                 ;;
                 "$1")
-                    n=1
-                    unset i ii; return 0
+                    i=; ii=; n=1
+                    return 0
                 ;;
                 "$1="*)
-                    ii="${i#"$1"=}"; n=1
-                    unset i; return 0
+                    i=; ii="${i#"$1"=}"; n=1
+                    return 0
                 ;;
                 *)
                     shift
@@ -1364,8 +1364,8 @@ main_functions() {
 
             case "$i" in
                 "$1")
-                    n=1
-                    unset i; return 0
+                    i=; n=1
+                    return 0
                 ;;
             esac
         ;;
@@ -1405,8 +1405,8 @@ main_functions() {
         while [ "$1" ]; do
             case "$i" in
                 "$1")
-                    n=1
-                    unset i; return 0
+                    i=; n=1
+                    return 0
                 ;;
                 *)
                     shift
