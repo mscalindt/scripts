@@ -294,11 +294,11 @@ fswap_info() {
     TMP=$(cat $zswap_path 2> /dev/null)
     [ "$TMP" ] && info_px "${ES_inf}MISC:${ES_res} " "zswap: '$TMP'."
 
-    TMP=$(cat $zswapcr_path 2> /dev/null)
-    [ "$TMP" ] && info_px "${ES_inf}MISC:${ES_res} " "zswap compressor: '$TMP'."
-
     TMP=$(cat $zswapar_path 2> /dev/null)
     [ "$TMP" ] && info_px "${ES_inf}MISC:${ES_res} " "zswap allocator: '$TMP'."
+
+    TMP=$(cat $zswapcr_path 2> /dev/null)
+    [ "$TMP" ] && info_px "${ES_inf}MISC:${ES_res} " "zswap compressor: '$TMP'."
 
     TMP=$(cat $ss_path 2> /dev/null)
     case "$swappiness:$TMP" in
