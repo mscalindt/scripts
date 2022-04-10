@@ -944,7 +944,7 @@ main() {
 
     # Reorder the positional parameters if needed
     #  > to prioritize specific options first
-    main_sargs_ro 0 "--no-color" "-l" "--location" -- "$@"
+    main_sargs_ro 0 "-l" "--location" "--no-color" -- "$@"
     [ "$i" ] && eval set -- "$i"
 
     # Parse options
