@@ -472,8 +472,13 @@ _alock_get() {
 # Returns:
 # (0) match
 # (1) no match
+# (2) invalid attribute
 #
 _alock_test() {
+    case "$1" in
+        *"@"*) return 2 ;;
+    esac
+
     i=$(pline 1 "$ALOCK")
 
     grep_str "@$1@" "$i" || return 1
@@ -487,8 +492,13 @@ _alock_test() {
 #
 # Returns:
 # (0) format
+# (1) invalid attribute
 #
 _alock_write() {
+    case "$1" in
+        *"@"*) return 1 ;;
+    esac
+
     printf "@%s@ " "$1"
 }
 
