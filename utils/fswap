@@ -221,15 +221,29 @@ warn_clr() {
 }
 
 # Description:
-# Apply value to location
+# Write value to a file (overwrite)
 #
 # Parameters:
 # <"$1"> - value
-# <$2> - location
+# <"$2"> - file
+#
+# Returns:
+# (0) success
+# (1) not a file | file does not exist
+# (2) file access error
 #
 _fwrite() {
-    [ -w "$2" ] && printf -- "%s\n" "$1" > "$2" || \
-    warn "Could not apply '$1' on '$2'. (!-w)"
+    [ -f "$2" ] || return 1
+
+    if [ ! -w "$2" ]; then
+        case "$(cat "$2" 2> /dev/null)" in
+            "$1") return 0 ;;
+        esac
+
+        return 2
+    fi
+
+    printf "%s\n" "$1" > "$2"
 }
 
 _fswap() {
@@ -339,8 +353,17 @@ fswap_exec() {
 }
 
 fswap_post() {
-    [ "$swappiness" ] && _fwrite $swappiness /proc/sys/vm/swappiness
-    [ "$vfscp" ] && _fwrite $vfscp /proc/sys/vm/vfs_cache_pressure
+    if [ "$swappiness" ]; then
+        _fwrite $swappiness /proc/sys/vm/swappiness || {
+            warn "Failed to apply swappiness '$swappiness'. (RC = $?)"
+        }
+    fi
+
+    if [ "$vfscp" ]; then
+        _fwrite $vfscp /proc/sys/vm/vfs_cache_pressure || {
+            warn "Failed to apply vfs_cache_pressure '$vfscp'. (RC = $?)"
+        }
+    fi
 }
 
 fswap() {
