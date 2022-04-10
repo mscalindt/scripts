@@ -269,6 +269,12 @@ _fswap() {
 }
 
 fswap_env() {
+    ss_path=/proc/sys/vm/swappiness
+    vfscp_path=/proc/sys/vm/vfs_cache_pressure
+    zswap_path=/sys/module/zswap/parameters/enabled
+    zswapar_path=/sys/module/zswap/parameters/zpool
+    zswapcr_path=/sys/module/zswap/parameters/compressor
+
     [ "$ssize" ] || ssize=1G
     [ "$sfile" ] || sfile="$HOME"/.swapfile
 }
@@ -285,16 +291,16 @@ fswap_check() {
 }
 
 fswap_info() {
-    TMP=$(cat /sys/module/zswap/parameters/enabled 2> /dev/null)
+    TMP=$(cat $zswap_path 2> /dev/null)
     [ "$TMP" ] && info_px "${ES_inf}MISC:${ES_res} " "zswap: '$TMP'."
 
-    TMP=$(cat /sys/module/zswap/parameters/compressor 2> /dev/null)
+    TMP=$(cat $zswapcr_path 2> /dev/null)
     [ "$TMP" ] && info_px "${ES_inf}MISC:${ES_res} " "zswap compressor: '$TMP'."
 
-    TMP=$(cat /sys/module/zswap/parameters/zpool 2> /dev/null)
+    TMP=$(cat $zswapar_path 2> /dev/null)
     [ "$TMP" ] && info_px "${ES_inf}MISC:${ES_res} " "zswap allocator: '$TMP'."
 
-    TMP=$(cat /proc/sys/vm/swappiness 2> /dev/null)
+    TMP=$(cat $ss_path 2> /dev/null)
     case "$swappiness:$TMP" in
         :)
             :
@@ -308,7 +314,7 @@ fswap_info() {
         ;;
     esac
 
-    TMP=$(cat /proc/sys/vm/vfs_cache_pressure 2> /dev/null)
+    TMP=$(cat $vfscp_path 2> /dev/null)
     case "$vfscp:$TMP" in
         :)
             :
@@ -354,14 +360,14 @@ fswap_exec() {
 
 fswap_post() {
     if [ "$swappiness" ]; then
-        _fwrite $swappiness /proc/sys/vm/swappiness || {
-            warn "Failed to apply swappiness '$swappiness'. (RC = $?)"
+        _fwrite $swappiness $ss_path || {
+            warn "Failed to apply '$swappiness' on '$ss_path'. (RC = $?)"
         }
     fi
 
     if [ "$vfscp" ]; then
-        _fwrite $vfscp /proc/sys/vm/vfs_cache_pressure || {
-            warn "Failed to apply vfs_cache_pressure '$vfscp'. (RC = $?)"
+        _fwrite $vfscp $vfscp_path || {
+            warn "Failed to apply '$vfscp' on '$vfscp_path'. (RC = $?)"
         }
     fi
 }
