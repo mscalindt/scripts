@@ -19,7 +19,7 @@
  *   0 = .config will be copied to arch/<arch>/configs
  *   1 = .config will be copied to arch/<arch>/configs/vendor
  *
- * SPDX-License-Identifier: GPL-3.0
+ * SPDX-License-Identifier: GPL-3.0-only
  *
  * Copyright (C) 2020-2021 Dimitar Yurukov <mscalindt@protonmail.com>
  *

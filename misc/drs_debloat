@@ -3,7 +3,7 @@
 # [DRS_sprout | Nokia 3.4] Android 11 00WW_2_410_SP01 TA-1283
 
 : <<'notice'
- * SPDX-License-Identifier: GPL-3.0
+ * SPDX-License-Identifier: GPL-3.0-only
  *
  * Copyright (C) 2021 Dimitar Yurukov <mscalindt@protonmail.com>
  *

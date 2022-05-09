@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-License-Identifier: GPL-3.0
+# SPDX-License-Identifier: GPL-3.0-only
 # shellcheck disable=SC2030 # ShellCheck is wrong (on the intention)
 # shellcheck disable=SC2031 # ShellCheck wrong parse order
 # shellcheck disable=SC2048 # ShellCheck incorrect pedantic warning

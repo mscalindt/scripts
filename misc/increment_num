@@ -13,7 +13,7 @@
  *   INCREMENT: [value] [X]
  *   Specify by how much to increment. If left empty, default (1) is used.
  *
- * SPDX-License-Identifier: GPL-3.0
+ * SPDX-License-Identifier: GPL-3.0-only
  *
  * Copyright (C) 2020-2021 Dimitar Yurukov <mscalindt@protonmail.com>
  *

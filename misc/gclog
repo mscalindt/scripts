@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-License-Identifier: GPL-3.0
+# SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2022 Dimitar Yurukov <mscalindt@protonmail.com>
 # UGLY AND SLOW, WRITTEN IN 30 MINUTES (ON M... ENOUGH DETAILS); DO NOT USE
 # "$1" - FILE

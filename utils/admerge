@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-License-Identifier: GPL-3.0
+# SPDX-License-Identifier: GPL-3.0-only
 # shellcheck disable=SC2048 # ShellCheck incorrect pedantic warning
 
 _copyright() {
