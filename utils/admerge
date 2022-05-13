@@ -591,7 +591,7 @@ admerge_post() {
 }
 
 admerge_abort() {
-    admerge_env;
+    admerge_env
 
     [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
     [ -f "$ALOCK" ] || err 2 "No lock file found. (no merge in progress?)"
@@ -600,24 +600,24 @@ admerge_abort() {
         _in_merge && exit 1
     fi
 
-    admerge_post;
+    admerge_post
 }
 
 admerge_continue() {
-    admerge_env;
+    admerge_env
 
     [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
     [ -f "$ALOCK" ] || err 2 "No lock file found. (no merge in progress?)"
 
-    admerge_work;
+    admerge_work
 
     git commit ${gitc_args} || exit $?
 
-    admerge_post;
+    admerge_post
 }
 
 admerge_status() {
-    admerge_env;
+    admerge_env
 
     [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
     [ -f "$ALOCK" ] || err 2 "No lock file found. (no merge in progress?)"
@@ -656,14 +656,14 @@ admerge_status() {
 }
 
 admerge() {
-    _admerge;
-    admerge_env;
-    admerge_check;
-    admerge_lock;
-    admerge_msg;
-    admerge_work;
-    admerge_exec;
-    admerge_post;
+    _admerge
+    admerge_env
+    admerge_check
+    admerge_lock
+    admerge_msg
+    admerge_work
+    admerge_exec
+    admerge_post
 }
 
 main_functions() {

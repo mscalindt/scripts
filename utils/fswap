@@ -374,13 +374,13 @@ fswap_post() {
 }
 
 fswap() {
-    _fswap;
-    fswap_env;
-    fswap_check;
-    fswap_info;
-    fswap_work;
+    _fswap
+    fswap_env
+    fswap_check
+    fswap_info
+    fswap_work
     fswap_exec || exit $?
-    fswap_post;
+    fswap_post
 }
 
 main_functions() {

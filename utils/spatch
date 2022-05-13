@@ -867,7 +867,7 @@ spatch_exec() {
         fi
 
         LINE=$(
-            ltl_substr1 0 '://' 1 ' ' " $LINE" 3;
+            ltl_substr1 0 '://' 1 ' ' " $LINE" 3
             ltr_substr1 0 '://' 1 ' ' "$LINE "
         )
 
@@ -961,12 +961,12 @@ spatch_post() {
 }
 
 spatch() {
-    _spatch;
+    _spatch
     spatch_env "$1"
-    spatch_check;
-    spatch_work;
-    spatch_exec;
-    spatch_post;
+    spatch_check
+    spatch_work
+    spatch_exec
+    spatch_post
 }
 
 main_functions() {
