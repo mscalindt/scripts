@@ -1517,12 +1517,6 @@ main_options() {
 }
 
 main() {
-    # For practical reasons, unset conditional variables if they exist
-    # > special:
-    unset RC CNT
-    # > options:
-    unset ncolor durl invert lnumbers purl scommit tstamp verbose tfile
-
     # Source common functions
     main_functions;
 

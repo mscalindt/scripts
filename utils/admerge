@@ -1212,12 +1212,6 @@ main_options() {
 }
 
 main() {
-    # For practical reasons, unset conditional variables if they exist
-    # > special:
-    unset RC BRANCH
-    # > options:
-    unset ncolor soff gsign gver
-
     # Source common functions
     main_functions;
 

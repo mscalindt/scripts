@@ -934,12 +934,6 @@ main_options() {
 }
 
 main() {
-    # For practical reasons, unset conditional variables if they exist
-    # > special:
-    unset RC
-    # > options:
-    unset ncolor sfile ssize swappiness vfscp
-
     # Source common functions
     main_functions;
 
