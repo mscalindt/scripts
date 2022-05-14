@@ -1099,7 +1099,7 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if complex (arg) option in option holder [$_opt]
+    # Return 0 if complex (arg) option
     #
     # Parameters (<1+>):
     # ["$1"] - -*
@@ -1108,6 +1108,10 @@ main_functions() {
     # Provides:
     # <"$_opt_arg"> - option argument
     # <$_shiftN> - shift count
+    #
+    # Returns:
+    # (0) match
+    # (1) no match
     #
     copt() {
         case ":$_opt" in :) return 1 ;; esac
@@ -1177,7 +1181,7 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if perhaps complex (arg) option in option holder [$_opt]
+    # Return 0 if perhaps complex (arg) option
     #
     # Parameters (<1+>):
     # ["$1"] - -*
@@ -1186,6 +1190,10 @@ main_functions() {
     # Provides:
     # ["$_opt_arg"] - option argument
     # <$_shiftN> - shift count
+    #
+    # Returns:
+    # (0) match
+    # (1) no match
     #
     copt_optional() {
         case ":$_opt" in :) return 1 ;; esac
@@ -1240,7 +1248,7 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if specific complex (arg) option in option holder [$_opt]
+    # Return 0 if specific complex (arg) option
     #
     # Parameters:
     # <"$1"+> - *
@@ -1248,6 +1256,10 @@ main_functions() {
     # Provides:
     # <"$_opt_arg"> - option argument
     # <$_shiftN> - shift count
+    #
+    # Returns:
+    # (0) match
+    # (1) no match
     #
     scopt() {
         case ":$_opt" in :) return 1 ;; esac
@@ -1286,7 +1298,7 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if specific perhaps complex (arg) option in option holder [$_opt]
+    # Return 0 if specific perhaps complex (arg) option
     #
     # Parameters:
     # <"$1"+> - *
@@ -1294,6 +1306,10 @@ main_functions() {
     # Provides:
     # ["$_opt_arg"] - option argument
     # <$_shiftN> - shift count
+    #
+    # Returns:
+    # (0) match
+    # (1) no match
     #
     scopt_optional() {
         case ":$_opt" in :) return 1 ;; esac
@@ -1325,7 +1341,7 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if simple (!arg) option in option holder [$_opt]
+    # Return 0 if simple (!arg) option
     #
     # Parameters (<1+>):
     # ["$1"] - -*
@@ -1334,6 +1350,10 @@ main_functions() {
     # Provides:
     # ["$_opt_index"] - index with encountered short options
     # <$_shiftN> - shift count
+    #
+    # Returns:
+    # (0) match
+    # (1) no match
     #
     sopt() {
         case ":$_opt" in :) return 1 ;; esac
@@ -1378,13 +1398,17 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if specific simple (!arg) option in option holder [$_opt]
+    # Return 0 if specific simple (!arg) option
     #
     # Parameters:
     # <"$1"+> - *
     #
     # Provides:
     # <$_shiftN> - shift count
+    #
+    # Returns:
+    # (0) match
+    # (1) no match
     #
     ssopt() {
         case ":$_opt" in :) return 1 ;; esac
