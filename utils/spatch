@@ -1331,6 +1331,10 @@ main_functions() {
     # ["$1"] - -*
     # ["$2"] - --*
     #
+    # Provides:
+    # ["$_opt_index"] - index with encountered short options
+    # <"$_shiftN"> - shift count
+    #
     sopt() {
         case ":$_opt" in :) return 1 ;; esac
 
@@ -1378,6 +1382,9 @@ main_functions() {
     #
     # Parameters:
     # <"$1"+> - *
+    #
+    # Provides:
+    # <"$_shiftN"> - shift count
     #
     ssopt() {
         case ":$_opt" in :) return 1 ;; esac
