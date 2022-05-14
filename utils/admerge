@@ -807,7 +807,7 @@ main_functions() {
     #
     # Provides:
     # <"$_opt_arg"> - option argument
-    # <"$_shiftN"> - shift count
+    # <$_shiftN> - shift count
     #
     copt() {
         case ":$_opt" in :) return 1 ;; esac
@@ -885,7 +885,7 @@ main_functions() {
     #
     # Provides:
     # ["$_opt_arg"] - option argument
-    # <"$_shiftN"> - shift count
+    # <$_shiftN> - shift count
     #
     copt_optional() {
         case ":$_opt" in :) return 1 ;; esac
@@ -947,7 +947,7 @@ main_functions() {
     #
     # Provides:
     # <"$_opt_arg"> - option argument
-    # <"$_shiftN"> - shift count
+    # <$_shiftN> - shift count
     #
     scopt() {
         case ":$_opt" in :) return 1 ;; esac
@@ -993,7 +993,7 @@ main_functions() {
     #
     # Provides:
     # ["$_opt_arg"] - option argument
-    # <"$_shiftN"> - shift count
+    # <$_shiftN> - shift count
     #
     scopt_optional() {
         case ":$_opt" in :) return 1 ;; esac
@@ -1033,7 +1033,7 @@ main_functions() {
     #
     # Provides:
     # ["$_opt_index"] - index with encountered short options
-    # <"$_shiftN"> - shift count
+    # <$_shiftN> - shift count
     #
     sopt() {
         case ":$_opt" in :) return 1 ;; esac
@@ -1084,7 +1084,7 @@ main_functions() {
     # <"$1"+> - *
     #
     # Provides:
-    # <"$_shiftN"> - shift count
+    # <$_shiftN> - shift count
     #
     ssopt() {
         case ":$_opt" in :) return 1 ;; esac
