@@ -982,28 +982,27 @@ main_functions() {
     esc_sq() {
         case ":$1" in :) return 0 ;; esac
 
-        case "$1" in
-            *"'"*)
-                ii="${1%%\'*}'\\''"
-                i="${ii}${1#*\'}"
+        _str="$1"
 
-                while :; do case "$i" in
-                    "$ii"*"'"*)
-                        iii="${i#*"$ii"}" && iii="${iii%%\'*}"
-                        i="${ii}${iii}'\\''${i#*"${ii}${iii}"\'}"
-                        ii="${ii}${iii}'\\''"
+        case "$_str" in
+            *"'"*)
+                _str_ref="${_str%%\'*}'\\''"
+                _str="${_str_ref}${_str#*\'}"
+
+                while :; do case "$_str" in
+                    "$_str_ref"*"'"*)
+                        _str="${_str#*"$_str_ref"}"
+                        _str_ref="$_str_ref${_str%%\'*}'\\''"
+                        _str="$_str_ref${_str#*\'}"
                     ;;
                     *)
                         break
                     ;;
                 esac done
             ;;
-            *)
-                i="$1"
-            ;;
         esac
 
-        printf "'%s'" "$i"; shift
+        printf "'%s'" "$_str"; shift
 
         while [ "$1" ]; do
             case "$1" in
@@ -1011,21 +1010,21 @@ main_functions() {
                 *) printf " '%s'" "$1"; shift && continue ;;
             esac
 
-            ii="${1%%\'*}'\\''"
-            i="${ii}${1#*\'}"
+            _str_ref="${1%%\'*}'\\''"
+            _str="${_str_ref}${1#*\'}"
 
-            while :; do case "$i" in
-                "$ii"*"'"*)
-                    iii="${i#*"$ii"}" && iii="${iii%%\'*}"
-                    i="${ii}${iii}'\\''${i#*"${ii}${iii}"\'}"
-                    ii="${ii}${iii}'\\''"
+            while :; do case "$_str" in
+                "$_str_ref"*"'"*)
+                    _str="${_str#*"$_str_ref"}"
+                    _str_ref="$_str_ref${_str%%\'*}'\\''"
+                    _str="$_str_ref${_str#*\'}"
                 ;;
                 *)
                     break
                 ;;
             esac done
 
-            printf " '%s'" "$i"; shift
+            printf " '%s'" "$_str"; shift
         done
     }
 
@@ -1100,20 +1099,20 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if complex (arg) option in option holder [$i]
+    # Return 0 if complex (arg) option in option holder [$_opt]
     #
     # Parameters (<1+>):
     # ["$1"] - -*
     # ["$2"] - --*
     #
     # Provides:
-    # <"$ii"> - option argument
-    # <"$n"> - shift count
+    # <"$_opt_arg"> - option argument
+    # <"$_shiftN"> - shift count
     #
     copt() {
-        case ":$i" in :) return 1 ;; esac
+        case ":$_opt" in :) return 1 ;; esac
 
-        case "$i" in
+        case "$_opt" in
         "--"*)
             case "$1:$2" in
                 "--"*":$2") : ;;
@@ -1130,7 +1129,7 @@ main_functions() {
         ;;
         esac
 
-        case "$ii:$i " in
+        case "$_opt_arg:$_opt " in
             :"$1 ")
                 printf "%s: Option '%s' requires an argument.\n" \
                        "${0##*/}" "$1" 1>&2
@@ -1140,9 +1139,9 @@ main_functions() {
            ;;
         esac
 
-        case "$i" in
+        case "$_opt" in
         "--"*)
-            case "$i " in
+            case "$_opt " in
                 "$1= ")
                     printf "%s: Invalid argument specification for: '%s'\n" \
                            "${0##*/}" "$1" 1>&2
@@ -1151,23 +1150,23 @@ main_functions() {
                     exit 2
                 ;;
                 "$1 ")
-                    i=; n=2
+                    _opt=; _shiftN=2
                     return 0
                 ;;
                 "$1="*)
-                    ii="${i#"$1"=}"; i=; n=1
+                    _opt_arg="${_opt#"$1"=}"; _opt=; _shiftN=1
                     return 0
                 ;;
             esac
         ;;
         "-"*)
-            case "$i " in
+            case "$_opt " in
                 "$1 ")
-                    i=; n=2
+                    _opt=; _shiftN=2
                     return 0
                 ;;
                 "$1"*)
-                    ii="${i#"$1"}"; i=; n=1
+                    _opt_arg="${_opt#"$1"}"; _opt=; _shiftN=1
                     return 0
                 ;;
             esac
@@ -1178,20 +1177,20 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if perhaps complex (arg) option in option holder [$i]
+    # Return 0 if perhaps complex (arg) option in option holder [$_opt]
     #
     # Parameters (<1+>):
     # ["$1"] - -*
     # ["$2"] - --*
     #
     # Provides:
-    # ["$ii"] - option argument
-    # <"$n"> - shift count
+    # ["$_opt_arg"] - option argument
+    # <"$_shiftN"> - shift count
     #
     copt_optional() {
-        case ":$i" in :) return 1 ;; esac
+        case ":$_opt" in :) return 1 ;; esac
 
-        case "$i" in
+        case "$_opt" in
         "--"*)
             case "$1:$2" in
                 "--"*":$2") : ;;
@@ -1199,7 +1198,7 @@ main_functions() {
                 *) return 1 ;;
             esac
 
-            case "$i" in
+            case "$_opt" in
                 "$1=")
                     printf "%s: Invalid argument specification for: '%s'\n" \
                            "${0##*/}" "$1" 1>&2
@@ -1208,11 +1207,11 @@ main_functions() {
                     exit 2
                 ;;
                 "$1")
-                    i=; ii=; n=1
+                    _opt=; _opt_arg=; _shiftN=1
                     return 0
                 ;;
                 "$1="*)
-                    ii="${i#"$1"=}"; i=; n=1
+                    _opt_arg="${_opt#"$1"=}"; _opt=; _shiftN=1
                     return 0
                 ;;
             esac
@@ -1224,13 +1223,13 @@ main_functions() {
                 *) return 1 ;;
             esac
 
-            case "$i" in
+            case "$_opt" in
                 "$1")
-                    i=; ii=; n=1
+                    _opt=; _opt_arg=; _shiftN=1
                     return 0
                 ;;
                 "$1"*)
-                    ii="${i#"$1"}"; i=; n=1
+                    _opt_arg="${_opt#"$1"}"; _opt=; _shiftN=1
                     return 0
                 ;;
             esac
@@ -1241,20 +1240,20 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if specific complex (arg) option in option holder [$i]
+    # Return 0 if specific complex (arg) option in option holder [$_opt]
     #
     # Parameters:
     # <"$1"+> - *
     #
     # Provides:
-    # <"$ii"> - option argument
-    # <"$n"> - shift count
+    # <"$_opt_arg"> - option argument
+    # <"$_shiftN"> - shift count
     #
     scopt() {
-        case ":$i" in :) return 1 ;; esac
+        case ":$_opt" in :) return 1 ;; esac
 
         while [ "$1" ]; do
-            case "$ii:$i " in
+            case "$_opt_arg:$_opt " in
                 :"$1 ")
                     printf "%s: Option '%s' requires an argument.\n" \
                            "${0##*/}" "$1" 1>&2
@@ -1262,19 +1261,19 @@ main_functions() {
                            "${0##*/}" "${0##*/}" 1>&2
                     exit 2
                 ;;
-                "$ii:$1= ")
+                "$_opt_arg:$1= ")
                     printf "%s: Invalid argument specification for: '%s'\n" \
                            "${0##*/}" "$1" 1>&2
                     printf "%s: Try '%s --help' for more information.\n" \
                            "${0##*/}" "${0##*/}" 1>&2
                     exit 2
                 ;;
-                "$ii:$1 ")
-                    i=; n=2
+                "$_opt_arg:$1 ")
+                    _opt=; _shiftN=2
                     return 0
                 ;;
-                "$ii:$1="*)
-                    ii="${i#"$1"=}"; i=; n=1
+                "$_opt_arg:$1="*)
+                    _opt_arg="${_opt#"$1"=}"; _opt=; _shiftN=1
                     return 0
                 ;;
                 *)
@@ -1287,20 +1286,20 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if specific perhaps complex (arg) option in option holder [$i]
+    # Return 0 if specific perhaps complex (arg) option in option holder [$_opt]
     #
     # Parameters:
     # <"$1"+> - *
     #
     # Provides:
-    # ["$ii"] - option argument
-    # <"$n"> - shift count
+    # ["$_opt_arg"] - option argument
+    # <"$_shiftN"> - shift count
     #
     scopt_optional() {
-        case ":$i" in :) return 1 ;; esac
+        case ":$_opt" in :) return 1 ;; esac
 
         while [ "$1" ]; do
-            case "$i" in
+            case "$_opt" in
                 "$1=")
                     printf "%s: Invalid argument specification for: '%s'\n" \
                            "${0##*/}" "$1" 1>&2
@@ -1309,11 +1308,11 @@ main_functions() {
                     exit 2
                 ;;
                 "$1")
-                    i=; ii=; n=1
+                    _opt=; _opt_arg=; _shiftN=1
                     return 0
                 ;;
                 "$1="*)
-                    ii="${i#"$1"=}"; i=; n=1
+                    _opt_arg="${_opt#"$1"=}"; _opt=; _shiftN=1
                     return 0
                 ;;
                 *)
@@ -1326,16 +1325,16 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if simple (!arg) option in option holder [$i]
+    # Return 0 if simple (!arg) option in option holder [$_opt]
     #
     # Parameters (<1+>):
     # ["$1"] - -*
     # ["$2"] - --*
     #
     sopt() {
-        case ":$i" in :) return 1 ;; esac
+        case ":$_opt" in :) return 1 ;; esac
 
-        case "$i" in
+        case "$_opt" in
         "--"*)
             case "$1:$2" in
                 "--"*":$2") : ;;
@@ -1343,9 +1342,9 @@ main_functions() {
                 *) return 1 ;;
             esac
 
-            case "$i" in
+            case "$_opt" in
                 "$1")
-                    i=; n=1
+                    _opt=; _shiftN=1
                     return 0
                 ;;
             esac
@@ -1357,14 +1356,14 @@ main_functions() {
                 *) return 1 ;;
             esac
 
-            case "$i" in
+            case "$_opt" in
                 "$1"*)
-                    case ":$optind" in
-                        :) optind="@$1@" ;;
-                        *) optind="$optind @$1@" ;;
+                    case ":$_opt_index" in
+                        :) _opt_index="@$1@" ;;
+                        *) _opt_index="$_opt_index @$1@" ;;
                     esac
 
-                    i="-${i#??}"; n=1
+                    _opt="-${_opt#??}"; _shiftN=1
                     return 0
                ;;
             esac
@@ -1375,18 +1374,18 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if specific simple (!arg) option in option holder [$i]
+    # Return 0 if specific simple (!arg) option in option holder [$_opt]
     #
     # Parameters:
     # <"$1"+> - *
     #
     ssopt() {
-        case ":$i" in :) return 1 ;; esac
+        case ":$_opt" in :) return 1 ;; esac
 
         while [ "$1" ]; do
-            case "$i" in
+            case "$_opt" in
                 "$1")
-                    i=; n=1
+                    _opt=; _shiftN=1
                     return 0
                 ;;
                 *)
@@ -1410,12 +1409,12 @@ main_functions() {
 # <"$4"> - $@
 #
 # Provides:
-# ["$i"] - string to evaluate (eval set -- "$i")
+# ["$_str"] - string to evaluate (eval set -- "$_str")
 #
 main_sargs_ro() {
-    iii=$1; shift
+    _mode=$1; shift
 
-    ii=$(
+    _opts=$(
         esc_sq "$1"; shift
 
         while :; do case "$1" in
@@ -1429,58 +1428,76 @@ main_sargs_ro() {
         *) shift ;;
     esac done
 
-    case ":$*" in :) i=; return 0 ;; esac
+    case ":$*" in :) _str=; return 0 ;; esac
 
-    set -- "$(esc_sq "$@")"; i="$1"
-    eval set -- "$ii"
+    set -- "$(esc_sq "$@")"; _str="$1"
+    eval set -- "$_opts"
 
-    case $iii in
+    case $_mode in
         0)
             while [ "$1" ]; do
-                ii="$1"
+                _opt="$1"
 
-                case "$ii" in
-                    *"'"*) ii=$(esc_sq "$ii") ;;
-                    *) ii="'$ii'" ;;
+                case "$_opt" in
+                    *"'"*) _opt=$(esc_sq "$_opt") ;;
+                    *) _opt="'$_opt'" ;;
                 esac
 
-                case ":$i" in
-                    :"$ii"*) : ;;
-                    *"$ii") i="$ii ${i%% "$ii"*}${i#*"$ii"}" ;;
-                    *"$ii"*) i="$ii ${i%%"$ii"*}${i#*"$ii" }" ;;
+                case ":$_str" in
+                    :"$_opt"*)
+                        :
+                    ;;
+                    *"$_opt")
+                        _str="$_opt ${_str%% "$_opt"*}${_str#*"$_opt"}"
+                    ;;
+                    *"$_opt"*)
+                        _str="$_opt ${_str%%"$_opt"*}${_str#*"$_opt" }"
+                    ;;
                 esac
 
                 shift
             done
         ;;
         1)
-            case "$i" in
+            case "$_str" in
                 "'--'"*) return 0 ;;
             esac
 
             while [ "$1" ]; do
-                ii="$1"
+                _opt="$1"
 
-                case "$ii" in
-                    *"'"*) ii=$(esc_sq "$ii") ;;
-                    *) ii="'$ii'" ;;
+                case "$_opt" in
+                    *"'"*) _opt=$(esc_sq "$_opt") ;;
+                    *) _opt="'$_opt'" ;;
                 esac
 
-                case "$i" in
+                case "$_str" in
                     *"'--'"*)
-                        iii="${i%% "'--'"*}"
+                        _str_ref="${_str%% "'--'"*}"
 
-                        case ":$iii" in
-                            :"$ii"*) : ;;
-                            *"$ii") i="$ii ${i%% "$ii"*}${i#*"$ii"}" ;;
-                            *"$ii"*) i="$ii ${i%%"$ii"*}${i#*"$ii" }" ;;
+                        case ":$_str_ref" in
+                            :"$_opt"*)
+                                :
+                            ;;
+                            *"$_opt")
+                                _str="$_opt ${_str%% "$_opt"*}${_str#*"$_opt"}"
+                            ;;
+                            *"$_opt"*)
+                                _str="$_opt ${_str%%"$_opt"*}${_str#*"$_opt" }"
+                            ;;
                         esac
                     ;;
                     *)
-                        case ":$i" in
-                            :"$ii"*) : ;;
-                            *"$ii") i="$ii ${i%% "$ii"*}${i#*"$ii"}" ;;
-                            *"$ii"*) i="$ii ${i%%"$ii"*}${i#*"$ii" }" ;;
+                        case ":$_str" in
+                            :"$_opt"*)
+                                :
+                            ;;
+                            *"$_opt")
+                                _str="$_opt ${_str%% "$_opt"*}${_str#*"$_opt"}"
+                            ;;
+                            *"$_opt"*)
+                                _str="$_opt ${_str%%"$_opt"*}${_str#*"$_opt" }"
+                            ;;
                         esac
                     ;;
                 esac
@@ -1510,7 +1527,7 @@ main_options() {
         sopt "-v" "--verbose" && { verbose=1; }
 
         copt "-o" "--output" && {
-            tfile=$(get_fpath "$ii")
+            tfile=$(get_fpath "$_opt_arg")
         }
     ;;
     esac
@@ -1524,11 +1541,11 @@ main() {
     while [ "$1" ]; do
         # Simulate global $N (positional parameters) shift
         #  > option functions modify when appropriate
-        n=1
+        _shiftN=1
 
         # Simulate global $1/$2 (option/argument) handling
         #  > option functions modify when appropriate
-        i="$1"; ii="$2"
+        _opt="$1"; _opt_arg="$2"
 
         # Parse standard options
         #  > required to parse them first
@@ -1539,26 +1556,26 @@ main() {
 
         # Loop on the option holder until fully parsed
         #  > as we might need to loop on its characters
-        while [ "$i" ]; do
-            unset optind
+        while [ "$_opt" ]; do
+            unset _opt_index
 
-            case "$i" in
+            case "$_opt" in
                 "-"*) main_options 0 ;;
             esac
 
-            case ":$i" in
+            case ":$_opt" in
             :)
                 :
             ;;
             :"--"*)
-                opt_unrecognized "$i"; exit 2
+                opt_unrecognized "$_opt"; exit 2
             ;;
             :"-"*)
-                case ":$optind" in
-                    :) opt_invalid "${i%"${i#??}"}"; exit 2 ;;
+                case ":$_opt_index" in
+                    :) opt_invalid "${_opt%"${_opt#??}"}"; exit 2 ;;
                 esac
 
-                case ${#i} in
+                case ${#_opt} in
                     1) unset optind && break ;;
                 esac
             ;;
@@ -1570,7 +1587,7 @@ main() {
 
         # Move on positional parameters
         #  > either with default value or with option value
-        shift $n
+        shift $_shiftN
     done
 
     # Catch wrong input
