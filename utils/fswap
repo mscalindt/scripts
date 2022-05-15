@@ -394,7 +394,7 @@ main_functions() {
     # (0) escaped string | string
     #
     esc_sq() {
-        case ":$1" in :) return 0 ;; esac
+        [ "$1" ] || return 0
 
         _str="$1"
 
@@ -447,9 +447,9 @@ main_functions() {
     #
     opd_min() {
         set -- "${0##*/}"
-        printf "%s: No operand specified.\n" "$1" 1>&2
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1" 1>&2
-    }
+        printf "%s: No operand specified.\n" "$1"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
 
     # Description:
     # Signify invalid operand count (max)[X>1]
@@ -459,9 +459,9 @@ main_functions() {
     #
     opd_cmax() {
         set -- "${0##*/}" "$1"
-        printf "%s: Too many operands: %d\n" "$1" "$2" 1>&2
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1" 1>&2
-    }
+        printf "%s: Too many operands: %d\n" "$1" "$2"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
 
     # Description:
     # Signify invalid operand count (max)[2>1]
@@ -472,9 +472,9 @@ main_functions() {
     #
     opd_max() {
         set -- "${0##*/}" "$1" "$2"
-        printf "%s: Too many operands: '[%s]; [%s]'\n" "$1" "$2" "$3" 1>&2
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1" 1>&2
-    }
+        printf "%s: Too many operands: '[%s]; [%s]'\n" "$1" "$2" "$3"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
 
     # Description:
     # Signify invalid option
@@ -484,9 +484,9 @@ main_functions() {
     #
     opt_invalid() {
         set -- "${0##*/}" "$1"
-        printf "%s: Invalid option: '%s'\n" "$1" "$2" 1>&2
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1" 1>&2
-    }
+        printf "%s: Invalid option: '%s'\n" "$1" "$2"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
 
     # Description:
     # Signify unknown (*) option
@@ -496,9 +496,9 @@ main_functions() {
     #
     opt_unknown() {
         set -- "${0##*/}" "$1"
-        printf "%s: Unknown option: '%s'\n" "$1" "$2" 1>&2
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1" 1>&2
-    }
+        printf "%s: Unknown option: '%s'\n" "$1" "$2"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
 
     # Description:
     # Signify unrecognized ('--') option
@@ -508,9 +508,9 @@ main_functions() {
     #
     opt_unrecognized() {
         set -- "${0##*/}" "$1"
-        printf "%s: Unrecognized option: '%s'\n" "$1" "$2" 1>&2
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1" 1>&2
-    }
+        printf "%s: Unrecognized option: '%s'\n" "$1" "$2"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
 
     # Description:
     # Return 0 if complex (arg) option
@@ -528,7 +528,7 @@ main_functions() {
     # (1) no match
     #
     copt() {
-        case ":$_opt" in :) return 1 ;; esac
+        [ "$_opt" ] || return 1
 
         case "$_opt" in
         "--"*)
@@ -610,7 +610,7 @@ main_functions() {
     # (1) no match
     #
     copt_optional() {
-        case ":$_opt" in :) return 1 ;; esac
+        [ "$_opt" ] || return 1
 
         case "$_opt" in
         "--"*)
@@ -676,7 +676,7 @@ main_functions() {
     # (1) no match
     #
     scopt() {
-        case ":$_opt" in :) return 1 ;; esac
+        [ "$_opt" ] || return 1
 
         while [ "$1" ]; do
             case "$_opt_arg:$_opt " in
@@ -726,7 +726,7 @@ main_functions() {
     # (1) no match
     #
     scopt_optional() {
-        case ":$_opt" in :) return 1 ;; esac
+        [ "$_opt" ] || return 1
 
         while [ "$1" ]; do
             case "$_opt" in
@@ -770,7 +770,7 @@ main_functions() {
     # (1) no match
     #
     sopt() {
-        case ":$_opt" in :) return 1 ;; esac
+        [ "$_opt" ] || return 1
 
         case "$_opt" in
         "--"*)
@@ -825,7 +825,7 @@ main_functions() {
     # (1) no match
     #
     ssopt() {
-        case ":$_opt" in :) return 1 ;; esac
+        [ "$_opt" ] || return 1
 
         while [ "$1" ]; do
             case "$_opt" in
@@ -863,105 +863,57 @@ main_sargs_ro() {
         esc_sq "$1"; shift
 
         while :; do case "$1" in
-            --) shift && break ;;
+            "--") shift && break ;;
             *) printf " "; esc_sq "$1"; shift ;;
         esac done
     )
 
     while :; do case "$1" in
-        --) shift && break ;;
+        "--") shift && break ;;
         *) shift ;;
     esac done
 
-    case ":$*" in :) _str=; return 0 ;; esac
+    [ "$*" ] || { _str=; return 0; }
 
     set -- "$(esc_sq "$@")"; _str="$1"
     eval set -- "$_opts"
 
-    case $_mode in
-        0)
-            while [ "$1" ]; do
-                _opt="$1"
+    if [ $_mode -eq 1 ]; then
+        case "$_str" in
+            "'--'"*) return 0 ;;
+        esac
+    fi
 
-                case "$_opt" in
-                    *"'"*) _opt=$(esc_sq "$_opt") ;;
-                    *) _opt="'$_opt'" ;;
-                esac
+    while [ "$1" ]; do
+        _opt="$1"; _str_ref="$_str"
 
-                case ":$_str" in
-                    :"$_opt"*)
-                        :
-                    ;;
-                    *"$_opt")
-                        _str="$_opt ${_str%% "$_opt"*}${_str#*"$_opt"}"
-                    ;;
-                    *"$_opt"*)
-                        _str="$_opt ${_str%%"$_opt"*}${_str#*"$_opt" }"
-                    ;;
-                esac
+        case "$_opt" in
+            *"'"*) _opt=$(esc_sq "$_opt") ;;
+            *) _opt="'$_opt'" ;;
+        esac
 
-                shift
-            done
-        ;;
-        1)
-            case "$_str" in
-                "'--'"*) return 0 ;;
-            esac
+        case "$_mode:$_str" in
+            1:*"'--'"*) _str_ref="${_str%% "'--'"*}" ;;
+        esac
 
-            while [ "$1" ]; do
-                _opt="$1"
+        case ":$_str_ref" in
+            :"$_opt"*) : ;;
+            *"$_opt") _str="$_opt ${_str%% "$_opt"*}${_str#*"$_opt"}" ;;
+            *"$_opt"*) _str="$_opt ${_str%%"$_opt"*}${_str#*"$_opt" }" ;;
+        esac
 
-                case "$_opt" in
-                    *"'"*) _opt=$(esc_sq "$_opt") ;;
-                    *) _opt="'$_opt'" ;;
-                esac
-
-                case "$_str" in
-                    *"'--'"*)
-                        _str_ref="${_str%% "'--'"*}"
-
-                        case ":$_str_ref" in
-                            :"$_opt"*)
-                                :
-                            ;;
-                            *"$_opt")
-                                _str="$_opt ${_str%% "$_opt"*}${_str#*"$_opt"}"
-                            ;;
-                            *"$_opt"*)
-                                _str="$_opt ${_str%%"$_opt"*}${_str#*"$_opt" }"
-                            ;;
-                        esac
-                    ;;
-                    *)
-                        case ":$_str" in
-                            :"$_opt"*)
-                                :
-                            ;;
-                            *"$_opt")
-                                _str="$_opt ${_str%% "$_opt"*}${_str#*"$_opt"}"
-                            ;;
-                            *"$_opt"*)
-                                _str="$_opt ${_str%%"$_opt"*}${_str#*"$_opt" }"
-                            ;;
-                        esac
-                    ;;
-                esac
-
-                shift
-            done
-        ;;
-    esac
+        shift
+    done
 }
 
 # Description:
 # Substitute the function call with script options
 #
 # Parameters:
-# <"$1"> - mode('0' - print standard ('-'; '--') utility options)
+# <$1> - mode('0' - print standard ('-'; '--') utility options)
 #
 main_options() {
-    case $1 in
-    0)
+    if [ $1 -eq 0 ]; then
         sopt "--no-color" && { ncolor=1; }
         sopt "-c" "--check" && { _fswap; fswap_env; fswap_check; exit 0; }
 
@@ -977,8 +929,7 @@ main_options() {
         copt "-v" "--vfs-cache-pressure" && {
             vfscp="$_opt_arg"
         }
-    ;;
-    esac
+    fi
 }
 
 main() {
@@ -1013,28 +964,29 @@ main() {
             unset _opt_index
 
             case "$_opt" in
-                "-"*) main_options 0 ;;
+                "-"*)
+                    main_options 0
+                ;;
             esac
 
-            case ":$_opt" in
-            :)
-                :
-            ;;
-            :"--"*)
-                opt_unrecognized "$_opt"; exit 2
-            ;;
-            :"-"*)
-                case ":$_opt_index" in
-                    :) opt_invalid "${_opt%"${_opt#??}"}"; exit 2 ;;
-                esac
+            [ "$_opt" ] || break
 
-                case ${#_opt} in
-                    1) unset optind && break ;;
-                esac
-            ;;
-            *)
-                opt_unknown "$_opt"; exit 2
-            ;;
+            case "$_opt" in
+                "--"*)
+                    opt_unrecognized "$_opt"; exit 2
+                ;;
+                "-"*)
+                    case ":$_opt_index" in
+                        :) opt_invalid "${_opt%"${_opt#??}"}"; exit 2 ;;
+                    esac
+
+                    case ${#_opt} in
+                        1) unset optind && break ;;
+                    esac
+                ;;
+                *)
+                    opt_unknown "$_opt"; exit 2
+                ;;
             esac
         done
 
