@@ -878,12 +878,6 @@ args_ro() {
     set -- "$(esc_sq "$@")"; _args="$1"
     eval set -- "$_opts"
 
-    if [ $_mode -eq 1 ]; then
-        case "$_args" in
-            "'--'"*) return 0 ;;
-        esac
-    fi
-
     while [ "$1" ]; do
         _opt="$1"; _str_ref="$_args"
 
@@ -893,7 +887,8 @@ args_ro() {
         esac
 
         case "$_mode:$_args" in
-            1:*"'--'"*) _str_ref="${_args%% "'--'"*}" ;;
+            1:"'--'"*) return 0 ;;
+            1:*" '--'"*) _str_ref="${_args%% "'--'"*}" ;;
         esac
 
         case "$_str_ref" in
