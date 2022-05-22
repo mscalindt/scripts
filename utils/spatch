@@ -1488,8 +1488,8 @@ args_ro() {
 
         case "$_str_ref" in
             "$_opt"*) : ;;
-            *"$_opt") _args="$_opt ${_args%% "$_opt"*}${_args#*"$_opt"}" ;;
-            *"$_opt"*) _args="$_opt ${_args%%"$_opt"*}${_args#*"$_opt" }" ;;
+            *" $_opt") _args="$_opt ${_args%% "$_opt"*}${_args#*"$_opt"}" ;;
+            *" $_opt "*) _args="$_opt ${_args%%"$_opt"*}${_args#*"$_opt" }" ;;
         esac
 
         shift
