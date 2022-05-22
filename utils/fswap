@@ -896,8 +896,8 @@ args_ro() {
             1:*"'--'"*) _str_ref="${_str%% "'--'"*}" ;;
         esac
 
-        case ":$_str_ref" in
-            :"$_opt"*) : ;;
+        case "$_str_ref" in
+            "$_opt"*) : ;;
             *"$_opt") _str="$_opt ${_str%% "$_opt"*}${_str#*"$_opt"}" ;;
             *"$_opt"*) _str="$_opt ${_str%%"$_opt"*}${_str#*"$_opt" }" ;;
         esac
