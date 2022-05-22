@@ -854,7 +854,7 @@ main_functions() {
 # <"$4"> - $@
 #
 # Provides:
-# <"$_str"> - modified $@ (eval set -- "$_str")
+# <"$_args"> - modified $@ (eval set -- "$_args")
 #
 args_ro() {
     _mode=$1; shift
@@ -873,33 +873,33 @@ args_ro() {
         *) shift ;;
     esac done
 
-    [ "$*" ] || { _str=; return 0; }
+    [ "$*" ] || { _args=; return 0; }
 
-    set -- "$(esc_sq "$@")"; _str="$1"
+    set -- "$(esc_sq "$@")"; _args="$1"
     eval set -- "$_opts"
 
     if [ $_mode -eq 1 ]; then
-        case "$_str" in
+        case "$_args" in
             "'--'"*) return 0 ;;
         esac
     fi
 
     while [ "$1" ]; do
-        _opt="$1"; _str_ref="$_str"
+        _opt="$1"; _str_ref="$_args"
 
         case "$_opt" in
             *"'"*) _opt=$(esc_sq "$_opt") ;;
             *) _opt="'$_opt'" ;;
         esac
 
-        case "$_mode:$_str" in
-            1:*"'--'"*) _str_ref="${_str%% "'--'"*}" ;;
+        case "$_mode:$_args" in
+            1:*"'--'"*) _str_ref="${_args%% "'--'"*}" ;;
         esac
 
         case "$_str_ref" in
             "$_opt"*) : ;;
-            *"$_opt") _str="$_opt ${_str%% "$_opt"*}${_str#*"$_opt"}" ;;
-            *"$_opt"*) _str="$_opt ${_str%%"$_opt"*}${_str#*"$_opt" }" ;;
+            *"$_opt") _args="$_opt ${_args%% "$_opt"*}${_args#*"$_opt"}" ;;
+            *"$_opt"*) _args="$_opt ${_args%%"$_opt"*}${_args#*"$_opt" }" ;;
         esac
 
         shift
@@ -939,7 +939,7 @@ main() {
     # Reorder the positional parameters if needed
     #  > to prioritize specific options first
     args_ro 0 "-l" "--location" "--no-color" -- "$@"
-    eval set -- "$_str"
+    eval set -- "$_args"
 
     # Parse options
     while [ "$1" ]; do
