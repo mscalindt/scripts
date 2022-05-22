@@ -854,7 +854,7 @@ main_functions() {
 # <"$4"> - $@
 #
 # Provides:
-# ["$_str"] - string to evaluate (eval set -- "$_str")
+# <"$_str"> - modified $@ (eval set -- "$_str")
 #
 args_ro() {
     _mode=$1; shift
@@ -939,7 +939,7 @@ main() {
     # Reorder the positional parameters if needed
     #  > to prioritize specific options first
     args_ro 0 "-l" "--location" "--no-color" -- "$@"
-    [ "$_str" ] && eval set -- "$_str"
+    eval set -- "$_str"
 
     # Parse options
     while [ "$1" ]; do

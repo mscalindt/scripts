@@ -1449,7 +1449,7 @@ main_functions() {
 # <"$4"> - $@
 #
 # Provides:
-# ["$_str"] - string to evaluate (eval set -- "$_str")
+# <"$_str"> - modified $@ (eval set -- "$_str")
 #
 args_ro() {
     _mode=$1; shift
