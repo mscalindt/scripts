@@ -1149,7 +1149,7 @@ main_functions() {
 # Provides:
 # ["$_str"] - string to evaluate (eval set -- "$_str")
 #
-main_sargs_ro() {
+args_ro() {
     _mode=$1; shift
 
     _opts=$(
@@ -1225,7 +1225,7 @@ main() {
 
     # Reorder the positional parameters if needed
     #  > to prioritize specific options first
-    main_sargs_ro 1 "--no-color" -- "$@"
+    args_ro 1 "--no-color" -- "$@"
     [ "$_str" ] && eval set -- "$_str"
 
     # Parse options

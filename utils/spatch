@@ -1451,7 +1451,7 @@ main_functions() {
 # Provides:
 # ["$_str"] - string to evaluate (eval set -- "$_str")
 #
-main_sargs_ro() {
+args_ro() {
     _mode=$1; shift
 
     _opts=$(
