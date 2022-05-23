@@ -457,7 +457,7 @@ _alock_get() {
     _attrN=$(($1 + $1 - 1))
     _str=$(pline 1 "$ALOCK")
 
-    ltr_substr1 $_attrN '@' 1 '@' "$_str" 6 || return 1
+    ltr_substr1 "$_attrN" '@' 1 '@' "$_str" 6 || return 1
 }
 
 # Description:
@@ -470,13 +470,14 @@ _alock_get() {
 # (0) match
 # (1) no match
 # (2) invalid attribute
+# (3) lock file access error
 #
 _alock_test() {
     case "$1" in
         *"@"*) return 2 ;;
     esac
 
-    _str=$(pline 1 "$ALOCK")
+    _str=$(pline 1 "$ALOCK") || return 3
 
     str "@$1@" "$_str" || return 1
 }
@@ -497,6 +498,31 @@ _alock_write() {
     esac
 
     printf "@%s@ " "$1"
+}
+
+# Description:
+# Issue admerge's commit command
+#
+_commit() {
+    set -- '-eF'
+    set -- "$@" "$AMSG"
+    set -- '--no-edit'
+
+    _alock_test "s" && set -- "$@" '--signoff'
+    _alock_test "S" && set -- "$@" '--gpg-sign'
+
+    git commit "$@"
+}
+
+# Description:
+# Issue admerge's merge command
+#
+_merge() {
+    set -- '--no-ff'
+    set -- "$@" '--no-commit'
+    set -- "$@" "$BRANCH"
+
+    git merge "$@"
 }
 
 # Description:
@@ -558,9 +584,9 @@ admerge_lock() {
 admerge_msg() {
     printf "Merge '%s' into '%s'\n\n" "$BRANCH" "$OBR"
 
-    TMP=$(git rev-list --count $CDIFF_NEW 2> /dev/null)
+    TMP=$(git rev-list --count "$CDIFF_NEW" 2> /dev/null)
     [ "$TMP" ] && printf "Summary of commits (%d):\n" "$TMP"
-    TMP=$(git log --oneline $CDIFF_NEW 2> /dev/null)
+    TMP=$(git log --oneline "$CDIFF_NEW" 2> /dev/null)
     [ "$TMP" ] && printf "%s\n" "$TMP"
 
     if [ "$gver" ]; then
@@ -569,18 +595,8 @@ admerge_msg() {
     fi
 } >> "$AMSG"
 
-admerge_work() {
-    gitm_args="--no-ff --no-commit $BRANCH"
-    gitc_args="-eF $AMSG --no-edit"
-
-    if [ -r "$ALOCK" ]; then
-        _alock_test "s" && gitc_args="--signoff ${gitc_args}"
-        _alock_test "S" && gitc_args="--gpg-sign ${gitc_args}"
-    fi
-}
-
 admerge_exec() {
-    if ! git merge ${gitm_args}; then
+    if ! _merge; then
         if _in_merge; then
             exit 1
         else
@@ -593,7 +609,7 @@ admerge_exec() {
     # again -- to abort prematurely if we are not in a merge.
     _in_merge || return 0
 
-    git commit ${gitc_args} || exit $?
+    _commit || exit "$?"
 }
 
 admerge_post() {
@@ -619,9 +635,7 @@ admerge_continue() {
     [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
     [ -f "$ALOCK" ] || err 2 "No lock file found. (no merge in progress?)"
 
-    admerge_work
-
-    git commit ${gitc_args} || exit $?
+    _commit || exit "$?"
 
     admerge_post
 }
@@ -671,7 +685,6 @@ admerge() {
     admerge_check
     admerge_lock
     admerge_msg
-    admerge_work
     admerge_exec
     admerge_post
 }
@@ -1202,12 +1215,12 @@ args_ro() {
 #             '1' - print miscellaneous (*) options)
 #
 main_options() {
-    if [ $1 -eq 0 ]; then
+    if [ "$1" -eq 0 ]; then
         sopt "--no-color" && { ncolor=1; }
         sopt "-s" "--sign-off" && { soff=1; }
         sopt "-S" "--gpg-sign" && { gsign=1; }
         sopt "-v" "--git-version" && { gver=1; }
-    elif [ $1 -eq 1 ]; then
+    elif [ "$1" -eq 1 ]; then
         ssopt "a" "abort" && { _admerge; admerge_abort; exit 0; }
         ssopt "c" "continue" && { _admerge; admerge_continue; exit 0; }
         ssopt "s" "status" && { _admerge; admerge_status; exit 0; }
@@ -1282,7 +1295,7 @@ main() {
 
         # Move on positional parameters
         #  > either with default value or with option value
-        shift $_shiftN
+        shift "$_shiftN"
     done
 
     # Parse operands
@@ -1304,7 +1317,7 @@ main() {
     admerge;
 
     # Check if RC is set, otherwise explicit success
-    [ "$RC" ] && return $RC || return 0
+    [ "$RC" ] && return "$RC" || return 0
 }
 
 main "$@"

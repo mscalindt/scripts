@@ -285,23 +285,23 @@ fswap_check() {
         *) err 2 "EUID is not 0. (no root)" ;;
     esac
 
-    swapoff -a || exit $?
+    swapoff -a || exit "$?"
 
     [ -f "$sfile" ] && rm -f "$sfile"
 }
 
 fswap_info() {
-    TMP=$(cat $zswap_path 2> /dev/null)
+    TMP=$(cat "$zswap_path" 2> /dev/null)
     [ "$TMP" ] && info_fmt "${ES_inf}MISC:${ES_res} " "zswap: '$TMP'."
 
-    TMP=$(cat $zswapar_path 2> /dev/null)
+    TMP=$(cat "$zswapar_path" 2> /dev/null)
     [ "$TMP" ] && info_fmt "${ES_inf}MISC:${ES_res} " "zswap allocator: '$TMP'."
 
-    TMP=$(cat $zswapcr_path 2> /dev/null)
+    TMP=$(cat "$zswapcr_path" 2> /dev/null)
     [ "$TMP" ] && info_fmt "${ES_inf}MISC:${ES_res} " "zswap compressor:" \
                            "'$TMP'."
 
-    TMP=$(cat $ss_path 2> /dev/null)
+    TMP=$(cat "$ss_path" 2> /dev/null)
     case "$swappiness:$TMP" in
         :)
             :
@@ -315,7 +315,7 @@ fswap_info() {
         ;;
     esac
 
-    TMP=$(cat $vfscp_path 2> /dev/null)
+    TMP=$(cat "$vfscp_path" 2> /dev/null)
     case "$vfscp:$TMP" in
         :)
             :
@@ -361,13 +361,13 @@ fswap_exec() {
 
 fswap_post() {
     if [ "$swappiness" ]; then
-        _fwrite $swappiness $ss_path || {
+        _fwrite "$swappiness" "$ss_path" || {
             warn "Failed to apply '$swappiness' on '$ss_path'. (RC = $?)"
         }
     fi
 
     if [ "$vfscp" ]; then
-        _fwrite $vfscp $vfscp_path || {
+        _fwrite "$vfscp" "$vfscp_path" || {
             warn "Failed to apply '$vfscp' on '$vfscp_path'. (RC = $?)"
         }
     fi
@@ -379,7 +379,7 @@ fswap() {
     fswap_check
     fswap_info
     fswap_work
-    fswap_exec || exit $?
+    fswap_exec || exit "$?"
     fswap_post
 }
 
@@ -908,7 +908,7 @@ args_ro() {
 # <$1> - mode('0' - print standard ('-'; '--') utility options)
 #
 main_options() {
-    if [ $1 -eq 0 ]; then
+    if [ "$1" -eq 0 ]; then
         sopt "--no-color" && { ncolor=1; }
         sopt "-c" "--check" && { _fswap; fswap_env; fswap_check; exit 0; }
 
@@ -987,14 +987,14 @@ main() {
 
         # Move on positional parameters
         #  > either with default value or with option value
-        shift $_shiftN
+        shift "$_shiftN"
     done
 
     # Execute the core function
     fswap;
 
     # Check if RC is set, otherwise explicit success
-    [ "$RC" ] && return $RC || return 0
+    [ "$RC" ] && return "$RC" || return 0
 }
 
 main "$@"

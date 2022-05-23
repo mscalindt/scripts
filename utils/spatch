@@ -836,6 +836,24 @@ warn_clr() {
     printf "%bWARNING:%b %s\n" "\033[1;33m" "\033[0m" "$*"
 }
 
+# Description:
+# Save URL content as a file in $PWD
+#
+# Parameters:
+# <"$1"+> - URL
+#
+_get_url() {
+    if command -v curl > /dev/null 2>&1; then
+        set -- 'curl' '-Of' "$@"
+    elif command -v wget > /dev/null 2>&1; then
+        set -- 'wget' "$@"
+    else
+        err 127 "No URL download tool available. (curl/wget)"
+    fi
+
+    "$@"
+}
+
 _spatch() {
     case ":$ncolor$NO_COLOR" in
         :)
@@ -855,20 +873,8 @@ spatch_check() {
 }
 
 spatch_work() {
-    if command -v curl > /dev/null 2>&1; then
-        URL_TOOL='curl'
-        URL_TOOL_ARGS='-Of'
-    elif command -v wget > /dev/null 2>&1; then
-        URL_TOOL='wget'
-        URL_TOOL_ARGS=
-    else
-        err 127 "No URL download tool available. (curl/wget)"
-    fi
-
-    hash $URL_TOOL > /dev/null 2>&1
-
-    rm -f ${TMPDIR:-/tmp}/*.patch
-    cd ${TMPDIR:-/tmp} || err 1 "Line '$LINENO' failed."
+    rm -f "${TMPDIR:-/tmp}"/*.patch
+    cd "${TMPDIR:-/tmp}" || err 1 "Line '$LINENO' failed."
 }
 
 spatch_exec() {
@@ -894,7 +900,7 @@ spatch_exec() {
             info "URL ($NUM): '$LINE'."
         fi
 
-        $URL_TOOL ${URL_TOOL_ARGS} "$LINE" > /dev/null 2>&1 &
+        _get_url "$LINE" > /dev/null 2>&1 &
     done < "$FILE"; wait; [ "$verbose" ] && unset CNT
 
     case $(fcount "${TMPDIR:-/tmp}" '1.patch' 3) in
@@ -903,7 +909,7 @@ spatch_exec() {
 
     [ "$purl" ] && SFILE=$(parse "$FILE" 1)
     SFILE=$(
-        for PATCH in ${TMPDIR:-/tmp}/*.patch; do
+        for PATCH in "${TMPDIR:-/tmp}"/*.patch; do
             CSTR=$(pline 1 "$PATCH")
             CSTR=$(ltr_substr1 1 ' ' 1 ' ' "$CSTR")
 
@@ -966,7 +972,7 @@ spatch_exec() {
 }
 
 spatch_post() {
-    rm -f ${TMPDIR:-/tmp}/*.patch
+    rm -f "${TMPDIR:-/tmp}"/*.patch
 }
 
 spatch() {
@@ -1503,7 +1509,7 @@ args_ro() {
 # <$1> - mode('0' - print standard ('-'; '--') utility options)
 #
 main_options() {
-    if [ $1 -eq 0 ]; then
+    if [ "$1" -eq 0 ]; then
         sopt "--no-color" && { ncolor=1; }
         sopt "-d" "--direct-url" && { durl=1; }
         sopt "-i" "--invert-sort" && { invert=1; }
@@ -1574,24 +1580,24 @@ main() {
 
         # Move on positional parameters
         #  > either with default value or with option value
-        shift $_shiftN
+        shift "$_shiftN"
     done
 
     # Catch wrong input
     if [ ! "$1" ]; then
         opd_min; exit 2
     elif [ "$2" ]; then
-        opd_cmax $#; exit 2
+        opd_cmax "$#"; exit 2
     fi
 
     # Convert relative path to absolute path
-    set -- $(get_fpath "$1")
+    set -- "$(get_fpath "$1")"
 
     # Execute the core function
     spatch "$1"
 
     # Check if RC is set, otherwise explicit success
-    [ "$RC" ] && return $RC || return 0
+    [ "$RC" ] && return "$RC" || return 0
 }
 
 main "$@"
