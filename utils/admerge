@@ -101,22 +101,22 @@ version() {
 # <"$2"+> - text
 #
 err() {
-    _rc=$1; shift
+    _rc="$1"; shift
     printf "\nERROR: %s\n\n" "$*" 1>&2
-    exit $_rc
+    exit "$_rc"
 }
 
 # Description:
-# Print colorful error and exit
+# Colorfully print error and exit
 #
 # Parameters:
 # <$1> - exit code
 # <"$2"+> - text
 #
 err_clr() {
-    _rc=$1; shift
+    _rc="$1"; shift
     printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$*" 1>&2
-    exit $_rc
+    exit "$_rc"
 }
 
 # Description:
@@ -171,20 +171,20 @@ ltr_substr1() {
                 ;;
                 *)
                     case $1"$_str" in
-                        $1*"$2"*"$2"*) : ;;
+                        "$1"*"$2"*"$2"*) : ;;
                         1*"$2") return 1 ;;
-                        $1*"$2"*) : ;;
+                        "$1"*"$2"*) : ;;
                         *) return 2 ;;
                     esac
 
-                    _i=0; until [ $_i -eq $1 ]; do
+                    _i=0; until [ "$_i" -eq "$1" ]; do
                         _str="${_str#*"$2"}"
 
                         case "$_str" in
                             *"$2"*"$2"*) : ;;
-                            *"$2") [ $((_i + 2)) -eq $1 ] && return 1 ;;
+                            *"$2") [ "$((_i + 2))" -eq "$1" ] && return 1 ;;
                             *"$2"*) : ;;
-                            *) [ $((_i + 1)) -eq $1 ] || return 3 ;;
+                            *) [ "$((_i + 1))" -eq "$1" ] || return 3 ;;
                         esac
 
                         _i=$((_i + 1))
@@ -206,16 +206,16 @@ ltr_substr1() {
                 *)
                     case $3"$_str" in
                         1"$4"*) return 4 ;;
-                        $3*"$4"*) : ;;
+                        "$3"*"$4"*) : ;;
                         *) return 5 ;;
                     esac
 
-                    _sfix="$_str"; _i=0; until [ $_i -eq $3 ]; do
+                    _sfix="$_str"; _i=0; until [ "$_i" -eq "$3" ]; do
                         _sfix="${_sfix#*"$4"}"
 
                         case "$_sfix" in
                             *"$4"*) : ;;
-                            *) [ $((_i + 1)) -eq $3 ] || return 6 ;;
+                            *) [ "$((_i + 1))" -eq "$3" ] || return 6 ;;
                         esac
 
                         _i=$((_i + 1))
@@ -231,7 +231,7 @@ ltr_substr1() {
                     _str="${_str##*"$2"}"
                 ;;
                 *)
-                    _i=0; until [ $_i -eq $1 ]; do
+                    _i=0; until [ "$_i" -eq "$1" ]; do
                         _str="${_str#*"$2"}"
                         _i=$((_i + 1))
                     done
@@ -246,7 +246,7 @@ ltr_substr1() {
                     _str="${_str%"$4"*}"
                 ;;
                 *)
-                    _sfix="$_str"; _i=0; until [ $_i -eq $3 ]; do
+                    _sfix="$_str"; _i=0; until [ "$_i" -eq "$3" ]; do
                         _sfix="${_sfix#*"$4"}"
                         _i=$((_i + 1))
                     done
@@ -263,14 +263,14 @@ ltr_substr1() {
 
     case $6 in
         0)
-            _str="${_str#${_str%%[![:space:]]*}}"
+            _str="${_str#"${_str%%[![:space:]]*}"}"
         ;;
         1)
-            _str="${_str%${_str##*[![:space:]]}}"
+            _str="${_str%"${_str##*[![:space:]]}"}"
         ;;
         2)
-            _str="${_str#${_str%%[![:space:]]*}}"
-            _str="${_str%${_str##*[![:space:]]}}"
+            _str="${_str#"${_str%%[![:space:]]*}"}"
+            _str="${_str%"${_str##*[![:space:]]}"}"
         ;;
     esac
 
@@ -336,35 +336,35 @@ parse() {
         2:5*)
             _maxN="${2#??}"; _i=0; while IFS= read -r _line; do
                 _i=$((_i + 1))
-                case $_i in $_maxN) break ;; esac
+                case $_i in "$_maxN") break ;; esac
                 printf "%s\n" "$_line"
             done < "$1"
         ;;
         3:5*1)
             _maxN="${3#??}"; _i=0; while IFS= read -r _line; do
                 _i=$((_i + 1))
-                case $_i in $_maxN) break ;; esac
+                case $_i in "$_maxN") break ;; esac
                 printf " %s \n" "$_line"
             done < "$1"
         ;;
         3:5*2)
             _maxN="${3#??}"; _i=0; while IFS= read -r _line; do
                 _i=$((_i + 1))
-                case $_i in $_maxN) break ;; esac
+                case $_i in "$_maxN") break ;; esac
                 printf "  %s  \n" "$_line"
             done < "$1"
         ;;
         3:5*3)
             _maxN="${3#??}"; _i=0; while IFS= read -r _line; do
                 _i=$((_i + 1))
-                case $_i in $_maxN) break ;; esac
+                case $_i in "$_maxN") break ;; esac
                 case ":$_line" in :) : ;; *) printf "%s\n" "$_line" ;; esac
             done < "$1"
         ;;
         3:5*4)
             _maxN="${3#??}"; _i=0; while read -r _line; do
                 _i=$((_i + 1))
-                case $_i in $_maxN) break ;; esac
+                case $_i in "$_maxN") break ;; esac
                 printf "%s\n" "$_line"
             done < "$1"
         ;;
@@ -409,7 +409,7 @@ pline() {
 
     _i=0; while read -r _line || [ "$_line" ]; do
         _i=$((_i + 1))
-        case $_i in $1) printf "%s" "$_line"; return 0 ;; esac
+        case $_i in "$1") printf "%s" "$_line"; return 0 ;; esac
     done < "$2"
 
     return 1

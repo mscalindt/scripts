@@ -104,22 +104,22 @@ version() {
 # <"$2"+> - text
 #
 err() {
-    _rc=$1; shift
+    _rc="$1"; shift
     printf "\nERROR: %s\n\n" "$*" 1>&2
-    exit $_rc
+    exit "$_rc"
 }
 
 # Description:
-# Print colorful error and exit
+# Colorfully print error and exit
 #
 # Parameters:
 # <$1> - exit code
 # <"$2"+> - text
 #
 err_clr() {
-    _rc=$1; shift
+    _rc="$1"; shift
     printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$*" 1>&2
-    exit $_rc
+    exit "$_rc"
 }
 
 # Description:
@@ -152,7 +152,7 @@ info() {
 }
 
 # Description:
-# Print colorful info
+# Colorfully print info
 #
 # Parameters:
 # <"$1"+> - text
@@ -180,7 +180,7 @@ info_fmt() {
 }
 
 # Description:
-# Print colorful info with printf format before text
+# Colorfully print info with printf format before text
 #
 # Parameters:
 # <"$1"> - printf format
@@ -208,7 +208,7 @@ warn() {
 }
 
 # Description:
-# Print a colorful warning
+# Colorfully print a warning
 #
 # Parameters:
 # <"$1"+> - text
