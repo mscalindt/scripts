@@ -1199,9 +1199,62 @@ args_ro() {
         esac
 
         case "$_str_ref" in
-            "$_opt"*) : ;;
-            *" $_opt") _args="$_opt ${_args%% "$_opt"*}${_args#*"$_opt"}" ;;
-            *" $_opt "*) _args="$_opt ${_args%%"$_opt"*}${_args#*"$_opt" }" ;;
+            "$_opt"*)
+                shift && continue
+            ;;
+            *" $_opt")
+                _args="$_opt ${_args%% "$_opt"*}${_args#*"$_opt"}"
+                shift && continue
+            ;;
+            *" $_opt "*)
+                _args="$_opt ${_args%%"$_opt"*}${_args#*"$_opt" }"
+                shift && continue
+            ;;
+        esac
+
+        case "$_opt" in
+            "'--"*)
+                :
+            ;;
+            "'-"*)
+                _opt="${_opt%?}"
+                _sfix=" $_str_ref"
+
+                case "$_sfix" in
+                    *" $_opt"*)
+                        _sfix="${_sfix#* "$_opt"*\'}"
+
+                        while :; do case "$_sfix" in
+                            "\\"*) _sfix="${_sfix#???*\'}" ;;
+                            *) break ;;
+                        esac done
+
+                        _pfix="$_str_ref"
+                        _pfix="${_pfix%"$_sfix"}"
+                        _pfix="${_pfix%\'*\'*}"
+
+                        while :; do case "${_pfix#"${_pfix%??}"}" in
+                            "\\'") _pfix="${_pfix%\'*???}" ;;
+                            *) break ;;
+                        esac done
+
+                        _arg="$_str_ref"
+                        _arg="${_arg#"$_pfix"}"
+                        _arg="${_arg%"$_sfix"}"
+                        _arg="'-${_arg#"$_opt"}"
+
+                        case "$_mode:$_args" in
+                            1:*" '--'"*)
+                                _str_ref="${_args#"$_str_ref"}"
+                                _args="$_opt' $_pfix$_arg$_sfix$_str_ref"
+                            ;;
+                            *)
+                                _args="$_opt' $_pfix$_arg$_sfix"
+                            ;;
+                        esac
+                    ;;
+                esac
+            ;;
         esac
 
         shift
