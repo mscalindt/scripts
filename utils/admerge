@@ -1268,7 +1268,7 @@ args_ro() {
 # <$1> - mode('0' - print standard ('-'; '--') utility options,
 #             '1' - print miscellaneous (*) options)
 #
-main_options() {
+options() {
     if [ "$1" -eq 0 ]; then
         sopt "--no-color" && { ncolor=1; }
         sopt "-s" "--sign-off" && { soff=1; }
@@ -1314,10 +1314,10 @@ main() {
 
             case "$_opt" in
                 "-"*)
-                    main_options 0
+                    options 0
                 ;;
                 *)
-                    main_options 1
+                    options 1
                 ;;
             esac
 

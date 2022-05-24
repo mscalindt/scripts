@@ -1561,7 +1561,7 @@ args_ro() {
 # Parameters:
 # <$1> - mode('0' - print standard ('-'; '--') utility options)
 #
-main_options() {
+options() {
     if [ "$1" -eq 0 ]; then
         sopt "--no-color" && { ncolor=1; }
         sopt "-d" "--direct-url" && { durl=1; }
@@ -1606,7 +1606,7 @@ main() {
 
             case "$_opt" in
                 "-"*)
-                    main_options 0
+                    options 0
                 ;;
             esac
 
