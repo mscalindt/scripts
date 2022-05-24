@@ -452,10 +452,11 @@ str() {
 # Returns:
 # (0) attribute
 # (1) attribute does not exist
+# (2) lock file access error
 #
 _alock_get() {
     _attrN=$(($1 + $1 - 1))
-    _str=$(pline 1 "$ALOCK")
+    _str=$(pline 1 "$ALOCK") || return 2
 
     ltr_substr1 "$_attrN" '@' 1 '@' "$_str" 6 || return 1
 }
