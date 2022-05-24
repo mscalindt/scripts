@@ -1029,7 +1029,7 @@ main() {
                     esac
 
                     case ${#_opt} in
-                        1) unset optind && break ;;
+                        1) unset _opt_index && break ;;
                     esac
                 ;;
                 *)
