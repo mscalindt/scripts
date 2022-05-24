@@ -955,29 +955,55 @@ args_ro() {
 }
 
 # Description:
-# Substitute the function call with script options
+# Parse utility options
 #
-# Parameters:
-# <$1> - mode('0' - print standard ('-'; '--') utility options)
+# Returns:
+# (0) $_opt has been parsed
+# (1) $_opt is not an option
 #
 options() {
-    if [ "$1" -eq 0 ]; then
-        sopt "--no-color" && { ncolor=1; }
-        sopt "-c" "--check" && { _fswap; fswap_env; fswap_check; exit 0; }
+    unset _opt_index
 
-        copt "-l" "--location" && {
-            sfile=$(get_fpath "$_opt_arg")
-        }
-        copt "-s" "--size" && {
-            ssize="$_opt_arg"
-        }
-        copt "-S" "--swappiness" && {
-            swappiness="$_opt_arg"
-        }
-        copt "-v" "--vfs-cache-pressure" && {
-            vfscp="$_opt_arg"
-        }
-    fi
+    case "$_opt" in
+        "-"*)
+            sopt "--no-color" && { ncolor=1; }
+            sopt "-c" "--check" && { _fswap; fswap_env; fswap_check; exit 0; }
+
+            copt "-l" "--location" && {
+                sfile=$(get_fpath "$_opt_arg")
+            }
+            copt "-s" "--size" && {
+                ssize="$_opt_arg"
+            }
+            copt "-S" "--swappiness" && {
+                swappiness="$_opt_arg"
+            }
+            copt "-v" "--vfs-cache-pressure" && {
+                vfscp="$_opt_arg"
+            }
+        ;;
+    esac
+
+    [ "$_opt" ] || return 0
+
+    case "$_opt" in
+        "--"*)
+            opt_unrecognized "$_opt"; exit 2
+        ;;
+        "-"*)
+            case ":$_opt_index" in
+                :) opt_invalid "${_opt%"${_opt#??}"}"; exit 2 ;;
+            esac
+
+            case ${#_opt} in
+                1) unset _opt _opt_index; return 0 ;;
+            esac
+
+            options;
+        ;;
+    esac
+
+    return 1
 }
 
 main() {
@@ -1006,37 +1032,11 @@ main() {
         ssopt "--help" && { usage; exit 0; }
         ssopt "--version" && { version; exit 0; }
 
-        # Loop on the option holder until fully parsed
-        #  > as we might need to loop on its characters
-        while [ "$_opt" ]; do
-            unset _opt_index
-
-            case "$_opt" in
-                "-"*)
-                    options 0
-                ;;
-            esac
-
-            [ "$_opt" ] || break
-
-            case "$_opt" in
-                "--"*)
-                    opt_unrecognized "$_opt"; exit 2
-                ;;
-                "-"*)
-                    case ":$_opt_index" in
-                        :) opt_invalid "${_opt%"${_opt#??}"}"; exit 2 ;;
-                    esac
-
-                    case ${#_opt} in
-                        1) unset _opt_index && break ;;
-                    esac
-                ;;
-                *)
-                    opt_unknown "$_opt"; exit 2
-                ;;
-            esac
-        done
+        # Parse utility options
+        #  > rc 1 if $_opt is not a valid option
+        options || {
+            opt_unknown "$_opt"; exit 2
+        }
 
         # Move on positional parameters
         #  > either with default value or with option value
