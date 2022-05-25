@@ -966,7 +966,7 @@ spatch_exec() {
         echo "$SFILE"
     fi
 
-    if { >&3; } 2> /dev/null; then
+    if { : >&3; } 2> /dev/null; then
         echo "$SFILE" 1>&3
     fi
 }
