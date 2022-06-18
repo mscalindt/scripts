@@ -507,7 +507,7 @@ _alock_write() {
 _commit() {
     set -- '-eF'
     set -- "$@" "$AMSG"
-    set -- '--no-edit'
+    set -- "$@" '--no-edit'
 
     _alock_test "s" && set -- "$@" '--signoff'
     _alock_test "S" && set -- "$@" '--gpg-sign'
