@@ -873,8 +873,11 @@ args_ro() {
         *) shift ;;
     esac done
 
-    [ "$*" ] || { args=; return 0; }
-    set -- "$(esc_sq "$@")"; args="$1"
+    if [ "$1" ]; then
+        set -- "$(esc_sq "$@")"; args="$1"
+    else
+        args=; return 0
+    fi
 
     eval set -- "$opts"
     while [ "$1" ]; do
