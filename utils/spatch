@@ -1463,22 +1463,27 @@ main_functions() {
 args_ro() {
     mode=$1; shift
 
-    opts=$(
-        esc_sq "$1"; shift
-
-        while :; do case "$1" in
-            "--") shift && break ;;
-            *) printf " "; esc_sq "$1"; shift ;;
-        esac done
-    )
-
     while :; do case "$1" in
-        "--") shift && break ;;
-        *) shift ;;
+        "--")
+            shift && break
+        ;;
+        *)
+            case "$1" in
+                *"'"*) esc_sq "$1" > /dev/null ;;
+                *) _str="'$1'" ;;
+            esac
+
+            case "$opts" in
+                :) opts="$_str" ;;
+                *) opts="$opts $_str" ;;
+            esac
+
+            shift
+        ;;
     esac done
 
     if [ "$1" ]; then
-        set -- "$(esc_sq "$@")"; args="$1"
+        esc_sq "$@" > /dev/null && args="$_str"
     else
         args=; return 0
     fi
@@ -1488,7 +1493,7 @@ args_ro() {
         opt="$1"; str_ref="$args"
 
         case "$opt" in
-            *"'"*) opt=$(esc_sq "$opt") ;;
+            *"'"*) esc_sq "$opt" > /dev/null && opt="$_str" ;;
             *) opt="'$opt'" ;;
         esac
 
