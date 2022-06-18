@@ -991,6 +991,9 @@ main_functions() {
     # Parameters:
     # <"$1"+> - string
     #
+    # Provides:
+    # <"$_str"> - escaped string | string
+    #
     # Returns:
     # (0) escaped string | string
     #
@@ -1017,29 +1020,29 @@ main_functions() {
             ;;
         esac
 
-        printf "'%s'" "$_str"; shift
+        _str="'$_str'"; printf "%s" "$_str"; shift
 
         while [ "$1" ]; do
             case "$1" in
                 *"'"*) : ;;
-                *) printf " '%s'" "$1"; shift && continue ;;
+                *) _str="$_str '$1'"; printf " '%s'" "$1"; shift && continue ;;
             esac
 
             _str_ref="${1%%\'*}'\\''"
-            _str="${_str_ref}${1#*\'}"
+            __str="${_str_ref}${1#*\'}"
 
-            while :; do case "$_str" in
+            while :; do case "$__str" in
                 "$_str_ref"*"'"*)
-                    _str="${_str#*"$_str_ref"}"
-                    _str_ref="$_str_ref${_str%%\'*}'\\''"
-                    _str="$_str_ref${_str#*\'}"
+                    __str="${__str#*"$_str_ref"}"
+                    _str_ref="$_str_ref${__str%%\'*}'\\''"
+                    __str="$_str_ref${__str#*\'}"
                 ;;
                 *)
                     break
                 ;;
             esac done
 
-            printf " '%s'" "$_str"; shift
+            _str="$_str '$__str'"; printf " '%s'" "$__str"; shift
         done
     }
 
