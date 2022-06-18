@@ -1475,10 +1475,9 @@ args_ro() {
     esac done
 
     [ "$*" ] || { _args=; return 0; }
-
     set -- "$(esc_sq "$@")"; _args="$1"
-    eval set -- "$_opts"
 
+    eval set -- "$_opts"
     while [ "$1" ]; do
         _opt="$1"; _str_ref="$_args"
 
