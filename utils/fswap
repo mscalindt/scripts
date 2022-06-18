@@ -522,6 +522,10 @@ main_functions() {
     # ["$1"] - -*
     # ["$2"] - --*
     #
+    # Requires:
+    # <_opt> $
+    # <_opt_arg> $
+    #
     # Provides:
     # <"$_opt_arg"> - option argument
     # <$_shiftN> - shift count
@@ -604,6 +608,9 @@ main_functions() {
     # ["$1"] - -*
     # ["$2"] - --*
     #
+    # Requires:
+    # <_opt> $
+    #
     # Provides:
     # ["$_opt_arg"] - option argument
     # <$_shiftN> - shift count
@@ -670,6 +677,10 @@ main_functions() {
     # Parameters:
     # <"$1"+> - *
     #
+    # Requires:
+    # <_opt> $
+    # <_opt_arg> $
+    #
     # Provides:
     # <"$_opt_arg"> - option argument
     # <$_shiftN> - shift count
@@ -720,6 +731,9 @@ main_functions() {
     # Parameters:
     # <"$1"+> - *
     #
+    # Requires:
+    # <_opt> $
+    #
     # Provides:
     # ["$_opt_arg"] - option argument
     # <$_shiftN> - shift count
@@ -763,6 +777,9 @@ main_functions() {
     # Parameters (<1+>):
     # ["$1"] - -*
     # ["$2"] - --*
+    #
+    # Requires:
+    # <_opt> $
     #
     # Provides:
     # ["$_opt_index"] - index with encountered short options
@@ -820,6 +837,9 @@ main_functions() {
     # Parameters:
     # <"$1"+> - *
     #
+    # Requires:
+    # <_opt> $
+    #
     # Provides:
     # <$_shiftN> - shift count
     #
@@ -855,6 +875,9 @@ main_functions() {
 # <"$2"+> - string
 # <$3> - --
 # <"$4"> - $@
+#
+# Requires:
+# <esc_sq> ()
 #
 # Provides:
 # <"$args"> - modified $@ (eval set -- "$args")

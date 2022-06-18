@@ -842,6 +842,9 @@ warn_clr() {
 # Parameters:
 # <"$1"+> - URL
 #
+# Requires:
+# <err> ()
+#
 _get_url() {
     if command -v curl > /dev/null 2>&1; then
         set -- 'curl' '-Of' "$@"
@@ -1123,6 +1126,10 @@ main_functions() {
     # ["$1"] - -*
     # ["$2"] - --*
     #
+    # Requires:
+    # <_opt> $
+    # <_opt_arg> $
+    #
     # Provides:
     # <"$_opt_arg"> - option argument
     # <$_shiftN> - shift count
@@ -1205,6 +1212,9 @@ main_functions() {
     # ["$1"] - -*
     # ["$2"] - --*
     #
+    # Requires:
+    # <_opt> $
+    #
     # Provides:
     # ["$_opt_arg"] - option argument
     # <$_shiftN> - shift count
@@ -1271,6 +1281,10 @@ main_functions() {
     # Parameters:
     # <"$1"+> - *
     #
+    # Requires:
+    # <_opt> $
+    # <_opt_arg> $
+    #
     # Provides:
     # <"$_opt_arg"> - option argument
     # <$_shiftN> - shift count
@@ -1321,6 +1335,9 @@ main_functions() {
     # Parameters:
     # <"$1"+> - *
     #
+    # Requires:
+    # <_opt> $
+    #
     # Provides:
     # ["$_opt_arg"] - option argument
     # <$_shiftN> - shift count
@@ -1364,6 +1381,9 @@ main_functions() {
     # Parameters (<1+>):
     # ["$1"] - -*
     # ["$2"] - --*
+    #
+    # Requires:
+    # <_opt> $
     #
     # Provides:
     # ["$_opt_index"] - index with encountered short options
@@ -1421,6 +1441,9 @@ main_functions() {
     # Parameters:
     # <"$1"+> - *
     #
+    # Requires:
+    # <_opt> $
+    #
     # Provides:
     # <$_shiftN> - shift count
     #
@@ -1456,6 +1479,9 @@ main_functions() {
 # <"$2"+> - string
 # <$3> - --
 # <"$4"> - $@
+#
+# Requires:
+# <esc_sq> ()
 #
 # Provides:
 # <"$args"> - modified $@ (eval set -- "$args")
