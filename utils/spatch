@@ -1455,12 +1455,12 @@ main_functions() {
 # <"$4"> - $@
 #
 # Provides:
-# <"$_args"> - modified $@ (eval set -- "$_args")
+# <"$args"> - modified $@ (eval set -- "$args")
 #
 args_ro() {
-    _mode=$1; shift
+    mode=$1; shift
 
-    _opts=$(
+    opts=$(
         esc_sq "$1"; shift
 
         while :; do case "$1" in
@@ -1474,75 +1474,75 @@ args_ro() {
         *) shift ;;
     esac done
 
-    [ "$*" ] || { _args=; return 0; }
-    set -- "$(esc_sq "$@")"; _args="$1"
+    [ "$*" ] || { args=; return 0; }
+    set -- "$(esc_sq "$@")"; args="$1"
 
-    eval set -- "$_opts"
+    eval set -- "$opts"
     while [ "$1" ]; do
-        _opt="$1"; _str_ref="$_args"
+        opt="$1"; str_ref="$args"
 
-        case "$_opt" in
-            *"'"*) _opt=$(esc_sq "$_opt") ;;
-            *) _opt="'$_opt'" ;;
+        case "$opt" in
+            *"'"*) opt=$(esc_sq "$opt") ;;
+            *) opt="'$opt'" ;;
         esac
 
-        case "$_mode:$_args" in
+        case "$mode:$args" in
             1:"'--'"*) return 0 ;;
-            1:*" '--'"*) _str_ref="${_args%% "'--'"*}" ;;
+            1:*" '--'"*) str_ref="${args%% "'--'"*}" ;;
         esac
 
-        case "$_str_ref" in
-            "$_opt"*)
+        case "$str_ref" in
+            "$opt"*)
                 shift && continue
             ;;
-            *" $_opt")
-                _args="$_opt ${_args%% "$_opt"*}${_args#*"$_opt"}"
+            *" $opt")
+                args="$opt ${args%% "$opt"*}${args#*"$opt"}"
                 shift && continue
             ;;
-            *" $_opt "*)
-                _args="$_opt ${_args%%"$_opt"*}${_args#*"$_opt" }"
+            *" $opt "*)
+                args="$opt ${args%%"$opt"*}${args#*"$opt" }"
                 shift && continue
             ;;
         esac
 
-        case "$_opt" in
+        case "$opt" in
             "'--"*)
                 :
             ;;
             "'-"*)
-                _opt="${_opt%?}"
-                _sfix=" $_str_ref"
+                opt="${opt%?}"
+                sfix=" $str_ref"
 
-                case "$_sfix" in
-                    *" $_opt"*)
-                        _sfix="${_sfix#* "$_opt"*\'}"
+                case "$sfix" in
+                    *" $opt"*)
+                        sfix="${sfix#* "$opt"*\'}"
 
-                        while :; do case "$_sfix" in
-                            "\\"*) _sfix="${_sfix#???*\'}" ;;
+                        while :; do case "$sfix" in
+                            "\\"*) sfix="${sfix#???*\'}" ;;
                             *) break ;;
                         esac done
 
-                        _pfix="$_str_ref"
-                        _pfix="${_pfix%"$_sfix"}"
-                        _pfix="${_pfix%\'*\'*}"
+                        pfix="$str_ref"
+                        pfix="${pfix%"$sfix"}"
+                        pfix="${pfix%\'*\'*}"
 
-                        while :; do case "${_pfix#"${_pfix%??}"}" in
-                            "\\'") _pfix="${_pfix%\'*???}" ;;
+                        while :; do case "${pfix#"${pfix%??}"}" in
+                            "\\'") pfix="${pfix%\'*???}" ;;
                             *) break ;;
                         esac done
 
-                        _arg="$_str_ref"
-                        _arg="${_arg#"$_pfix"}"
-                        _arg="${_arg%"$_sfix"}"
-                        _arg="'-${_arg#"$_opt"}"
+                        arg="$str_ref"
+                        arg="${arg#"$pfix"}"
+                        arg="${arg%"$sfix"}"
+                        arg="'-${arg#"$opt"}"
 
-                        case "$_mode:$_args" in
+                        case "$mode:$args" in
                             1:*" '--'"*)
-                                _str_ref="${_args#"$_str_ref"}"
-                                _args="$_opt' $_pfix$_arg$_sfix$_str_ref"
+                                str_ref="${args#"$str_ref"}"
+                                args="$opt' $pfix$arg$sfix$str_ref"
                             ;;
                             *)
-                                _args="$_opt' $_pfix$_arg$_sfix"
+                                args="$opt' $pfix$arg$sfix"
                             ;;
                         esac
                     ;;
