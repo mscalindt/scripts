@@ -782,7 +782,7 @@ main_functions() {
     # <_opt> $
     #
     # Provides:
-    # ["$_opt_index"] - index with encountered short options
+    # ["$_sopt_index"] - index with encountered short options
     # <$_shiftN> - shift count
     #
     # Returns:
@@ -816,9 +816,9 @@ main_functions() {
 
             case "$_opt" in
                 "$1"*)
-                    case ":$_opt_index" in
-                        :) _opt_index="${1#?}" ;;
-                        *) _opt_index="$_opt_index${1#?}" ;;
+                    case ":$_sopt_index" in
+                        :) _sopt_index="${1#?}" ;;
+                        *) _sopt_index="$_sopt_index${1#?}" ;;
                     esac
 
                     _opt="-${_opt#??}"; _shiftN=1
@@ -995,7 +995,7 @@ args_ro() {
 # (1) $_opt is not an option
 #
 options() {
-    unset _opt_index
+    unset _sopt_index
 
     case "$_opt" in
         "-"*)
@@ -1024,12 +1024,12 @@ options() {
             opt_unrecognized "$_opt"; exit 2
         ;;
         "-"*)
-            case ":$_opt_index" in
+            case ":$_sopt_index" in
                 :) opt_invalid "${_opt%"${_opt#??}"}"; exit 2 ;;
             esac
 
             case ${#_opt} in
-                1) unset _opt _opt_index; return 0 ;;
+                1) unset _opt _sopt_index; return 0 ;;
             esac
 
             options;
