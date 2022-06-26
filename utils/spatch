@@ -28,9 +28,8 @@ LICENSE
 _misc() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
 <<'MISC'
-The sort output, when '-o'/'--output' is not given, is written to file
-descriptor 1; if file descriptor 3 is open, the sort output will be written
-there as well.
+The sort output, when '-o'/'--output' is not given, is written in the output;
+if file descriptor 3 is open, the sort output will be written there as well.
 
 External utilities hard dependency list:
 curl, rm, sort.
