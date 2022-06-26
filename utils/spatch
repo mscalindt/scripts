@@ -1420,8 +1420,8 @@ main_functions() {
             case "$_opt" in
                 "$1"*)
                     case ":$_opt_index" in
-                        :) _opt_index="@$1@" ;;
-                        *) _opt_index="$_opt_index @$1@" ;;
+                        :) _opt_index="${1#?}" ;;
+                        *) _opt_index="$_opt_index${1#?}" ;;
                     esac
 
                     _opt="-${_opt#??}"; _shiftN=1
