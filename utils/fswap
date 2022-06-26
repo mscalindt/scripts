@@ -57,7 +57,6 @@ Options:
                              it; this option disregards other options
   -l, --location <PATH>      PATH is an absolute or relative location at which
                              the swap file shall be created
-      --no-color             colorless output on all streams
   -s, --size <SIZE>          specify size for the swap file; see SIZE format
                              below
   -S, --swappiness <0-200>   specify swap intensity; value persists until
@@ -65,6 +64,7 @@ Options:
   -v, --vfs-cache-pressure <0-2147483647>
                              specify VFS cache reclaim priority; value persists
                              until reboot
+      --no-color             colorless output on all streams
       --help     display this help text and exit
       --version  display version information and exit
 OPTIONS

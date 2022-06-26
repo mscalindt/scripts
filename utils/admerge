@@ -53,7 +53,6 @@ In-merge options (merge with conflicts):
                              disregards other options
 
 Options:
-      --no-color             colorless output on all streams
   -s, --sign-off             add Signed-off-by line at the end of the commit
                              message; requires preconfigured signoff info for
                              seamless work
@@ -61,6 +60,7 @@ Options:
                              and user.signingkey for seamless work
   -v, --git-version          print the git version at the end of the commit
                              message
+      --no-color             colorless output on all streams
       --help     display this help text and exit
       --version  display version information and exit
       --         specify end of options

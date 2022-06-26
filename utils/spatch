@@ -54,7 +54,6 @@ Options:
                              not end with .patch
   -i, --invert-sort          sort from newest to oldest
   -l, --line-numbers         append line numbers to the sort output
-      --no-color             colorless output on all streams
   -o, --output <PATH>        PATH is an absolute or relative location to which
                              the sort output shall be written; if the parent
                              does not exist, output will be written to stdout
@@ -64,6 +63,7 @@ Options:
   -t, --timestamp            append timestamp to the sort output
   -v, --verbose              show additional information unrelated to the sort
                              output
+      --no-color             colorless output on all streams
       --help     display this help text and exit
       --version  display version information and exit
       --         specify end of options
