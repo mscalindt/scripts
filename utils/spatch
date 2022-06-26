@@ -988,6 +988,47 @@ spatch() {
 
 main_functions() {
     # Description:
+    # Assert a string
+    #
+    # Parameters:
+    # <$1> - mode('0' - N [0,1,00,01...],
+    #             '1' - whole N [0,1...],
+    #             '2' - natural N [1...])
+    # <"$2"> - string
+    #
+    # Returns:
+    # (0) true
+    # (1) false
+    #
+    assert() {
+        case $1 in
+            0)
+                case "$2:${2#*[!0123456789]}" in
+                    :) return 1 ;;
+                    "$2:$2") : ;;
+                    *) return 1 ;;
+                esac
+            ;;
+            1)
+                case "$2:${2#*[!0123456789]}" in
+                    :) return 1 ;;
+                    0:0) : ;;
+                    0*) return 1 ;;
+                    "$2:$2") : ;;
+                    *) return 1 ;;
+                esac
+            ;;
+            2)
+                case "$2:${2#*[!0123456789]}" in
+                    : | 0*) return 1 ;;
+                    "$2:$2") : ;;
+                    *) return 1 ;;
+                esac
+            ;;
+        esac
+    }
+
+    # Description:
     # Within single quotes escape single quote(s) in string
     #
     # Parameters:
@@ -1080,6 +1121,31 @@ main_functions() {
         set -- "${0##*/}" "$1" "$2"
         printf "%s: Too many operands: '[%s]; [%s]'\n" "$1" "$2" "$3"
         printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
+
+    # Description:
+    # Signify invalid option argument
+    #
+    # Parameters:
+    # <"$1"> - option
+    # <"$2"> - argument
+    # ["$3"+] - valid arguments
+    #
+    opt_err() {
+        printf "%s: Invalid argument '%s' for '%s'\n" \
+               "${0##*/}" "$2" "$1"
+        shift 2
+
+        if [ "$1" ]; then
+            printf "Valid arguments are:\n"
+
+            while [ "$1" ]; do
+                printf " > '%s'\n" "$1"; shift
+            done
+        fi
+
+        printf "%s: Try '%s --help' for more information.\n" \
+               "${0##*/}" "${0##*/}"
     } 1>&2
 
     # Description:
