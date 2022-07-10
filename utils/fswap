@@ -105,7 +105,7 @@ version() {
 #
 err() {
     _rc="$1"; shift
-    printf "\nERROR: %s\n\n" "$*" 1>&2
+    printf "ERROR: %s\n" "$*" 1>&2
     exit "$_rc"
 }
 
@@ -118,7 +118,7 @@ err() {
 #
 err_clr() {
     _rc="$1"; shift
-    printf "\n%bERROR:%b %s\n\n" "\033[1;31m" "\033[0m" "$*" 1>&2
+    printf "%bERROR:%b %s\n" "\033[1;31m" "\033[0m" "$*" 1>&2
     exit "$_rc"
 }
 
@@ -128,13 +128,16 @@ err_clr() {
 # Parameters:
 # <"$1"> - path
 #
+# Provides:
+# <"$_str"> - the absolute path | path
+#
 # Returns:
 # (0) absolute $1 | $1
 #
 get_fpath() {
     case "$1" in
-        /*) printf "%s" "$1" ;;
-        *) printf "%s" "$PWD/$1" ;;
+        /*) _str="$1"; printf "%s" "$1" ;;
+        *) _str="$PWD/$1"; printf "%s" "$PWD/$1" ;;
     esac
 }
 
