@@ -1197,6 +1197,7 @@ main_functions() {
     #
     # Provides:
     # <"$_opt_arg"> - option argument
+    # <"$_opt_match"> - the literal option matched
     # <$_shiftN> - shift count
     #
     # Returns:
@@ -1244,11 +1245,11 @@ main_functions() {
                     exit 2
                 ;;
                 "$1 ")
-                    _opt=; _shiftN=2
+                    _opt=; _opt_match="$1"; _shiftN=2
                     return 0
                 ;;
                 "$1="*)
-                    _opt_arg="${_opt#"$1"=}"; _opt=; _shiftN=1
+                    _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
             esac
@@ -1256,11 +1257,11 @@ main_functions() {
         "-"*)
             case "$_opt " in
                 "$1 ")
-                    _opt=; _shiftN=2
+                    _opt=; _opt_match="$1"; _shiftN=2
                     return 0
                 ;;
                 "$1"*)
-                    _opt_arg="${_opt#"$1"}"; _opt=; _shiftN=1
+                    _opt_arg="${_opt#"$1"}"; _opt=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
             esac
@@ -1281,6 +1282,7 @@ main_functions() {
     # <_opt> $
     #
     # Provides:
+    # <"$_opt_match"> - the literal option matched
     # <$_shiftN> - shift count
     # ["$_opt_arg"] - option argument
     #
@@ -1308,11 +1310,11 @@ main_functions() {
                     exit 2
                 ;;
                 "$1")
-                    _opt=; _opt_arg=; _shiftN=1
+                    _opt=; _opt_arg=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
                 "$1="*)
-                    _opt_arg="${_opt#"$1"=}"; _opt=; _shiftN=1
+                    _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
             esac
@@ -1326,11 +1328,11 @@ main_functions() {
 
             case "$_opt" in
                 "$1")
-                    _opt=; _opt_arg=; _shiftN=1
+                    _opt=; _opt_arg=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
                 "$1"*)
-                    _opt_arg="${_opt#"$1"}"; _opt=; _shiftN=1
+                    _opt_arg="${_opt#"$1"}"; _opt=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
             esac
@@ -1352,6 +1354,7 @@ main_functions() {
     #
     # Provides:
     # <"$_opt_arg"> - option argument
+    # <"$_opt_match"> - the literal option matched
     # <$_shiftN> - shift count
     #
     # Returns:
@@ -1378,11 +1381,11 @@ main_functions() {
                     exit 2
                 ;;
                 "$_opt_arg:$1 ")
-                    _opt=; _shiftN=2
+                    _opt=; _opt_match="$1"; _shiftN=2
                     return 0
                 ;;
                 "$_opt_arg:$1="*)
-                    _opt_arg="${_opt#"$1"=}"; _opt=; _shiftN=1
+                    _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
                 *)
@@ -1404,6 +1407,7 @@ main_functions() {
     # <_opt> $
     #
     # Provides:
+    # <"$_opt_match"> - the literal option matched
     # <$_shiftN> - shift count
     # ["$_opt_arg"] - option argument
     #
@@ -1424,11 +1428,11 @@ main_functions() {
                     exit 2
                 ;;
                 "$1")
-                    _opt=; _opt_arg=; _shiftN=1
+                    _opt=; _opt_arg=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
                 "$1="*)
-                    _opt_arg="${_opt#"$1"=}"; _opt=; _shiftN=1
+                    _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
                 *)
@@ -1451,6 +1455,7 @@ main_functions() {
     # <_opt> $
     #
     # Provides:
+    # <"$_opt_match"> - the literal option matched
     # <$_shiftN> - shift count
     # ["$_sopt_index"] - index with encountered short options
     #
@@ -1471,7 +1476,7 @@ main_functions() {
 
             case "$_opt" in
                 "$1")
-                    _opt=; _shiftN=1
+                    _opt=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
             esac
@@ -1490,7 +1495,7 @@ main_functions() {
                         *) _sopt_index="$_sopt_index${1#?}" ;;
                     esac
 
-                    _opt="-${_opt#??}"; _shiftN=1
+                    _opt="-${_opt#??}"; _opt_match="$1"; _shiftN=1
                     return 0
                ;;
             esac
@@ -1510,6 +1515,7 @@ main_functions() {
     # <_opt> $
     #
     # Provides:
+    # <"$_opt_match"> - the literal option matched
     # <$_shiftN> - shift count
     #
     # Returns:
@@ -1522,7 +1528,7 @@ main_functions() {
         while [ "$1" ]; do
             case "$_opt" in
                 "$1")
-                    _opt=; _shiftN=1
+                    _opt=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
                 *)
