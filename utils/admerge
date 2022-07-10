@@ -1000,8 +1000,8 @@ main_functions() {
     # <_opt> $
     #
     # Provides:
-    # ["$_opt_arg"] - option argument
     # <$_shiftN> - shift count
+    # ["$_opt_arg"] - option argument
     #
     # Returns:
     # (0) match
@@ -1123,8 +1123,8 @@ main_functions() {
     # <_opt> $
     #
     # Provides:
-    # ["$_opt_arg"] - option argument
     # <$_shiftN> - shift count
+    # ["$_opt_arg"] - option argument
     #
     # Returns:
     # (0) match
@@ -1170,8 +1170,8 @@ main_functions() {
     # <_opt> $
     #
     # Provides:
-    # ["$_sopt_index"] - index with encountered short options
     # <$_shiftN> - shift count
+    # ["$_sopt_index"] - index with encountered short options
     #
     # Returns:
     # (0) match
