@@ -1074,7 +1074,7 @@ main_functions() {
     # <"$1"+> - string
     #
     # Provides:
-    # <"$_str"> - escaped string | string
+    # <"$_str"> - the escaped string | string
     #
     # Returns:
     # (0) escaped string | string
@@ -1235,9 +1235,9 @@ main_functions() {
     # <_opt_arg> $
     #
     # Provides:
-    # <"$_opt_arg"> - option argument
+    # <"$_opt_arg"> - the option argument
     # <"$_opt_match"> - the literal option matched
-    # <$_shiftN> - shift count
+    # <$_shiftN> - the shift count
     #
     # Returns:
     # (0) match
@@ -1322,8 +1322,8 @@ main_functions() {
     #
     # Provides:
     # <"$_opt_match"> - the literal option matched
-    # <$_shiftN> - shift count
-    # ["$_opt_arg"] - option argument
+    # <$_shiftN> - the shift count
+    # ["$_opt_arg"] - the option argument
     #
     # Returns:
     # (0) match
@@ -1392,9 +1392,9 @@ main_functions() {
     # <_opt_arg> $
     #
     # Provides:
-    # <"$_opt_arg"> - option argument
+    # <"$_opt_arg"> - the option argument
     # <"$_opt_match"> - the literal option matched
-    # <$_shiftN> - shift count
+    # <$_shiftN> - the shift count
     #
     # Returns:
     # (0) match
@@ -1447,8 +1447,8 @@ main_functions() {
     #
     # Provides:
     # <"$_opt_match"> - the literal option matched
-    # <$_shiftN> - shift count
-    # ["$_opt_arg"] - option argument
+    # <$_shiftN> - the shift count
+    # ["$_opt_arg"] - the option argument
     #
     # Returns:
     # (0) match
@@ -1495,8 +1495,8 @@ main_functions() {
     #
     # Provides:
     # <"$_opt_match"> - the literal option matched
-    # <$_shiftN> - shift count
-    # ["$_sopt_index"] - index with encountered short options
+    # <$_shiftN> - the shift count
+    # ["$_sopt_index"] - an index with encountered short options
     #
     # Returns:
     # (0) match
@@ -1555,7 +1555,7 @@ main_functions() {
     #
     # Provides:
     # <"$_opt_match"> - the literal option matched
-    # <$_shiftN> - shift count
+    # <$_shiftN> - the shift count
     #
     # Returns:
     # (0) match
@@ -1594,7 +1594,7 @@ main_functions() {
 # <esc_sq> ()
 #
 # Provides:
-# <"$args"> - modified $@ (eval set -- "$args")
+# <"$args"> - the modified $@ | $@ (eval set -- "$args")
 #
 args_ro() {
     mode=$1; shift
