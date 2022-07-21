@@ -957,6 +957,10 @@ main_functions() {
 # Provides:
 # <"$args"> - the modified $@ | $@ (eval set -- "$args")
 #
+# Returns:
+# (0) success
+# (!) FATAL ERROR >> $opts is an invalid string
+#
 args_ro() {
     mode=$1; shift
 
