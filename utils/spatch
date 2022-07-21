@@ -1030,9 +1030,9 @@ main_functions() {
     # Assert a string
     #
     # Parameters:
-    # <$1> - mode('0' - N [0,1,00,01...],
-    #             '1' - whole N [0,1...],
-    #             '2' - natural N [1...])
+    # <$1> - mode0-2('0' - N [0,1,00,01...],
+    #                '1' - whole N [0,1...],
+    #                '2' - natural N [1...])
     # <"$2"> - string
     #
     # Returns:
@@ -1584,8 +1584,8 @@ main_functions() {
 # Reorder positional parameters (string priority = LIFO)
 #
 # Parameters:
-# <$1> - mode('0' - normal operation,
-#             '1' - respect end of options)
+# <$1> - mode0-1('0' - normal operation,
+#                '1' - respect end of options)
 # <"$2"+> - string
 # <$3> - --
 # <"$4"> - $@
