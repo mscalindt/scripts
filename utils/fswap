@@ -391,9 +391,9 @@ main_functions() {
     # Assert a string
     #
     # Parameters:
-    # <$1> - mode0-2('0' - N [0,1,00,01...],
-    #                '1' - whole N [0,1...],
-    #                '2' - natural N [1...])
+    # <$1> - mode1-3('1' - N [0,1,00,01...],
+    #                '2' - whole N [0,1...],
+    #                '3' - natural N [1...])
     # <"$2"> - string
     #
     # Returns:
@@ -402,14 +402,14 @@ main_functions() {
     #
     assert() {
         case $1 in
-            0)
+            1)
                 case "$2:${2#*[!0123456789]}" in
                     :) return 1 ;;
                     "$2:$2") : ;;
                     *) return 1 ;;
                 esac
             ;;
-            1)
+            2)
                 case "$2:${2#*[!0123456789]}" in
                     :) return 1 ;;
                     0:0) : ;;
@@ -418,7 +418,7 @@ main_functions() {
                     *) return 1 ;;
                 esac
             ;;
-            2)
+            3)
                 case "$2:${2#*[!0123456789]}" in
                     : | 0*) return 1 ;;
                     "$2:$2") : ;;
@@ -945,8 +945,8 @@ main_functions() {
 # Reorder positional parameters (string priority = LIFO)
 #
 # Parameters:
-# <$1> - mode0-1('0' - normal operation,
-#                '1' - respect end of options)
+# <$1> - mode1-2('1' - normal operation,
+#                '2' - respect end of options)
 # <"$2"+> - string
 # <$3> - --
 # <"$4"> - $@
@@ -995,8 +995,8 @@ args_ro() {
         esac
 
         case "$mode:$args" in
-            1:"'--'"*) return 0 ;;
-            1:*" '--'"*) str_ref="${args%% "'--'"*}" ;;
+            2:"'--'"*) return 0 ;;
+            2:*" '--'"*) str_ref="${args%% "'--'"*}" ;;
         esac
 
         case "$str_ref" in
@@ -1045,7 +1045,7 @@ args_ro() {
                         arg="'-${arg#"$opt"}"
 
                         case "$mode:$args" in
-                            1:*" '--'"*)
+                            2:*" '--'"*)
                                 str_ref="${args#"$str_ref"}"
                                 args="$opt' $pfix$arg$sfix$str_ref"
                             ;;
@@ -1087,7 +1087,7 @@ options() {
                 swappiness="$_opt_arg"
 
                 {
-                    assert 1 "$swappiness" && [ "$swappiness" -le 200 ]
+                    assert 2 "$swappiness" && [ "$swappiness" -le 200 ]
                 } || {
                     opt_err "$_opt_match" "$swappiness"; exit 2
                 }
@@ -1096,7 +1096,7 @@ options() {
                 vfscp="$_opt_arg"
 
                 {
-                    assert 1 "$vfscp" && [ "$vfscp" -le 2147483647 ]
+                    assert 2 "$vfscp" && [ "$vfscp" -le 2147483647 ]
                 } || {
                     opt_err "$_opt_match" "$vfscp"; exit 2
                 }
@@ -1132,7 +1132,7 @@ main() {
 
     # Reorder the positional parameters if needed
     #  > to prioritize specific options first
-    args_ro 0 "-l" "--location" "--no-color" -- "$@"
+    args_ro 1 "-l" "--location" "--no-color" -- "$@"
     eval set -- "$args"
 
     # Parse options

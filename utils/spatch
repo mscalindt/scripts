@@ -1030,9 +1030,9 @@ main_functions() {
     # Assert a string
     #
     # Parameters:
-    # <$1> - mode0-2('0' - N [0,1,00,01...],
-    #                '1' - whole N [0,1...],
-    #                '2' - natural N [1...])
+    # <$1> - mode1-3('1' - N [0,1,00,01...],
+    #                '2' - whole N [0,1...],
+    #                '3' - natural N [1...])
     # <"$2"> - string
     #
     # Returns:
@@ -1041,14 +1041,14 @@ main_functions() {
     #
     assert() {
         case $1 in
-            0)
+            1)
                 case "$2:${2#*[!0123456789]}" in
                     :) return 1 ;;
                     "$2:$2") : ;;
                     *) return 1 ;;
                 esac
             ;;
-            1)
+            2)
                 case "$2:${2#*[!0123456789]}" in
                     :) return 1 ;;
                     0:0) : ;;
@@ -1057,7 +1057,7 @@ main_functions() {
                     *) return 1 ;;
                 esac
             ;;
-            2)
+            3)
                 case "$2:${2#*[!0123456789]}" in
                     : | 0*) return 1 ;;
                     "$2:$2") : ;;
@@ -1584,8 +1584,8 @@ main_functions() {
 # Reorder positional parameters (string priority = LIFO)
 #
 # Parameters:
-# <$1> - mode0-1('0' - normal operation,
-#                '1' - respect end of options)
+# <$1> - mode1-2('1' - normal operation,
+#                '2' - respect end of options)
 # <"$2"+> - string
 # <$3> - --
 # <"$4"> - $@
@@ -1634,8 +1634,8 @@ args_ro() {
         esac
 
         case "$mode:$args" in
-            1:"'--'"*) return 0 ;;
-            1:*" '--'"*) str_ref="${args%% "'--'"*}" ;;
+            2:"'--'"*) return 0 ;;
+            2:*" '--'"*) str_ref="${args%% "'--'"*}" ;;
         esac
 
         case "$str_ref" in
@@ -1684,7 +1684,7 @@ args_ro() {
                         arg="'-${arg#"$opt"}"
 
                         case "$mode:$args" in
-                            1:*" '--'"*)
+                            2:*" '--'"*)
                                 str_ref="${args#"$str_ref"}"
                                 args="$opt' $pfix$arg$sfix$str_ref"
                             ;;
