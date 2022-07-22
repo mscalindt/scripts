@@ -128,17 +128,18 @@ err_clr() {
 # <$3> - to "N" $2-TR character('0' - max)
 # <"$4"> - to "X" character(s)
 # <"$5"> - string
-# [$6] - mode('0' - strip all leading whitespace characters,
-#             '1' - strip all trailing whitespace characters,
-#             '2' - strip all leading/trailing whitespace characters)
-# [$7] - mode('3' - keep $2,
-#             '4' - keep $4,
-#             '5' - keep $2/$4)
-# [$8] - mode('6' - verify the expansion)
+# [$6] - mode0-2('0' - strip all leading whitespace characters,
+#                '1' - strip all trailing whitespace characters,
+#                '2' - strip all leading/trailing whitespace characters)
+# [$7] - mode3-5('3' - keep $2,
+#                '4' - keep $4,
+#                '5' - keep $2/$4)
+# [$8] - mode6('6' - verify the expansion)
 #
 # Provides:
 # (0) <"$_str"> - the modified string
-# [$_i] - positive integer, indicating iterations done
+# [$_i] - the iterations completed;
+#         whole number
 #
 # Returns:
 # (0) substring | incorrect substring ($1/$3 > $2/$4)
@@ -306,11 +307,11 @@ ltr_substr1() {
 #
 # Parameters:
 # <"$1"> - file
-# [$2] - mode('1' - add one leading/trailing whitespace character,
-#             '2' - add two leading/trailing whitespace characters,
-#             '3' - skip empty lines,
-#             '4' - strip trailing/leading whitespace characters)
-# ["$3"] - mode("5 N" - stop parsing further than "N" line)
+# [$2] - mode1-4('1' - add one leading/trailing whitespace character,
+#                '2' - add two leading/trailing whitespace characters,
+#                '3' - skip empty lines,
+#                '4' - strip trailing/leading whitespace characters)
+# ["$3"] - mode5("5 N" - stop parsing further than "N" line)
 #
 # Returns:
 # (0) output | empty output (file) | empty output (by the given ruleset)
@@ -439,9 +440,9 @@ pline() {
 # Parameters:
 # <"$1"> - substring
 # <"$2"> - string
-# [$3] - mode('1' - $1 is first character(s) of $2,
-#             '2' - $1 is last character(s) of $2,
-#             '3' - $1 is, on its own, $2)
+# [$3] - mode1-3('1' - $1 is first character(s) of $2,
+#                '2' - $1 is last character(s) of $2,
+#                '3' - $1 is, on its own, $2)
 #
 # Returns:
 # (0) match
