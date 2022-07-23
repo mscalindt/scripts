@@ -156,7 +156,7 @@ fcount() {
     case "$1" in
         *"/") _dir="${1%?}" ;;
         *) _dir="$1" ;;
-    esa
+    esac
     _count=0
 
     case "$2" in
