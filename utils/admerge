@@ -498,7 +498,7 @@ _alock_get() {
 # Returns:
 # (0) match
 # (1) no match
-# (2) invalid attribute
+# (2) invalid $1
 # (3) lock file access error
 #
 _alock_test() {
@@ -519,7 +519,7 @@ _alock_test() {
 #
 # Returns:
 # (0) format
-# (1) invalid attribute
+# (1) invalid $1
 #
 _alock_write() {
     case "$1" in
