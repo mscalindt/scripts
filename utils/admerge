@@ -1408,6 +1408,9 @@ args_ro() {
 # Description:
 # Parse utility options
 #
+# Uses:
+# <"$_opt"> - {state - anything}; [iteration - X]
+#
 # Returns:
 # (0) $_opt has been parsed
 # (1) $_opt is not an option

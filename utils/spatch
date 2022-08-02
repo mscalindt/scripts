@@ -888,6 +888,9 @@ warn_clr() {
 # Requires:
 # <err> ()
 #
+# Uses:
+# <"$@"> - {state - URL(s)}; []
+#
 _get_url() {
     if command -v curl > /dev/null 2>&1; then
         set -- 'curl' '-Of' "$@"
@@ -1712,6 +1715,9 @@ args_ro() {
 
 # Description:
 # Parse utility options
+#
+# Uses:
+# <"$_opt"> - {state - anything}; [iteration - X]
 #
 # Returns:
 # (0) $_opt has been parsed
