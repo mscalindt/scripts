@@ -466,6 +466,7 @@ str() {
 # <$1> - N
 #
 # Requires:
+# <ALOCK> $
 # <ltr_substr1> ()
 # <pline> ()
 #
