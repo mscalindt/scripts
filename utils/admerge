@@ -493,6 +493,7 @@ _alock_get() {
 # <"$1"> - attribute
 #
 # Requires:
+# <ALOCK> $
 # <pline> ()
 # <str> ()
 #
