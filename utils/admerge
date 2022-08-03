@@ -466,7 +466,7 @@ str() {
 # <$1> - N
 #
 # Requires:
-# <ALOCK> $
+# <ALOCK> $ - the lock file's absolute path
 # <ltr_substr1> ()
 # <pline> ()
 #
@@ -493,7 +493,7 @@ _alock_get() {
 # <"$1"> - attribute
 #
 # Requires:
-# <ALOCK> $
+# <ALOCK> $ - the lock file's absolute path
 # <pline> ()
 # <str> ()
 #
@@ -535,7 +535,7 @@ _alock_write() {
 # Issue admerge's commit command
 #
 # Requires:
-# <AMSG> $
+# <AMSG> $ - the commit message file's absolute path
 # <_alock_test> ()
 #
 _commit() {
@@ -553,7 +553,7 @@ _commit() {
 # Issue admerge's merge command
 #
 # Requires:
-# <BRANCH> $
+# <BRANCH> $ - the branch being merged
 #
 _merge() {
     set -- '--no-ff'
@@ -933,8 +933,8 @@ main_functions() {
     # ["$2"] - --*
     #
     # Requires:
-    # <_opt> $
-    # <_opt_arg> $
+    # <_opt> $ - the first positional parameter of the main environment
+    # <_opt_arg> $ - the second positional parameter of the main environment
     #
     # Provides:
     # <"$_opt_arg"> - the option argument
@@ -1020,7 +1020,7 @@ main_functions() {
     # ["$2"] - --*
     #
     # Requires:
-    # <_opt> $
+    # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
     # <"$_opt_match"> - the literal option matched
@@ -1090,8 +1090,8 @@ main_functions() {
     # <"$1"+> - *
     #
     # Requires:
-    # <_opt> $
-    # <_opt_arg> $
+    # <_opt> $ - the first positional parameter of the main environment
+    # <_opt_arg> $ - the second positional parameter of the main environment
     #
     # Provides:
     # <"$_opt_arg"> - the option argument
@@ -1145,7 +1145,7 @@ main_functions() {
     # <"$1"+> - *
     #
     # Requires:
-    # <_opt> $
+    # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
     # <"$_opt_match"> - the literal option matched
@@ -1193,7 +1193,7 @@ main_functions() {
     # ["$2"] - --*
     #
     # Requires:
-    # <_opt> $
+    # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
     # <"$_opt_match"> - the literal option matched
@@ -1253,7 +1253,7 @@ main_functions() {
     # <"$1"+> - *
     #
     # Requires:
-    # <_opt> $
+    # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
     # <"$_opt_match"> - the literal option matched

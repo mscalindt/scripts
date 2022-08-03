@@ -592,8 +592,8 @@ main_functions() {
     # ["$2"] - --*
     #
     # Requires:
-    # <_opt> $
-    # <_opt_arg> $
+    # <_opt> $ - the first positional parameter of the main environment
+    # <_opt_arg> $ - the second positional parameter of the main environment
     #
     # Provides:
     # <"$_opt_arg"> - the option argument
@@ -679,7 +679,7 @@ main_functions() {
     # ["$2"] - --*
     #
     # Requires:
-    # <_opt> $
+    # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
     # <"$_opt_match"> - the literal option matched
@@ -749,8 +749,8 @@ main_functions() {
     # <"$1"+> - *
     #
     # Requires:
-    # <_opt> $
-    # <_opt_arg> $
+    # <_opt> $ - the first positional parameter of the main environment
+    # <_opt_arg> $ - the second positional parameter of the main environment
     #
     # Provides:
     # <"$_opt_arg"> - the option argument
@@ -804,7 +804,7 @@ main_functions() {
     # <"$1"+> - *
     #
     # Requires:
-    # <_opt> $
+    # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
     # <"$_opt_match"> - the literal option matched
@@ -852,7 +852,7 @@ main_functions() {
     # ["$2"] - --*
     #
     # Requires:
-    # <_opt> $
+    # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
     # <"$_opt_match"> - the literal option matched
@@ -912,7 +912,7 @@ main_functions() {
     # <"$1"+> - *
     #
     # Requires:
-    # <_opt> $
+    # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
     # <"$_opt_match"> - the literal option matched
