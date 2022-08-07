@@ -770,162 +770,6 @@ main_functions() {
     }
 
     # Description:
-    # Within single quotes escape single quote(s) in string
-    #
-    # Parameters:
-    # <"$1"+> - string
-    #
-    # Provides:
-    # <"$_str"> - the escaped string | string
-    #
-    # Returns:
-    # (0) escaped string | string
-    #
-    esc_sq() {
-        [ "$1" ] || return 0
-
-        _str="$1"
-
-        case "$_str" in
-            *"'"*)
-                _str_ref="${_str%%\'*}'\\''"
-                _str="${_str_ref}${_str#*\'}"
-
-                while :; do case "$_str" in
-                    "$_str_ref"*"'"*)
-                        _str="${_str#*"$_str_ref"}"
-                        _str_ref="$_str_ref${_str%%\'*}'\\''"
-                        _str="$_str_ref${_str#*\'}"
-                    ;;
-                    *)
-                        break
-                    ;;
-                esac done
-            ;;
-        esac
-
-        _str="'$_str'"; printf "%s" "$_str"; shift
-
-        while [ "$1" ]; do
-            case "$1" in
-                *"'"*) : ;;
-                *) _str="$_str '$1'"; printf " '%s'" "$1"; shift && continue ;;
-            esac
-
-            _str_ref="${1%%\'*}'\\''"
-            __str="${_str_ref}${1#*\'}"
-
-            while :; do case "$__str" in
-                "$_str_ref"*"'"*)
-                    __str="${__str#*"$_str_ref"}"
-                    _str_ref="$_str_ref${__str%%\'*}'\\''"
-                    __str="$_str_ref${__str#*\'}"
-                ;;
-                *)
-                    break
-                ;;
-            esac done
-
-            _str="$_str '$__str'"; printf " '%s'" "$__str"; shift
-        done
-    }
-
-    # Description:
-    # Signify invalid operand count (min)[0>X]
-    #
-    opd_min() {
-        set -- "${0##*/}"
-        printf "%s: No operand specified.\n" "$1"
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
-    } 1>&2
-
-    # Description:
-    # Signify invalid operand count (max)[X>1]
-    #
-    # Parameters:
-    # <"$1"> - count
-    #
-    opd_cmax() {
-        set -- "${0##*/}" "$1"
-        printf "%s: Too many operands: %d\n" "$1" "$2"
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
-    } 1>&2
-
-    # Description:
-    # Signify invalid operand count (max)[2>1]
-    #
-    # Parameters:
-    # <"$1"> - first operand
-    # <"$2"> - second operand
-    #
-    opd_max() {
-        set -- "${0##*/}" "$1" "$2"
-        printf "%s: Too many operands: '[%s]; [%s]'\n" "$1" "$2" "$3"
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
-    } 1>&2
-
-    # Description:
-    # Signify invalid option argument
-    #
-    # Parameters:
-    # <"$1"> - option
-    # <"$2"> - argument
-    # ["$3"+] - valid arguments
-    #
-    opt_err() {
-        printf "%s: Invalid argument '%s' for '%s'\n" \
-               "${0##*/}" "$2" "$1"
-        shift 2
-
-        if [ "$1" ]; then
-            printf "Valid arguments are:\n"
-
-            while [ "$1" ]; do
-                printf " > '%s'\n" "$1"; shift
-            done
-        fi
-
-        printf "%s: Try '%s --help' for more information.\n" \
-               "${0##*/}" "${0##*/}"
-    } 1>&2
-
-    # Description:
-    # Signify invalid option
-    #
-    # Parameters:
-    # <"$1"> - option
-    #
-    opt_invalid() {
-        set -- "${0##*/}" "$1"
-        printf "%s: Invalid option: '%s'\n" "$1" "$2"
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
-    } 1>&2
-
-    # Description:
-    # Signify unknown (*) option
-    #
-    # Parameters:
-    # <"$1"> - option
-    #
-    opt_unknown() {
-        set -- "${0##*/}" "$1"
-        printf "%s: Unknown option: '%s'\n" "$1" "$2"
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
-    } 1>&2
-
-    # Description:
-    # Signify unrecognized ('--') option
-    #
-    # Parameters:
-    # <"$1"> - option
-    #
-    opt_unrecognized() {
-        set -- "${0##*/}" "$1"
-        printf "%s: Unrecognized option: '%s'\n" "$1" "$2"
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
-    } 1>&2
-
-    # Description:
     # True if complex (argument) option
     #
     # Parameters (<1+>):
@@ -1082,6 +926,162 @@ main_functions() {
 
         return 1
     }
+
+    # Description:
+    # Within single quotes escape single quote(s) in string
+    #
+    # Parameters:
+    # <"$1"+> - string
+    #
+    # Provides:
+    # <"$_str"> - the escaped string | string
+    #
+    # Returns:
+    # (0) escaped string | string
+    #
+    esc_sq() {
+        [ "$1" ] || return 0
+
+        _str="$1"
+
+        case "$_str" in
+            *"'"*)
+                _str_ref="${_str%%\'*}'\\''"
+                _str="${_str_ref}${_str#*\'}"
+
+                while :; do case "$_str" in
+                    "$_str_ref"*"'"*)
+                        _str="${_str#*"$_str_ref"}"
+                        _str_ref="$_str_ref${_str%%\'*}'\\''"
+                        _str="$_str_ref${_str#*\'}"
+                    ;;
+                    *)
+                        break
+                    ;;
+                esac done
+            ;;
+        esac
+
+        _str="'$_str'"; printf "%s" "$_str"; shift
+
+        while [ "$1" ]; do
+            case "$1" in
+                *"'"*) : ;;
+                *) _str="$_str '$1'"; printf " '%s'" "$1"; shift && continue ;;
+            esac
+
+            _str_ref="${1%%\'*}'\\''"
+            __str="${_str_ref}${1#*\'}"
+
+            while :; do case "$__str" in
+                "$_str_ref"*"'"*)
+                    __str="${__str#*"$_str_ref"}"
+                    _str_ref="$_str_ref${__str%%\'*}'\\''"
+                    __str="$_str_ref${__str#*\'}"
+                ;;
+                *)
+                    break
+                ;;
+            esac done
+
+            _str="$_str '$__str'"; printf " '%s'" "$__str"; shift
+        done
+    }
+
+    # Description:
+    # Signify invalid operand count (max)[X>1]
+    #
+    # Parameters:
+    # <"$1"> - count
+    #
+    opd_cmax() {
+        set -- "${0##*/}" "$1"
+        printf "%s: Too many operands: %d\n" "$1" "$2"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
+
+    # Description:
+    # Signify invalid operand count (max)[2>1]
+    #
+    # Parameters:
+    # <"$1"> - first operand
+    # <"$2"> - second operand
+    #
+    opd_max() {
+        set -- "${0##*/}" "$1" "$2"
+        printf "%s: Too many operands: '[%s]; [%s]'\n" "$1" "$2" "$3"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
+
+    # Description:
+    # Signify invalid operand count (min)[0>X]
+    #
+    opd_min() {
+        set -- "${0##*/}"
+        printf "%s: No operand specified.\n" "$1"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
+
+    # Description:
+    # Signify invalid option argument
+    #
+    # Parameters:
+    # <"$1"> - option
+    # <"$2"> - argument
+    # ["$3"+] - valid arguments
+    #
+    opt_err() {
+        printf "%s: Invalid argument '%s' for '%s'\n" \
+               "${0##*/}" "$2" "$1"
+        shift 2
+
+        if [ "$1" ]; then
+            printf "Valid arguments are:\n"
+
+            while [ "$1" ]; do
+                printf " > '%s'\n" "$1"; shift
+            done
+        fi
+
+        printf "%s: Try '%s --help' for more information.\n" \
+               "${0##*/}" "${0##*/}"
+    } 1>&2
+
+    # Description:
+    # Signify invalid option
+    #
+    # Parameters:
+    # <"$1"> - option
+    #
+    opt_invalid() {
+        set -- "${0##*/}" "$1"
+        printf "%s: Invalid option: '%s'\n" "$1" "$2"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
+
+    # Description:
+    # Signify unknown (*) option
+    #
+    # Parameters:
+    # <"$1"> - option
+    #
+    opt_unknown() {
+        set -- "${0##*/}" "$1"
+        printf "%s: Unknown option: '%s'\n" "$1" "$2"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
+
+    # Description:
+    # Signify unrecognized ('--') option
+    #
+    # Parameters:
+    # <"$1"> - option
+    #
+    opt_unrecognized() {
+        set -- "${0##*/}" "$1"
+        printf "%s: Unrecognized option: '%s'\n" "$1" "$2"
+        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+    } 1>&2
 
     # Description:
     # True if specific complex (argument) option
