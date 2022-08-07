@@ -1129,10 +1129,9 @@ main_functions() {
                     _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
-                *)
-                    shift
-                ;;
             esac
+
+            shift
         done
 
         return 1
