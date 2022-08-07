@@ -1232,7 +1232,7 @@ main_functions() {
     } 1>&2
 
     # Description:
-    # Return 0 if complex (arg) option
+    # True if complex (argument) option
     #
     # Parameters (<1+>):
     # ["$1"] - -*
@@ -1319,7 +1319,7 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if perhaps complex (arg) option
+    # True if optional-complex (possible argument) option
     #
     # Parameters (<1+>):
     # ["$1"] - -*
@@ -1390,7 +1390,7 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if specific complex (arg) option
+    # True if specific complex (argument) option
     #
     # Parameters:
     # <"$1"+> - *
@@ -1445,7 +1445,7 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if specific perhaps complex (arg) option
+    # True if specific optional-complex (possible argument) option
     #
     # Parameters:
     # <"$1"+> - *
@@ -1492,7 +1492,7 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if simple (!arg) option
+    # True if simple (no argument) option
     #
     # Parameters (<1+>):
     # ["$1"] - -*
@@ -1553,7 +1553,7 @@ main_functions() {
     }
 
     # Description:
-    # Return 0 if specific simple (!arg) option
+    # True if specific simple (no argument) option
     #
     # Parameters:
     # <"$1"+> - *
