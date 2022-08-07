@@ -1173,9 +1173,9 @@ main_functions() {
     # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
+    # <"$_opt_arg"> - the option argument
     # <"$_opt_match"> - the literal option matched
     # <$_shiftN> - the shift count
-    # ["$_opt_arg"] - the option argument
     #
     # Returns:
     # (0) match
