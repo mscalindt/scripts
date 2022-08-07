@@ -1296,7 +1296,7 @@ main_functions() {
 # <esc_sq> ()
 #
 # Provides:
-# <"$args"> - the modified $@ | $@ (eval set -- "$args")
+# <"$args"> - the modified $@ | $@ - (eval set -- "$args")
 #
 # Returns:
 # (0) success
