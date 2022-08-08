@@ -1311,7 +1311,7 @@ main_functions() {
     } 1>&2
 
     # Description:
-    # Signify invalid operand count (max)[2>1]
+    # Signify invalid operand count (max)[X>1]
     #
     # Parameters:
     # <"$1"> - first operand
