@@ -989,14 +989,18 @@ main_functions() {
     }
 
     # Description:
-    # Signify invalid operand count (max)[X>1]
+    # Signify invalid operand count (max)[X>X]
     #
     # Parameters:
-    # <"$1"> - count
+    # <$1> - invalid count
+    # [$2] - valid count
     #
     opd_cmax() {
-        set -- "${0##*/}" "$1"
+        set -- "${0##*/}" "$1" "$2"
         printf "%s: Too many operands: %d\n" "$1" "$2"
+
+        [ "$3" ] && printf " > max allowed: %d\n" "$3"
+
         printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
     } 1>&2
 
