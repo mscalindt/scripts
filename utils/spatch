@@ -1802,7 +1802,7 @@ main() {
     if [ ! "$1" ]; then
         opd_min; exit 2
     elif [ "$2" ]; then
-        opd_cmax "$#"; exit 2
+        opd_cmax "$#" 1; exit 2
     fi
 
     # Convert relative path to absolute path
