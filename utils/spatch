@@ -1595,8 +1595,8 @@ main_functions() {
 # Parameters:
 # <$1> - mode1-2('1' - normal operation,
 #                '2' - respect end of options)
-# <"$2"+> - string
-# <$3> - --
+# <"$2"> - $#
+# <"$3"+> - string
 # <"$4"> - $@
 #
 # Requires:
@@ -1611,25 +1611,21 @@ main_functions() {
 #
 args_ro() {
     mode=$1; shift
+    eval "strN=$(($# - $1 - 1))"; shift
 
-    while :; do case "$1" in
-        "--")
-            shift && break
-        ;;
-        *)
-            case "$1" in
-                *"'"*) esc_sq "$1" > /dev/null ;;
-                *) _str="'$1'" ;;
-            esac
+    until [ "$strN" -eq 0 ]; do
+        case "$1" in
+            *"'"*) esc_sq "$1" > /dev/null ;;
+            *) _str="'$1'" ;;
+        esac
 
-            case "$opts" in
-                :) opts="$_str" ;;
-                *) opts="$opts $_str" ;;
-            esac
+        case "$opts" in
+            :) opts="$_str" ;;
+            *) opts="$opts $_str" ;;
+        esac
 
-            shift
-        ;;
-    esac done
+        shift; strN=$((strN - 1))
+    done
 
     if [ "$1" ]; then
         esc_sq "$@" > /dev/null && args="$_str"
