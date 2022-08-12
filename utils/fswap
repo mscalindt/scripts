@@ -943,127 +943,6 @@ main_functions() {
 }
 
 # Description:
-# Reorder positional parameters (string priority = LIFO)
-#
-# Parameters:
-# <$1> - mode1-2('1' - normal operation,
-#                '2' - respect end of options)
-# <"$2"> - $#
-# <"$3"+> - string
-# <"$4"> - $@
-#
-# Uses:
-# <esc_sq> ()
-#
-# Provides:
-# <"$args"> - the modified $@ | $@ - (eval set -- "$args")
-#
-# Returns:
-# (0) success
-# (!) FATAL ERROR >> $opts is an invalid string
-#
-args_ro() {
-    mode=$1; shift
-    eval "strN=$(($# - $1 - 1))"; shift
-
-    until [ "$strN" -eq 0 ]; do
-        case "$1" in
-            *"'"*) esc_sq "$1" > /dev/null ;;
-            *) _str="'$1'" ;;
-        esac
-
-        case "$opts" in
-            :) opts="$_str" ;;
-            *) opts="$opts $_str" ;;
-        esac
-
-        shift; strN=$((strN - 1))
-    done
-
-    if [ "$1" ]; then
-        esc_sq "$@" > /dev/null && args="$_str"
-    else
-        args=; return 0
-    fi
-
-    eval set -- "$opts"
-    while [ "$1" ]; do
-        opt="$1"; str_ref="$args"
-
-        case "$opt" in
-            *"'"*) esc_sq "$opt" > /dev/null && opt="$_str" ;;
-            *) opt="'$opt'" ;;
-        esac
-
-        case "$mode:$args" in
-            2:"'--'"*) return 0 ;;
-            2:*" '--'"*) str_ref="${args%% "'--'"*}" ;;
-        esac
-
-        case "$str_ref" in
-            "$opt"*)
-                shift && continue
-            ;;
-            *" $opt")
-                args="$opt ${args%% "$opt"*}${args#*"$opt"}"
-                shift && continue
-            ;;
-            *" $opt "*)
-                args="$opt ${args%%"$opt"*}${args#*"$opt" }"
-                shift && continue
-            ;;
-        esac
-
-        case "$opt" in
-            "'--"*)
-                :
-            ;;
-            "'-"*)
-                opt="${opt%?}"
-                sfix=" $str_ref"
-
-                case "$sfix" in
-                    *" $opt"*)
-                        sfix="${sfix#* "$opt"*\'}"
-
-                        while :; do case "$sfix" in
-                            "\\"*) sfix="${sfix#???*\'}" ;;
-                            *) break ;;
-                        esac done
-
-                        pfix="$str_ref"
-                        pfix="${pfix%"$sfix"}"
-                        pfix="${pfix%\'*\'*}"
-
-                        while :; do case "${pfix#"${pfix%??}"}" in
-                            "\\'") pfix="${pfix%\'*???}" ;;
-                            *) break ;;
-                        esac done
-
-                        arg="$str_ref"
-                        arg="${arg#"$pfix"}"
-                        arg="${arg%"$sfix"}"
-                        arg="'-${arg#"$opt"}"
-
-                        case "$mode:$args" in
-                            2:*" '--'"*)
-                                str_ref="${args#"$str_ref"}"
-                                args="$opt' $pfix$arg$sfix$str_ref"
-                            ;;
-                            *)
-                                args="$opt' $pfix$arg$sfix"
-                            ;;
-                        esac
-                    ;;
-                esac
-            ;;
-        esac
-
-        shift
-    done
-}
-
-# Description:
 # Parse utility options
 #
 # Uses:
@@ -1133,11 +1012,6 @@ options() {
 main() {
     # Source common functions
     main_functions;
-
-    # Reorder the positional parameters if needed
-    #  > to prioritize specific options first
-    args_ro 1 "$#" '-l' '--location' '--no-color' "$@"
-    eval set -- "$args"
 
     # Parse options
     while [ "$1" ]; do
