@@ -435,7 +435,7 @@ main_functions() {
     # ["$1"] - -*
     # ["$2"] - --*
     #
-    # Requires:
+    # Uses:
     # <_opt> $ - the first positional parameter of the main environment
     # <_opt_arg> $ - the second positional parameter of the main environment
     #
@@ -522,7 +522,7 @@ main_functions() {
     # ["$1"] - -*
     # ["$2"] - --*
     #
-    # Requires:
+    # Uses:
     # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
@@ -752,7 +752,7 @@ main_functions() {
     # Parameters:
     # <"$1"+> - *
     #
-    # Requires:
+    # Uses:
     # <_opt> $ - the first positional parameter of the main environment
     # <_opt_arg> $ - the second positional parameter of the main environment
     #
@@ -806,7 +806,7 @@ main_functions() {
     # Parameters:
     # <"$1"+> - *
     #
-    # Requires:
+    # Uses:
     # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
@@ -853,7 +853,7 @@ main_functions() {
     # ["$1"] - -*
     # ["$2"] - --*
     #
-    # Requires:
+    # Uses:
     # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
@@ -913,7 +913,7 @@ main_functions() {
     # Parameters:
     # <"$1"+> - *
     #
-    # Requires:
+    # Uses:
     # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
@@ -952,7 +952,7 @@ main_functions() {
 # <"$3"+> - string
 # <"$4"> - $@
 #
-# Requires:
+# Uses:
 # <esc_sq> ()
 #
 # Provides:

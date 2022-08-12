@@ -465,7 +465,7 @@ str() {
 # Parameters:
 # <$1> - N
 #
-# Requires:
+# Uses:
 # <ALOCK> $ - the lock file's absolute path
 # <ltr_substr1> ()
 # <pline> ()
@@ -492,7 +492,7 @@ _alock_get() {
 # Parameters:
 # <"$1"> - attribute
 #
-# Requires:
+# Uses:
 # <ALOCK> $ - the lock file's absolute path
 # <pline> ()
 # <str> ()
@@ -534,7 +534,7 @@ _alock_write() {
 # Description:
 # Issue admerge's commit command
 #
-# Requires:
+# Uses:
 # <AMSG> $ - the commit message file's absolute path
 # <_alock_test> ()
 #
@@ -552,7 +552,7 @@ _commit() {
 # Description:
 # Issue admerge's merge command
 #
-# Requires:
+# Uses:
 # <BRANCH> $ - the branch being merged
 #
 _merge() {
@@ -776,7 +776,7 @@ main_functions() {
     # ["$1"] - -*
     # ["$2"] - --*
     #
-    # Requires:
+    # Uses:
     # <_opt> $ - the first positional parameter of the main environment
     # <_opt_arg> $ - the second positional parameter of the main environment
     #
@@ -863,7 +863,7 @@ main_functions() {
     # ["$1"] - -*
     # ["$2"] - --*
     #
-    # Requires:
+    # Uses:
     # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
@@ -1093,7 +1093,7 @@ main_functions() {
     # Parameters:
     # <"$1"+> - *
     #
-    # Requires:
+    # Uses:
     # <_opt> $ - the first positional parameter of the main environment
     # <_opt_arg> $ - the second positional parameter of the main environment
     #
@@ -1147,7 +1147,7 @@ main_functions() {
     # Parameters:
     # <"$1"+> - *
     #
-    # Requires:
+    # Uses:
     # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
@@ -1194,7 +1194,7 @@ main_functions() {
     # ["$1"] - -*
     # ["$2"] - --*
     #
-    # Requires:
+    # Uses:
     # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
@@ -1254,7 +1254,7 @@ main_functions() {
     # Parameters:
     # <"$1"+> - *
     #
-    # Requires:
+    # Uses:
     # <_opt> $ - the first positional parameter of the main environment
     #
     # Provides:
@@ -1293,7 +1293,7 @@ main_functions() {
 # <"$3"+> - string
 # <"$4"> - $@
 #
-# Requires:
+# Uses:
 # <esc_sq> ()
 #
 # Provides:
