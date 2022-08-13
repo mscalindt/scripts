@@ -1076,9 +1076,9 @@ main_functions() {
     # <"$1"> - option
     #
     opt_unknown() {
-        set -- "${0##*/}" "$1"
-        printf "%s: Unknown option: '%s'\n" "$1" "$2"
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+        printf "%s: Unknown option: '%s'\n" "${0##*/}" "$1"
+        printf "%s: Try '%s --help' for more information.\n" \
+               "${0##*/}" "${0##*/}"
     } 1>&2
 
     # Description:
