@@ -45,12 +45,9 @@ _options() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
 <<'OPTIONS'
 In-merge options (merge with conflicts):
-  a, abort                   abort a merge in progress; this option disregards
-                             other options
-  c, continue                resume a merge; this option disregards other
-                             options
-  s, status                  show status of the current merge; this option
-                             disregards other options
+  a, abort                   abort a merge in progress
+  c, continue                resume a merge
+  s, status                  show status of the current merge
 
 Options:
   -s, --sign-off             add Signed-off-by line at the end of the commit
@@ -655,6 +652,7 @@ admerge_post() {
 }
 
 admerge_abort() {
+    _admerge
     admerge_env
 
     [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
@@ -668,6 +666,7 @@ admerge_abort() {
 }
 
 admerge_continue() {
+    _admerge
     admerge_env
 
     [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
@@ -679,6 +678,7 @@ admerge_continue() {
 }
 
 admerge_status() {
+    _admerge
     admerge_env
 
     [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
@@ -1304,9 +1304,9 @@ options() {
             sopt "-v" "--git-version" && { gver=1; }
         ;;
         *)
-            ssopt "a" "abort" && { _admerge; admerge_abort; exit 0; }
-            ssopt "c" "continue" && { _admerge; admerge_continue; exit 0; }
-            ssopt "s" "status" && { _admerge; admerge_status; exit 0; }
+            ssopt "a" "abort" && { merge_op=ABORT; }
+            ssopt "c" "continue" && { merge_op=CONTINUE; }
+            ssopt "s" "status" && { merge_op=STATUS; }
         ;;
     esac
 
@@ -1379,11 +1379,20 @@ main() {
         shift
     done
 
-    # Here and no branch specified = bad input
-    [ "$BRANCH" ] || { opd_min; exit 2; }
-
-    # Execute the core function
-    admerge;
+    # Core operations
+    if [ "$merge_op" = ABORT ]; then
+        admerge_abort;
+    elif [ "$merge_op" = CONTINUE ]; then
+        admerge_continue;
+    elif [ "$merge_op" = STATUS ]; then
+        admerge_status;
+    else
+        if [ "$BRANCH" ]; then
+            admerge;
+        else
+            opd_min; exit 2
+        fi
+    fi
 
     # Check if RC is set, otherwise explicit success
     [ "$RC" ] && return "$RC" || return 0

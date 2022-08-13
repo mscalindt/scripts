@@ -54,7 +54,7 @@ _options() {
 <<'OPTIONS'
 Options:
   -c, --check                only check for an existing swap file and remove
-                             it; this option disregards other options
+                             it
   -l, --location <PATH>      PATH is an absolute or relative location at which
                              the swap file shall be created
   -s, --size <SIZE>          specify size for the swap file; see SIZE format
@@ -958,7 +958,7 @@ options() {
     case "$_opt" in
         "-"*)
             sopt "--no-color" && { ncolor=1; }
-            sopt "-c" "--check" && { _fswap; fswap_env; fswap_check; exit 0; }
+            sopt "-c" "--check" && { op=CHECK; }
 
             copt "-l" "--location" && {
                 sfile=$(get_fpath "$_opt_arg")
@@ -1041,8 +1041,12 @@ main() {
         shift "$_shiftN"
     done
 
-    # Execute the core function
-    fswap;
+    # Core operations
+    if [ "$op" = CHECK ]; then
+        _fswap; fswap_env; fswap_check;
+    else
+        fswap;
+    fi
 
     # Check if RC is set, otherwise explicit success
     [ "$RC" ] && return "$RC" || return 0
