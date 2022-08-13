@@ -1027,9 +1027,9 @@ main_functions() {
     # Signify invalid operand count (min)[0>X]
     #
     opd_min() {
-        set -- "${0##*/}"
-        printf "%s: No operand specified.\n" "$1"
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+        printf "%s: No operand specified.\n" "${0##*/}"
+        printf "%s: Try '%s --help' for more information.\n" \
+               "${0##*/}" "${0##*/}"
     } 1>&2
 
     # Description:
