@@ -1010,10 +1010,15 @@ main_functions() {
     # Parameters:
     # <"$1"> - first operand
     # <"$2"> - second operand
+    # ["$3"] - the next practicable operand
     #
     opd_max() {
-        set -- "${0##*/}" "$1" "$2"
-        printf "%s: Too many operands: '[%s]; [%s]'\n" "$1" "$2" "$3"
+        set -- "${0##*/}" "$1" "$2" "$3"
+        if [ "$4" ]; then
+            printf "%s: Too many operands: '[%s]; [%s]; ...'\n" "$1" "$2" "$3"
+        else
+            printf "%s: Too many operands: '[%s]; [%s]'\n" "$1" "$2" "$3"
+        fi
         printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
     } 1>&2
 
@@ -1358,7 +1363,7 @@ main() {
         options || {
             case ":$BRANCH" in
                 :) BRANCH="$_opt" ;;
-                *) opd_max "$BRANCH" "$_opt"; exit 2 ;;
+                *) opd_max "$BRANCH" "$_opt" "$2"; exit 2 ;;
             esac
         }
 
@@ -1373,7 +1378,7 @@ main() {
 
         case ":$BRANCH" in
             :) BRANCH="$_opt" ;;
-            *) opd_max "$BRANCH" "$_opt"; exit 2 ;;
+            *) opd_max "$BRANCH" "$_opt" "$2"; exit 2 ;;
         esac
 
         shift
