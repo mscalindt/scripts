@@ -620,7 +620,7 @@ admerge_msg() {
     printf "Merge '%s' into '%s'\n\n" "$BRANCH" "$OBR"
 
     TMP=$(git rev-list --count "$CDIFF_NEW" 2> /dev/null)
-    [ "$TMP" ] && printf "Summary of commits (%d):\n" "$TMP"
+    [ "$TMP" ] && printf "Summary of commits (%s):\n" "$TMP"
     TMP=$(git log --oneline "$CDIFF_NEW" 2> /dev/null)
     [ "$TMP" ] && printf "%s\n" "$TMP"
 
@@ -996,9 +996,9 @@ main_functions() {
     # [$2] - valid count
     #
     opd_cmax() {
-        printf "%s: Too many operands: %d\n" "${0##*/}" "$1"
+        printf "%s: Too many operands: %s\n" "${0##*/}" "$1"
 
-        [ "$2" ] && printf " > max allowed: %d\n" "$2"
+        [ "$2" ] && printf " > max allowed: %s\n" "$2"
 
         printf "%s: Try '%s --help' for more information.\n" \
                "${0##*/}" "${0##*/}"

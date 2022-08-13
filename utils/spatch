@@ -1302,9 +1302,9 @@ main_functions() {
     # [$2] - valid count
     #
     opd_cmax() {
-        printf "%s: Too many operands: %d\n" "${0##*/}" "$1"
+        printf "%s: Too many operands: %s\n" "${0##*/}" "$1"
 
-        [ "$2" ] && printf " > max allowed: %d\n" "$2"
+        [ "$2" ] && printf " > max allowed: %s\n" "$2"
 
         printf "%s: Try '%s --help' for more information.\n" \
                "${0##*/}" "${0##*/}"
