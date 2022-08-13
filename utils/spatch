@@ -1319,13 +1319,14 @@ main_functions() {
     # ["$3"] - the next practicable operand
     #
     opd_max() {
-        set -- "${0##*/}" "$1" "$2" "$3"
-        if [ "$4" ]; then
-            printf "%s: Too many operands: '[%s]; [%s]; ...'\n" "$1" "$2" "$3"
+        if [ "$3" ]; then
+            printf "%s: Too many operands: '[%s]; [%s]; ...'\n" \
+                   "${0##*/}" "$1" "$2"
         else
-            printf "%s: Too many operands: '[%s]; [%s]'\n" "$1" "$2" "$3"
+            printf "%s: Too many operands: '[%s]; [%s]'\n" "${0##*/}" "$1" "$2"
         fi
-        printf "%s: Try '%s --help' for more information.\n" "$1" "$1"
+        printf "%s: Try '%s --help' for more information.\n" \
+               "${0##*/}" "${0##*/}"
     } 1>&2
 
     # Description:
