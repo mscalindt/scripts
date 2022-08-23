@@ -305,7 +305,7 @@ fswap_info() {
                            "'$TMP'."
 
     TMP=$(cat "$ss_path" 2> /dev/null)
-    case "$swappiness:$TMP" in
+    case $swappiness:$TMP in
         :)
             :
         ;;
@@ -319,7 +319,7 @@ fswap_info() {
     esac
 
     TMP=$(cat "$vfscp_path" 2> /dev/null)
-    case "$vfscp:$TMP" in
+    case $vfscp:$TMP in
         :)
             :
         ;;
@@ -339,7 +339,7 @@ fswap_info() {
 }
 
 fswap_work() {
-    case "$ssize" in
+    case $ssize in
         *"M" | *"MiB") ssize="${ssize%M*}K" ;;
         *"G" | *"GiB") ssize="${ssize%G*}M" ;;
         *"MB") ssize="${ssize%MB}KB" ;;
@@ -347,7 +347,7 @@ fswap_work() {
         *) err 2 "Wrong swap size specified. Supported units: M,G[B]" ;;
     esac
 
-    case "$ssize" in
+    case $ssize in
         *"B") bscount=1000 ;;
         *) bscount=1024 ;;
     esac
