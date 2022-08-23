@@ -502,7 +502,7 @@ _alock_get() {
 #
 _alock_test() {
     case "$1" in
-        *"@"*) return 2 ;;
+        *'@'*) return 2 ;;
     esac
 
     _str=$(pline 1 "$ALOCK") || return 3
@@ -522,7 +522,7 @@ _alock_test() {
 #
 _alock_write() {
     case "$1" in
-        *"@"*) return 1 ;;
+        *'@'*) return 1 ;;
     esac
 
     printf "@%s@ " "$1"
@@ -540,8 +540,8 @@ _commit() {
     set -- "$@" "$AMSG"
     set -- "$@" '--no-edit'
 
-    _alock_test "s" && set -- "$@" '--signoff'
-    _alock_test "S" && set -- "$@" '--gpg-sign'
+    _alock_test 's' && set -- "$@" '--signoff'
+    _alock_test 'S' && set -- "$@" '--gpg-sign'
 
     git commit "$@"
 }
@@ -574,8 +574,8 @@ _in_merge() {
 _admerge() {
     case ":$ncolor$NO_COLOR" in
         :)
-            ES_inf="\033[1;37m"
-            ES_res="\033[0m"
+            ES_inf='\033[1;37m'
+            ES_res='\033[0m'
 
             err() { err_clr "$@"; }
             git() { command git -c color.ui=always "$@"; }
@@ -600,20 +600,20 @@ admerge_env() {
 }
 
 admerge_check() {
-    [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
+    [ "$OBR" ] || err 2 'Failed to identify current branch. (not in .git dir?)'
     [ -f "$ALOCK" ] && err 2 "A merge is already in progress. ($ALOCK)"
     [ -f "$AMSG" ] && rm -f "$AMSG"
 }
 
 admerge_lock() {
-    printf " "
+    printf ' '
 
     _alock_write "$BRANCH"
 
-    [ "$soff" ] && _alock_write "s"
-    [ "$gsign" ] && _alock_write "S"
+    [ "$soff" ] && _alock_write 's'
+    [ "$gsign" ] && _alock_write 'S'
 
-    echo " "
+    echo ' '
 } >> "$ALOCK"
 
 admerge_msg() {
@@ -655,8 +655,8 @@ admerge_abort() {
     _admerge
     admerge_env
 
-    [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
-    [ -f "$ALOCK" ] || err 2 "No lock file found. (no merge in progress?)"
+    [ "$OBR" ] || err 2 'Failed to identify current branch. (not in .git dir?)'
+    [ -f "$ALOCK" ] || err 2 'No lock file found. (no merge in progress?)'
 
     if ! git merge --abort; then
         _in_merge && exit 1
@@ -669,8 +669,8 @@ admerge_continue() {
     _admerge
     admerge_env
 
-    [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
-    [ -f "$ALOCK" ] || err 2 "No lock file found. (no merge in progress?)"
+    [ "$OBR" ] || err 2 'Failed to identify current branch. (not in .git dir?)'
+    [ -f "$ALOCK" ] || err 2 'No lock file found. (no merge in progress?)'
 
     _commit || exit "$?"
 
@@ -681,8 +681,8 @@ admerge_status() {
     _admerge
     admerge_env
 
-    [ "$OBR" ] || err 2 "Failed to identify current branch. (not in .git dir?)"
-    [ -f "$ALOCK" ] || err 2 "No lock file found. (no merge in progress?)"
+    [ "$OBR" ] || err 2 'Failed to identify current branch. (not in .git dir?)'
+    [ -f "$ALOCK" ] || err 2 'No lock file found. (no merge in progress?)'
 
     printf "%bOur branch: [%b\n%s\n%b]%b\n" \
            "${ES_inf}" "${ES_res}" \
@@ -793,16 +793,16 @@ main_functions() {
         [ "$_opt" ] || return 1
 
         case "$_opt" in
-        "--"*)
+        '--'*)
             case "$1:$2" in
-                "--"*":$2") : ;;
+                '--'*":$2") : ;;
                 "$1:--"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
         ;;
-        "-"*)
+        '-'*)
             case "$1:$2" in
-                "-"*":$2") : ;;
+                '-'*":$2") : ;;
                 "$1:-"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -820,7 +820,7 @@ main_functions() {
         esac
 
         case "$_opt" in
-        "--"*)
+        '--'*)
             case "$_opt " in
                 "$1= ")
                     printf "%s: Invalid argument specification for: '%s'\n" \
@@ -839,7 +839,7 @@ main_functions() {
                 ;;
             esac
         ;;
-        "-"*)
+        '-'*)
             case "$_opt " in
                 "$1 ")
                     _opt=; _opt_match="$1"; _shiftN=2
@@ -879,9 +879,9 @@ main_functions() {
         [ "$_opt" ] || return 1
 
         case "$_opt" in
-        "--"*)
+        '--'*)
             case "$1:$2" in
-                "--"*":$2") : ;;
+                '--'*":$2") : ;;
                 "$1:--"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -904,9 +904,9 @@ main_functions() {
                 ;;
             esac
         ;;
-        "-"*)
+        '-'*)
             case "$1:$2" in
-                "-"*":$2") : ;;
+                '-'*":$2") : ;;
                 "$1:-"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -1216,9 +1216,9 @@ main_functions() {
         [ "$_opt" ] || return 1
 
         case "$_opt" in
-        "--"*)
+        '--'*)
             case "$1:$2" in
-                "--"*":$2") : ;;
+                '--'*":$2") : ;;
                 "$1:--"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -1230,9 +1230,9 @@ main_functions() {
                 ;;
             esac
         ;;
-        "-"*)
+        '-'*)
             case "$1:$2" in
-                "-"*":$2") : ;;
+                '-'*":$2") : ;;
                 "$1:-"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -1303,26 +1303,26 @@ options() {
     unset _sopt_index
 
     case "$_opt" in
-        "-"*)
-            sopt "--no-color" && { ncolor=1; }
-            sopt "-s" "--sign-off" && { soff=1; }
-            sopt "-S" "--gpg-sign" && { gsign=1; }
-            sopt "-v" "--git-version" && { gver=1; }
+        '-'*)
+            sopt '--no-color' && { ncolor=1; }
+            sopt '-s' '--sign-off' && { soff=1; }
+            sopt '-S' '--gpg-sign' && { gsign=1; }
+            sopt '-v' '--git-version' && { gver=1; }
         ;;
         *)
-            ssopt "a" "abort" && { merge_op=ABORT; }
-            ssopt "c" "continue" && { merge_op=CONTINUE; }
-            ssopt "s" "status" && { merge_op=STATUS; }
+            ssopt 'a' 'abort' && { merge_op=ABORT; }
+            ssopt 'c' 'continue' && { merge_op=CONTINUE; }
+            ssopt 's' 'status' && { merge_op=STATUS; }
         ;;
     esac
 
     [ "$_opt" ] || return 0
 
     case "$_opt" in
-        "--"*)
+        '--'*)
             opt_unrecognized "$_opt"; exit 2
         ;;
-        "-"*)
+        '-'*)
             case ":$_sopt_index" in
                 :) opt_invalid "${_opt%"${_opt#??}"}"; exit 2 ;;
             esac
@@ -1354,10 +1354,10 @@ main() {
 
         # Parse standard options
         #  > required to parse them first
-        ssopt "-" && { opt_invalid "$1"; exit 2; }
-        ssopt "--" && { shift && break; }
-        ssopt "--help" && { usage; exit 0; }
-        ssopt "--version" && { version; exit 0; }
+        ssopt '-' && { opt_invalid "$1"; exit 2; }
+        ssopt '--' && { shift && break; }
+        ssopt '--help' && { usage; exit 0; }
+        ssopt '--version' && { version; exit 0; }
 
         # Parse utility options
         #  > rc 1 if $_opt is not a valid option

@@ -252,10 +252,10 @@ _fwrite() {
 _fswap() {
     case ":$ncolor$NO_COLOR" in
         :)
-            ES_inf="\033[1;37m"
-            ES_neg="\033[1;31m"
-            ES_pos="\033[1;32m"
-            ES_res="\033[0m"
+            ES_inf='\033[1;37m'
+            ES_neg='\033[1;31m'
+            ES_pos='\033[1;32m'
+            ES_res='\033[0m'
 
             err() { err_clr "$@"; }
             info() { info_clr "$@"; }
@@ -285,7 +285,7 @@ fswap_env() {
 fswap_check() {
     case $(id -u) in
         0) : ;;
-        *) err 2 "EUID is not 0. (no root)" ;;
+        *) err 2 'EUID is not 0. (no root)' ;;
     esac
 
     swapoff -a || exit "$?"
@@ -340,23 +340,23 @@ fswap_info() {
 
 fswap_work() {
     case $ssize in
-        *"M" | *"MiB") ssize="${ssize%M*}K" ;;
-        *"G" | *"GiB") ssize="${ssize%G*}M" ;;
-        *"MB") ssize="${ssize%MB}KB" ;;
-        *"GB") ssize="${ssize%GB}MB" ;;
-        *) err 2 "Wrong swap size specified. Supported units: M,G[B]" ;;
+        *'M' | *'MiB') ssize="${ssize%M*}K" ;;
+        *'G' | *'GiB') ssize="${ssize%G*}M" ;;
+        *'MB') ssize="${ssize%MB}KB" ;;
+        *'GB') ssize="${ssize%GB}MB" ;;
+        *) err 2 'Wrong swap size specified. Supported units: M,G[B]' ;;
     esac
 
     case $ssize in
-        *"B") bscount=1000 ;;
+        *'B') bscount=1000 ;;
         *) bscount=1024 ;;
     esac
 }
 
 fswap_exec() {
-    dd "if=/dev/zero" "of=$sfile" \
+    dd 'if=/dev/zero' "of=$sfile" \
        "bs=$ssize" "count=$bscount" \
-       "status=progress" && \
+       'status=progress' && \
     chmod 600 "$sfile" && \
     mkswap "$sfile" && \
     swapon "$sfile"
@@ -452,16 +452,16 @@ main_functions() {
         [ "$_opt" ] || return 1
 
         case "$_opt" in
-        "--"*)
+        '--'*)
             case "$1:$2" in
-                "--"*":$2") : ;;
+                '--'*":$2") : ;;
                 "$1:--"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
         ;;
-        "-"*)
+        '-'*)
             case "$1:$2" in
-                "-"*":$2") : ;;
+                '-'*":$2") : ;;
                 "$1:-"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -479,7 +479,7 @@ main_functions() {
         esac
 
         case "$_opt" in
-        "--"*)
+        '--'*)
             case "$_opt " in
                 "$1= ")
                     printf "%s: Invalid argument specification for: '%s'\n" \
@@ -498,7 +498,7 @@ main_functions() {
                 ;;
             esac
         ;;
-        "-"*)
+        '-'*)
             case "$_opt " in
                 "$1 ")
                     _opt=; _opt_match="$1"; _shiftN=2
@@ -538,9 +538,9 @@ main_functions() {
         [ "$_opt" ] || return 1
 
         case "$_opt" in
-        "--"*)
+        '--'*)
             case "$1:$2" in
-                "--"*":$2") : ;;
+                '--'*":$2") : ;;
                 "$1:--"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -563,9 +563,9 @@ main_functions() {
                 ;;
             esac
         ;;
-        "-"*)
+        '-'*)
             case "$1:$2" in
-                "-"*":$2") : ;;
+                '-'*":$2") : ;;
                 "$1:-"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -875,9 +875,9 @@ main_functions() {
         [ "$_opt" ] || return 1
 
         case "$_opt" in
-        "--"*)
+        '--'*)
             case "$1:$2" in
-                "--"*":$2") : ;;
+                '--'*":$2") : ;;
                 "$1:--"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -889,9 +889,9 @@ main_functions() {
                 ;;
             esac
         ;;
-        "-"*)
+        '-'*)
             case "$1:$2" in
-                "-"*":$2") : ;;
+                '-'*":$2") : ;;
                 "$1:-"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -962,17 +962,17 @@ options() {
     unset _sopt_index
 
     case "$_opt" in
-        "-"*)
-            sopt "--no-color" && { ncolor=1; }
-            sopt "-c" "--check" && { op=CHECK; }
+        '-'*)
+            sopt '--no-color' && { ncolor=1; }
+            sopt '-c' '--check' && { op=CHECK; }
 
-            copt "-l" "--location" && {
+            copt '-l' '--location' && {
                 sfile=$(get_fpath "$_opt_arg")
             }
-            copt "-s" "--size" && {
+            copt '-s' '--size' && {
                 ssize="$_opt_arg"
             }
-            copt "-S" "--swappiness" && {
+            copt '-S' '--swappiness' && {
                 swappiness="$_opt_arg"
 
                 {
@@ -981,7 +981,7 @@ options() {
                     opt_err "$_opt_match" "$swappiness"; exit 2
                 }
             }
-            copt "-v" "--vfs-cache-pressure" && {
+            copt '-v' '--vfs-cache-pressure' && {
                 vfscp="$_opt_arg"
 
                 {
@@ -996,10 +996,10 @@ options() {
     [ "$_opt" ] || return 0
 
     case "$_opt" in
-        "--"*)
+        '--'*)
             opt_unrecognized "$_opt"; exit 2
         ;;
-        "-"*)
+        '-'*)
             case ":$_sopt_index" in
                 :) opt_invalid "${_opt%"${_opt#??}"}"; exit 2 ;;
             esac
@@ -1031,10 +1031,10 @@ main() {
 
         # Parse standard options
         #  > required to parse them first
-        ssopt "-" && { opt_invalid "$1"; exit 2; }
-        ssopt "--" && { opt_invalid "$1"; exit 2; }
-        ssopt "--help" && { usage; exit 0; }
-        ssopt "--version" && { version; exit 0; }
+        ssopt '-' && { opt_invalid "$1"; exit 2; }
+        ssopt '--' && { opt_invalid "$1"; exit 2; }
+        ssopt '--help' && { usage; exit 0; }
+        ssopt '--version' && { version; exit 0; }
 
         # Parse utility options
         #  > rc 1 if $_opt is not a valid option

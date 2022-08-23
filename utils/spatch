@@ -897,7 +897,7 @@ _get_url() {
     elif command -v wget > /dev/null 2>&1; then
         set -- 'wget' "$@"
     else
-        err 127 "No URL download tool available. (curl/wget)"
+        err 127 'No URL download tool available. (curl/wget)'
     fi
 
     "$@"
@@ -953,7 +953,7 @@ spatch_exec() {
     done < "$FILE"; wait; [ "$verbose" ] && unset CNT
 
     case $(fcount "${TMPDIR:-/tmp}" '1.patch' 3) in
-        0) spatch_post; err 1 "No patches found." ;;
+        0) spatch_post; err 1 'No patches found.' ;;
     esac
 
     [ "$purl" ] && SFILE=$(parse "$FILE" 1)
@@ -974,7 +974,7 @@ spatch_exec() {
     )
 
     SFILE=$(
-        echo "$SFILE" | sort -t " " -k4.1,4.4 -k3.1,3.3M -k2.1n \
+        echo "$SFILE" | sort -t ' ' -k4.1,4.4 -k3.1,3.3M -k2.1n \
                                     -k5.1,5.2 -k5.4,5.5 -k5.7,5.8
     )
 
@@ -1099,16 +1099,16 @@ main_functions() {
         [ "$_opt" ] || return 1
 
         case "$_opt" in
-        "--"*)
+        '--'*)
             case "$1:$2" in
-                "--"*":$2") : ;;
+                '--'*":$2") : ;;
                 "$1:--"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
         ;;
-        "-"*)
+        '-'*)
             case "$1:$2" in
-                "-"*":$2") : ;;
+                '-'*":$2") : ;;
                 "$1:-"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -1126,7 +1126,7 @@ main_functions() {
         esac
 
         case "$_opt" in
-        "--"*)
+        '--'*)
             case "$_opt " in
                 "$1= ")
                     printf "%s: Invalid argument specification for: '%s'\n" \
@@ -1145,7 +1145,7 @@ main_functions() {
                 ;;
             esac
         ;;
-        "-"*)
+        '-'*)
             case "$_opt " in
                 "$1 ")
                     _opt=; _opt_match="$1"; _shiftN=2
@@ -1185,9 +1185,9 @@ main_functions() {
         [ "$_opt" ] || return 1
 
         case "$_opt" in
-        "--"*)
+        '--'*)
             case "$1:$2" in
-                "--"*":$2") : ;;
+                '--'*":$2") : ;;
                 "$1:--"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -1210,9 +1210,9 @@ main_functions() {
                 ;;
             esac
         ;;
-        "-"*)
+        '-'*)
             case "$1:$2" in
-                "-"*":$2") : ;;
+                '-'*":$2") : ;;
                 "$1:-"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -1522,9 +1522,9 @@ main_functions() {
         [ "$_opt" ] || return 1
 
         case "$_opt" in
-        "--"*)
+        '--'*)
             case "$1:$2" in
-                "--"*":$2") : ;;
+                '--'*":$2") : ;;
                 "$1:--"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -1536,9 +1536,9 @@ main_functions() {
                 ;;
             esac
         ;;
-        "-"*)
+        '-'*)
             case "$1:$2" in
-                "-"*":$2") : ;;
+                '-'*":$2") : ;;
                 "$1:-"*) set -- "$2" ;;
                 *) return 1 ;;
             esac
@@ -1609,17 +1609,17 @@ options() {
     unset _sopt_index
 
     case "$_opt" in
-        "-"*)
-            sopt "--no-color" && { ncolor=1; }
-            sopt "-d" "--direct-url" && { durl=1; }
-            sopt "-i" "--invert-sort" && { invert=1; }
-            sopt "-l" "--line-numbers" && { lnumbers=1; }
-            sopt "-p" "--preserve-url" && { purl=1; }
-            sopt "-s" "--short-commit" && { scommit=1; }
-            sopt "-t" "--timestamp" && { tstamp=1; }
-            sopt "-v" "--verbose" && { verbose=1; }
+        '-'*)
+            sopt '--no-color' && { ncolor=1; }
+            sopt '-d' '--direct-url' && { durl=1; }
+            sopt '-i' '--invert-sort' && { invert=1; }
+            sopt '-l' '--line-numbers' && { lnumbers=1; }
+            sopt '-p' '--preserve-url' && { purl=1; }
+            sopt '-s' '--short-commit' && { scommit=1; }
+            sopt '-t' '--timestamp' && { tstamp=1; }
+            sopt '-v' '--verbose' && { verbose=1; }
 
-            copt "-o" "--output" && {
+            copt '-o' '--output' && {
                 tfile=$(get_fpath "$_opt_arg")
             }
         ;;
@@ -1628,10 +1628,10 @@ options() {
     [ "$_opt" ] || return 0
 
     case "$_opt" in
-        "--"*)
+        '--'*)
             opt_unrecognized "$_opt"; exit 2
         ;;
-        "-"*)
+        '-'*)
             case ":$_sopt_index" in
                 :) opt_invalid "${_opt%"${_opt#??}"}"; exit 2 ;;
             esac
@@ -1663,10 +1663,10 @@ main() {
 
         # Parse standard options
         #  > required to parse them first
-        ssopt "-" && { opt_invalid "$1"; exit 2; }
-        ssopt "--" && { shift && break; }
-        ssopt "--help" && { usage; exit 0; }
-        ssopt "--version" && { version; exit 0; }
+        ssopt '-' && { opt_invalid "$1"; exit 2; }
+        ssopt '--' && { shift && break; }
+        ssopt '--help' && { usage; exit 0; }
+        ssopt '--version' && { version; exit 0; }
 
         # Parse utility options
         #  > rc 1 if $_opt is not a valid option
