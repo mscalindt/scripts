@@ -578,13 +578,13 @@ _admerge() {
             ES_res='\033[0m'
 
             err() { err_clr "$@"; }
-            git() { command git -c color.ui=always "$@"; }
+            git() { command git -c 'color.ui=always' "$@"; }
         ;;
         *)
             ES_inf=
             ES_res=
 
-            git() { command git -c color.ui=never "$@"; }
+            git() { command git -c 'color.ui=never' "$@"; }
         ;;
     esac
 
