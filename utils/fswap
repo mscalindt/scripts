@@ -250,7 +250,7 @@ _fwrite() {
 }
 
 _fswap() {
-    case ":$ncolor$NO_COLOR" in
+    case :"$ncolor$NO_COLOR" in
         :)
             ES_inf='\033[1;37m'
             ES_neg='\033[1;31m'
@@ -340,10 +340,10 @@ fswap_info() {
 
 fswap_work() {
     case $ssize in
-        *'M' | *'MiB') ssize="${ssize%M*}K" ;;
-        *'G' | *'GiB') ssize="${ssize%G*}M" ;;
-        *'MB') ssize="${ssize%MB}KB" ;;
-        *'GB') ssize="${ssize%GB}MB" ;;
+        *'M' | *'MiB') ssize="${ssize%M*}"K ;;
+        *'G' | *'GiB') ssize="${ssize%G*}"M ;;
+        *'MB') ssize="${ssize%MB}"KB ;;
+        *'GB') ssize="${ssize%GB}"MB ;;
         *) err 2 'Wrong swap size specified. Supported units: M,G[B]' ;;
     esac
 
@@ -403,25 +403,25 @@ main_functions() {
     assert() {
         case $1 in
             1)
-                case "$2:${2#*[!0123456789]}" in
+                case :"$2${2#*[!0123456789]}" in
                     :) return 1 ;;
-                    "$2:$2") : ;;
+                    :"$2$2") : ;;
                     *) return 1 ;;
                 esac
             ;;
             2)
-                case "$2:${2#*[!0123456789]}" in
+                case :"$2${2#*[!0123456789]}" in
                     :) return 1 ;;
-                    0:0) : ;;
-                    0*) return 1 ;;
-                    "$2:$2") : ;;
+                    :00) : ;;
+                    :0*) return 1 ;;
+                    :"$2$2") : ;;
                     *) return 1 ;;
                 esac
             ;;
             3)
-                case "$2:${2#*[!0123456789]}" in
-                    : | 0*) return 1 ;;
-                    "$2:$2") : ;;
+                case :"$2${2#*[!0123456789]}" in
+                    : | :0*) return 1 ;;
+                    :"$2$2") : ;;
                     *) return 1 ;;
                 esac
             ;;
@@ -449,67 +449,67 @@ main_functions() {
     # (1) no match
     #
     copt() {
+        copt_arg_invalid() {
+            printf "%s: Invalid argument specification for: '%s'\n" \
+                   "${0##*/}" "$1" 1>&2
+            printf "%s: Try '%s --help' for more information.\n" \
+                   "${0##*/}" "${0##*/}" 1>&2
+        }
+        copt_arg_missing() {
+            printf "%s: Option '%s' requires an argument.\n" \
+                   "${0##*/}" "$1" 1>&2
+            printf "%s: Try '%s --help' for more information.\n" \
+                   "${0##*/}" "${0##*/}" 1>&2
+        }
+
         [ "$_opt" ] || return 1
 
         case "$_opt" in
-        '--'*)
-            case "$1:$2" in
-                '--'*":$2") : ;;
-                "$1:--"*) set -- "$2" ;;
-                *) return 1 ;;
-            esac
-        ;;
-        '-'*)
-            case "$1:$2" in
-                '-'*":$2") : ;;
-                "$1:-"*) set -- "$2" ;;
-                *) return 1 ;;
-            esac
-        ;;
-        esac
+            '--'*)
+                case "$1$2" in
+                    '--'*) : ;;
+                    "$1"'--'*) set -- "$2" ;;
+                    *) return 1 ;;
+                esac
 
-        case "$_opt_arg:$_opt " in
-            :"$1 ")
-                printf "%s: Option '%s' requires an argument.\n" \
-                       "${0##*/}" "$1" 1>&2
-                printf "%s: Try '%s --help' for more information.\n" \
-                       "${0##*/}" "${0##*/}" 1>&2
-                exit 2
-           ;;
-        esac
+                case "$_opt " in
+                    "$1"'= ')
+                        copt_arg_invalid "$1"
+                        exit 2
+                    ;;
+                    "$1"'='*)
+                        _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; \
+                        _shiftN=1
+                        return 0
+                    ;;
+                    "$1"' ')
+                        [ "$_opt_arg" ] || { copt_arg_missing "$1"; exit 2; }
 
-        case "$_opt" in
-        '--'*)
-            case "$_opt " in
-                "$1= ")
-                    printf "%s: Invalid argument specification for: '%s'\n" \
-                           "${0##*/}" "$1" 1>&2
-                    printf "%s: Try '%s --help' for more information.\n" \
-                           "${0##*/}" "${0##*/}" 1>&2
-                    exit 2
-                ;;
-                "$1 ")
-                    _opt=; _opt_match="$1"; _shiftN=2
-                    return 0
-                ;;
-                "$1="*)
-                    _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; _shiftN=1
-                    return 0
-                ;;
-            esac
-        ;;
-        '-'*)
-            case "$_opt " in
-                "$1 ")
-                    _opt=; _opt_match="$1"; _shiftN=2
-                    return 0
-                ;;
-                "$1"*)
-                    _opt_arg="${_opt#"$1"}"; _opt=; _opt_match="$1"; _shiftN=1
-                    return 0
-                ;;
-            esac
-        ;;
+                        _opt=; _opt_match="$1"; _shiftN=2
+                        return 0
+                    ;;
+                esac
+            ;;
+            '-'*)
+                case "$1$2" in
+                    '-'*) : ;;
+                    *) return 1 ;;
+                esac
+
+                case "$_opt " in
+                    "$1"' ')
+                        [ "$_opt_arg" ] || { copt_arg_missing "$1"; exit 2; }
+
+                        _opt=; _opt_match="$1"; _shiftN=2
+                        return 0
+                    ;;
+                    "$1"*)
+                        _opt_arg="${_opt#"$1"}"; _opt=; _opt_match="$1"; \
+                        _shiftN=1
+                        return 0
+                    ;;
+                esac
+            ;;
         esac
 
         return 1
@@ -535,52 +535,57 @@ main_functions() {
     # (1) no match
     #
     copt_optional() {
+        copt_arg_invalid() {
+            printf "%s: Invalid argument specification for: '%s'\n" \
+                   "${0##*/}" "$1" 1>&2
+            printf "%s: Try '%s --help' for more information.\n" \
+                   "${0##*/}" "${0##*/}" 1>&2
+        }
+
         [ "$_opt" ] || return 1
 
         case "$_opt" in
-        '--'*)
-            case "$1:$2" in
-                '--'*":$2") : ;;
-                "$1:--"*) set -- "$2" ;;
-                *) return 1 ;;
-            esac
+            '--'*)
+                case "$1$2" in
+                    '--'*) : ;;
+                    "$1"'--'*) set -- "$2" ;;
+                    *) return 1 ;;
+                esac
 
-            case "$_opt" in
-                "$1=")
-                    printf "%s: Invalid argument specification for: '%s'\n" \
-                           "${0##*/}" "$1" 1>&2
-                    printf "%s: Try '%s --help' for more information.\n" \
-                           "${0##*/}" "${0##*/}" 1>&2
-                    exit 2
-                ;;
-                "$1")
-                    _opt=; _opt_arg=; _opt_match="$1"; _shiftN=1
-                    return 0
-                ;;
-                "$1="*)
-                    _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; _shiftN=1
-                    return 0
-                ;;
-            esac
-        ;;
-        '-'*)
-            case "$1:$2" in
-                '-'*":$2") : ;;
-                "$1:-"*) set -- "$2" ;;
-                *) return 1 ;;
-            esac
+                case "$_opt" in
+                    "$1"'=')
+                        copt_arg_invalid "$1"
+                        exit 2
+                    ;;
+                    "$1"'='*)
+                        _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; \
+                        _shiftN=1
+                        return 0
+                    ;;
+                    "$1")
+                        _opt=; _opt_arg=; _opt_match="$1"; _shiftN=1
+                        return 0
+                    ;;
+                esac
+            ;;
+            '-'*)
+                case "$1$2" in
+                    '-'*) : ;;
+                    *) return 1 ;;
+                esac
 
-            case "$_opt" in
-                "$1")
-                    _opt=; _opt_arg=; _opt_match="$1"; _shiftN=1
-                    return 0
-                ;;
-                "$1"*)
-                    _opt_arg="${_opt#"$1"}"; _opt=; _opt_match="$1"; _shiftN=1
-                    return 0
-                ;;
-            esac
-        ;;
+                case "$_opt" in
+                    "$1")
+                        _opt=; _opt_arg=; _opt_match="$1"; _shiftN=1
+                        return 0
+                    ;;
+                    "$1"*)
+                        _opt_arg="${_opt#"$1"}"; _opt=; _opt_match="$1"; \
+                        _shiftN=1
+                        return 0
+                    ;;
+                esac
+            ;;
         esac
 
         return 1
@@ -772,30 +777,35 @@ main_functions() {
     # (1) no match
     #
     scopt() {
+        scopt_arg_invalid() {
+            printf "%s: Invalid argument specification for: '%s'\n" \
+                   "${0##*/}" "$1" 1>&2
+            printf "%s: Try '%s --help' for more information.\n" \
+                   "${0##*/}" "${0##*/}" 1>&2
+        }
+        scopt_arg_missing() {
+            printf "%s: Option '%s' requires an argument.\n" \
+                   "${0##*/}" "$1" 1>&2
+            printf "%s: Try '%s --help' for more information.\n" \
+                   "${0##*/}" "${0##*/}" 1>&2
+        }
+
         [ "$_opt" ] || return 1
 
         while [ "$1" ]; do
-            case "$_opt_arg:$_opt " in
-                :"$1 ")
-                    printf "%s: Option '%s' requires an argument.\n" \
-                           "${0##*/}" "$1" 1>&2
-                    printf "%s: Try '%s --help' for more information.\n" \
-                           "${0##*/}" "${0##*/}" 1>&2
+            case "$_opt " in
+                "$1"'= ')
+                    scopt_arg_invalid "$1"
                     exit 2
                 ;;
-                "$_opt_arg:$1= ")
-                    printf "%s: Invalid argument specification for: '%s'\n" \
-                           "${0##*/}" "$1" 1>&2
-                    printf "%s: Try '%s --help' for more information.\n" \
-                           "${0##*/}" "${0##*/}" 1>&2
-                    exit 2
-                ;;
-                "$_opt_arg:$1 ")
-                    _opt=; _opt_match="$1"; _shiftN=2
+                "$1"'='*)
+                    _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
-                "$_opt_arg:$1="*)
-                    _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; _shiftN=1
+                "$1"' ')
+                    [ "$_opt_arg" ] || { scopt_arg_missing "$1"; exit 2; }
+
+                    _opt=; _opt_match="$1"; _shiftN=2
                     return 0
                 ;;
             esac
@@ -825,23 +835,27 @@ main_functions() {
     # (1) no match
     #
     scopt_optional() {
+        scopt_arg_invalid() {
+            printf "%s: Invalid argument specification for: '%s'\n" \
+                   "${0##*/}" "$1" 1>&2
+            printf "%s: Try '%s --help' for more information.\n" \
+                   "${0##*/}" "${0##*/}" 1>&2
+        }
+
         [ "$_opt" ] || return 1
 
         while [ "$1" ]; do
             case "$_opt" in
-                "$1=")
-                    printf "%s: Invalid argument specification for: '%s'\n" \
-                           "${0##*/}" "$1" 1>&2
-                    printf "%s: Try '%s --help' for more information.\n" \
-                           "${0##*/}" "${0##*/}" 1>&2
+                "$1"'=')
+                    scopt_arg_invalid "$1"
                     exit 2
+                ;;
+                "$1"'='*)
+                    _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; _shiftN=1
+                    return 0
                 ;;
                 "$1")
                     _opt=; _opt_arg=; _opt_match="$1"; _shiftN=1
-                    return 0
-                ;;
-                "$1="*)
-                    _opt_arg="${_opt#"$1"=}"; _opt=; _opt_match="$1"; _shiftN=1
                     return 0
                 ;;
             esac
@@ -875,39 +889,38 @@ main_functions() {
         [ "$_opt" ] || return 1
 
         case "$_opt" in
-        '--'*)
-            case "$1:$2" in
-                '--'*":$2") : ;;
-                "$1:--"*) set -- "$2" ;;
-                *) return 1 ;;
-            esac
+            '--'*)
+                case "$1$2" in
+                    '--'*) : ;;
+                    "$1"'--'*) set -- "$2" ;;
+                    *) return 1 ;;
+                esac
 
-            case "$_opt" in
-                "$1")
-                    _opt=; _opt_match="$1"; _shiftN=1
-                    return 0
-                ;;
-            esac
-        ;;
-        '-'*)
-            case "$1:$2" in
-                '-'*":$2") : ;;
-                "$1:-"*) set -- "$2" ;;
-                *) return 1 ;;
-            esac
+                case "$_opt" in
+                    "$1")
+                        _opt=; _opt_match="$1"; _shiftN=1
+                        return 0
+                    ;;
+                esac
+            ;;
+            '-'*)
+                case "$1$2" in
+                    '-'*) : ;;
+                    *) return 1 ;;
+                esac
 
-            case "$_opt" in
-                "$1"*)
-                    case ":$_sopt_index" in
-                        :) _sopt_index="${1#?}" ;;
-                        *) _sopt_index="$_sopt_index${1#?}" ;;
-                    esac
+                case "$_opt" in
+                    "$1"*)
+                        case :"$_sopt_index" in
+                            :) _sopt_index="${1#?}" ;;
+                            *) _sopt_index="$_sopt_index${1#?}" ;;
+                        esac
 
-                    _opt="-${_opt#??}"; _opt_match="$1"; _shiftN=1
-                    return 0
-               ;;
-            esac
-        ;;
+                        _opt="-${_opt#??}"; _opt_match="$1"; _shiftN=1
+                        return 0
+                    ;;
+                esac
+            ;;
         esac
 
         return 1
@@ -1000,7 +1013,7 @@ options() {
             opt_unrecognized "$_opt"; exit 2
         ;;
         '-'*)
-            case ":$_sopt_index" in
+            case :"$_sopt_index" in
                 :) opt_invalid "${_opt%"${_opt#??}"}"; exit 2 ;;
             esac
 
