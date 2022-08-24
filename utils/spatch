@@ -1357,7 +1357,7 @@ main_functions() {
         shift 2
 
         if [ "$1" ]; then
-            printf "Valid arguments are:\n"
+            echo "Valid arguments are:"
 
             while [ "$1" ]; do
                 printf " > '%s'\n" "$1"; shift
