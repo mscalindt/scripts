@@ -590,10 +590,12 @@ _admerge() {
 
     hash git > /dev/null 2>&1
 
+    LANG_Cgo() { WIxPdnq3AX2uzCuR="$LANG"; export LANG=C; }
+    LANG_Cstop() { export LANG="$WIxPdnq3AX2uzCuR"; }
     LC_Cgo() { agj5k97oN05exMQq="$LC_ALL"; export LC_ALL=C; }
     LC_Cstop() { export LC_ALL="$agj5k97oN05exMQq"; }
 
-    LC_Cgo;
+    LC_Cgo; LANG_Cgo;
 }
 
 admerge_env() {
