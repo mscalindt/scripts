@@ -911,6 +911,11 @@ _spatch() {
             warn() { warn_clr "$@"; }
         ;;
     esac
+
+    LC_Cgo() { agj5k97oN05exMQq="$LC_ALL"; export LC_ALL=C; }
+    LC_Cstop() { export LC_ALL="$agj5k97oN05exMQq"; }
+
+    LC_Cgo;
 }
 
 spatch_env() {

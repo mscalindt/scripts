@@ -269,6 +269,11 @@ _fswap() {
             ES_res=
         ;;
     esac
+
+    LC_Cgo() { agj5k97oN05exMQq="$LC_ALL"; export LC_ALL=C; }
+    LC_Cstop() { export LC_ALL="$agj5k97oN05exMQq"; }
+
+    LC_Cgo;
 }
 
 fswap_env() {

@@ -589,6 +589,11 @@ _admerge() {
     esac
 
     hash git > /dev/null 2>&1
+
+    LC_Cgo() { agj5k97oN05exMQq="$LC_ALL"; export LC_ALL=C; }
+    LC_Cstop() { export LC_ALL="$agj5k97oN05exMQq"; }
+
+    LC_Cgo;
 }
 
 admerge_env() {
