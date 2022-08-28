@@ -888,10 +888,8 @@ warn_clr() {
 # <"$1"+> - URL
 #
 # Uses:
-# <err> ()
-#
-# Uses:
 # <"$@"> - {state - URL(s)}; []
+# <err> ()
 #
 _get_url() {
     if command -v curl > /dev/null 2>&1; then
