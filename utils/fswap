@@ -1003,7 +1003,7 @@ main_functions() {
 # Parse utility options
 #
 # Uses:
-# <"$_opt"> - {state - anything}; [iteration - X]
+# <_opt> $ - {state - anything}; [iteration - X]
 #
 # Returns:
 # (0) $_opt has been parsed
