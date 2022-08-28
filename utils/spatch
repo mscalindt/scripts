@@ -63,6 +63,8 @@ Options:
   -t, --timestamp            append timestamp to the sort output
   -v, --verbose              show additional information unrelated to the sort
                              output
+      --language <LANG>      custom LANG for LANG
+      --locale <LANG>        custom LANG for LC_ALL
       --no-color             colorless output on all streams
       --help     display this help text and exit
       --version  display version information and exit
@@ -912,12 +914,41 @@ _spatch() {
         ;;
     esac
 
-    LANG_Cgo() { WIxPdnq3AX2uzCuR="$LANG"; export LANG=C; }
-    LANG_Cstop() { export LANG="$WIxPdnq3AX2uzCuR"; }
-    LC_Cgo() { agj5k97oN05exMQq="$LC_ALL"; export LC_ALL=C; }
-    LC_Cstop() { export LC_ALL="$agj5k97oN05exMQq"; }
+    case :"$locale" in
+        :)
+            LCgo() {
+                agj5k97oN05exMQq="$LC_ALL"
+                export LC_ALL=C
+            }
+        ;;
+        *)
+            LCgo() {
+                agj5k97oN05exMQq="$LC_ALL"
+                export LC_ALL="$locale"
+            }
+        ;;
+    esac
+    LCstop() { export LC_ALL="$agj5k97oN05exMQq"; }
+    LCreset() { LCstop; LCgo; }
 
-    LC_Cgo; LANG_Cgo;
+    case :"$language" in
+        :)
+            LANGgo() {
+                WIxPdnq3AX2uzCuR="$LANG"
+                export LANG=C
+            }
+        ;;
+        *)
+            LANGgo() {
+                WIxPdnq3AX2uzCuR="$LANG"
+                export LANG="$language"
+            }
+        ;;
+    esac
+    LANGstop() { export LANG="$WIxPdnq3AX2uzCuR"; }
+    LANGreset() { LANGstop; LANGgo; }
+
+    LCgo; LANGgo;
 }
 
 spatch_env() {
@@ -1639,6 +1670,12 @@ options() {
             sopt '-t' '--timestamp' && { tstamp=1; }
             sopt '-v' '--verbose' && { verbose=1; }
 
+            copt "--language" && {
+                language="$_opt_arg"
+            }
+            copt "--locale" && {
+                locale="$_opt_arg"
+            }
             copt '-o' '--output' && {
                 tfile=$(get_fpath "$_opt_arg")
             }

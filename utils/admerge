@@ -57,6 +57,8 @@ Options:
                              and user.signingkey for seamless work
   -v, --git-version          print the git version at the end of the commit
                              message
+      --language <LANG>      custom LANG for LANG
+      --locale <LANG>        custom LANG for LC_ALL
       --no-color             colorless output on all streams
       --help     display this help text and exit
       --version  display version information and exit
@@ -590,12 +592,41 @@ _admerge() {
 
     hash git > /dev/null 2>&1
 
-    LANG_Cgo() { WIxPdnq3AX2uzCuR="$LANG"; export LANG=C; }
-    LANG_Cstop() { export LANG="$WIxPdnq3AX2uzCuR"; }
-    LC_Cgo() { agj5k97oN05exMQq="$LC_ALL"; export LC_ALL=C; }
-    LC_Cstop() { export LC_ALL="$agj5k97oN05exMQq"; }
+    case :"$locale" in
+        :)
+            LCgo() {
+                agj5k97oN05exMQq="$LC_ALL"
+                export LC_ALL=C
+            }
+        ;;
+        *)
+            LCgo() {
+                agj5k97oN05exMQq="$LC_ALL"
+                export LC_ALL="$locale"
+            }
+        ;;
+    esac
+    LCstop() { export LC_ALL="$agj5k97oN05exMQq"; }
+    LCreset() { LCstop; LCgo; }
 
-    LC_Cgo; LANG_Cgo;
+    case :"$language" in
+        :)
+            LANGgo() {
+                WIxPdnq3AX2uzCuR="$LANG"
+                export LANG=C
+            }
+        ;;
+        *)
+            LANGgo() {
+                WIxPdnq3AX2uzCuR="$LANG"
+                export LANG="$language"
+            }
+        ;;
+    esac
+    LANGstop() { export LANG="$WIxPdnq3AX2uzCuR"; }
+    LANGreset() { LANGstop; LANGgo; }
+
+    LCgo; LANGgo;
 }
 
 admerge_env() {
@@ -1328,6 +1359,13 @@ options() {
             sopt '-s' '--sign-off' && { soff=1; }
             sopt '-S' '--gpg-sign' && { gsign=1; }
             sopt '-v' '--git-version' && { gver=1; }
+
+            copt "--language" && {
+                language="$_opt_arg"
+            }
+            copt "--locale" && {
+                locale="$_opt_arg"
+            }
         ;;
         *)
             ssopt 'a' 'abort' && { merge_op=ABORT; }
