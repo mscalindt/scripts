@@ -1660,6 +1660,13 @@ options() {
     case "$_opt" in
         '-'*)
             sopt '--no-color' && { ncolor=1; }
+            copt "--language" && {
+                language="$_opt_arg"
+            }
+            copt "--locale" && {
+                locale="$_opt_arg"
+            }
+
             sopt '-d' '--direct-url' && { durl=1; }
             sopt '-i' '--invert-sort' && { invert=1; }
             sopt '-l' '--line-numbers' && { lnumbers=1; }
@@ -1668,12 +1675,6 @@ options() {
             sopt '-t' '--timestamp' && { tstamp=1; }
             sopt '-v' '--verbose' && { verbose=1; }
 
-            copt "--language" && {
-                language="$_opt_arg"
-            }
-            copt "--locale" && {
-                locale="$_opt_arg"
-            }
             copt '-o' '--output' && {
                 tfile=$(get_fpath "$_opt_arg")
             }

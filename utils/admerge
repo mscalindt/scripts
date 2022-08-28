@@ -1356,16 +1356,16 @@ options() {
     case "$_opt" in
         '-'*)
             sopt '--no-color' && { ncolor=1; }
-            sopt '-s' '--sign-off' && { soff=1; }
-            sopt '-S' '--gpg-sign' && { gsign=1; }
-            sopt '-v' '--git-version' && { gver=1; }
-
             copt "--language" && {
                 language="$_opt_arg"
             }
             copt "--locale" && {
                 locale="$_opt_arg"
             }
+
+            sopt '-s' '--sign-off' && { soff=1; }
+            sopt '-S' '--gpg-sign' && { gsign=1; }
+            sopt '-v' '--git-version' && { gver=1; }
         ;;
         *)
             ssopt 'a' 'abort' && { merge_op=ABORT; }

@@ -1015,14 +1015,15 @@ options() {
     case "$_opt" in
         '-'*)
             sopt '--no-color' && { ncolor=1; }
-            sopt '-c' '--check' && { op=CHECK; }
-
             copt "--language" && {
                 language="$_opt_arg"
             }
             copt "--locale" && {
                 locale="$_opt_arg"
             }
+
+            sopt '-c' '--check' && { op=CHECK; }
+
             copt '-l' '--location' && {
                 sfile=$(get_fpath "$_opt_arg")
             }
