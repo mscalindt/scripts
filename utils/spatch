@@ -900,7 +900,7 @@ _get_url() {
         err 127 'No URL download tool available. (curl/wget)'
     fi
 
-    "$@"
+    "$@" > /dev/null 2>&1 &
 }
 
 _spatch() {
@@ -987,7 +987,7 @@ spatch_exec() {
             info "URL ($NUM): '$LINE'."
         fi
 
-        _get_url "$LINE" > /dev/null 2>&1 &
+        _get_url "$LINE"
     done < "$FILE"; wait; [ "$verbose" ] && unset CNT
 
     case $(fcount "${TMPDIR:-/tmp}" '1.patch' 3) in
