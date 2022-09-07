@@ -909,6 +909,8 @@ _spatch() {
             err() { err_clr "$@"; }
             info() { info_clr "$@"; }
             warn() { warn_clr "$@"; }
+
+            [ "$NO_COLOR" ] && export NO_COLOR=
         ;;
     esac
 

@@ -263,12 +263,16 @@ _fswap() {
             info() { info_clr "$@"; }
             info_fmt() { info_fmt_clr "$@"; }
             warn() { warn_clr "$@"; }
+
+            [ "$NO_COLOR" ] && export NO_COLOR=
         ;;
         *)
             ES_inf=
             ES_neg=
             ES_pos=
             ES_res=
+
+            [ "$NO_COLOR" ] || export NO_COLOR=1
         ;;
     esac
 
