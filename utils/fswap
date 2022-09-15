@@ -129,18 +129,21 @@ err_clr() {
 #
 # Parameters:
 # <"$1"> - path
+# [$2] - mode0('0' - no output)
 #
 # Provides:
-# <"$_str"> - the absolute path | path
+# <"$_path"> - the absolute path | path
 #
 # Returns:
 # (0) absolute $1 | $1
 #
 get_fpath() {
     case "$1" in
-        '/'*) _str="$1"; printf "%s" "$1" ;;
-        *) _str="$PWD/$1"; printf "%s" "$PWD/$1" ;;
+        '/'*) _path="$1" ;;
+        *) _path="$PWD/$1" ;;
     esac
+
+    [ ! "$2" ] && printf "%s" "$_path"
 }
 
 # Description:
