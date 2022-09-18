@@ -1704,6 +1704,8 @@ main_functions() {
 # (1) $_opt is not an option
 #
 options() {
+    _opt_fail() { opt_err "$_opt_match" "$_opt_arg" "$@"; exit 2; }
+
     unset _sopt_index
 
     case "$_opt" in
@@ -1720,12 +1722,11 @@ options() {
             sopt '-t' '--timestamp' && { timestamp=1; }
             sopt '-v' '--verbose' && { verbose=1; }
 
-            copt '-o' '--output' && {
-                assert 6 "$_opt_arg" || {
-                    opt_err "$_opt_match" "$_opt_arg"; exit 2
-                }
-                get_fpath "$_opt_arg" 0 && output="$_path"
-            }
+            copt '-o' '--output' && { {
+                assert 6 "$_opt_arg" && \
+                get_fpath "$_opt_arg" 0 && \
+                output="$_path"
+            } || _opt_fail; }
         ;;
     esac
 

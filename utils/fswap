@@ -1037,6 +1037,8 @@ main_functions() {
 # (1) $_opt is not an option
 #
 options() {
+    _opt_fail() { opt_err "$_opt_match" "$_opt_arg" "$@"; exit 2; }
+
     unset _sopt_index
 
     case "$_opt" in
@@ -1047,33 +1049,24 @@ options() {
 
             sopt '-c' '--check' && { op=CHECK; }
 
-            copt '-l' '--location' && {
-                assert 6 "$_opt_arg" || {
-                    opt_err "$_opt_match" "$_opt_arg"; exit 2
-                }
-                get_fpath "$_opt_arg" 0 && location="$_path"
-            }
+            copt '-l' '--location' && { {
+                assert 6 "$_opt_arg" && \
+                get_fpath "$_opt_arg" 0 && \
+                location="$_path"
+            } || _opt_fail; }
             copt '-s' '--size' && {
                 size="$_opt_arg"
             }
-            copt '-S' '--swappiness' && {
+            copt '-S' '--swappiness' && { {
+                assert 2 "$_opt_arg" && \
+                [ "$_opt_arg" -le 200 ] && \
                 swappiness="$_opt_arg"
-
-                {
-                    assert 2 "$swappiness" && [ "$swappiness" -le 200 ]
-                } || {
-                    opt_err "$_opt_match" "$swappiness"; exit 2
-                }
-            }
-            copt '-v' '--vfs-cache-pressure' && {
+            } || _opt_fail; }
+            copt '-v' '--vfs-cache-pressure' && { {
+                assert 2 "$_opt_arg" && \
+                [ "$_opt_arg" -le 2147483647 ] && \
                 vfscp="$_opt_arg"
-
-                {
-                    assert 2 "$vfscp" && [ "$vfscp" -le 2147483647 ]
-                } || {
-                    opt_err "$_opt_match" "$vfscp"; exit 2
-                }
-            }
+            } || _opt_fail; }
         ;;
     esac
 

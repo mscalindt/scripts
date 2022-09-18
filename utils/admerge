@@ -1383,6 +1383,8 @@ main_functions() {
 # (1) $_opt is not an option
 #
 options() {
+    _opt_fail() { opt_err "$_opt_match" "$_opt_arg" "$@"; exit 2; }
+
     unset _sopt_index
 
     case "$_opt" in
