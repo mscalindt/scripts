@@ -784,7 +784,10 @@ main_functions() {
     # Parameters:
     # <$1> - mode1-3('1' - N [0,1,00,01...],
     #                '2' - whole N [0,1...],
-    #                '3' - natural N [1...])
+    #                '3' - natural N [1...],
+    #                '4' - absolute path,
+    #                '5' - relative path,
+    #                '6' - valid path)
     # <"$2"> - string
     #
     # Returns:
@@ -814,6 +817,23 @@ main_functions() {
                     : | :0*) return 1 ;;
                     :"$2$2") : ;;
                     *) return 1 ;;
+                esac
+            ;;
+            4)
+                case "$2" in
+                    *'//'*) return 1 ;;
+                    '/'*) : ;;
+                    *) return 1 ;;
+                esac
+            ;;
+            5)
+                case "$2" in
+                    *'//'* | '/'*) return 1 ;;
+                esac
+            ;;
+            6)
+                case "$2" in
+                    *'//'*) return 1 ;;
                 esac
             ;;
         esac
