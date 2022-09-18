@@ -1390,8 +1390,8 @@ options() {
     case "$_opt" in
         '-'*)
             sopt '--no-color' && { ncolor=1; }
-            copt "--language" && { language="$_opt_arg"; }
-            copt "--locale" && { locale="$_opt_arg"; }
+            copt '--language' && { language="$_opt_arg"; }
+            copt '--locale' && { locale="$_opt_arg"; }
 
             sopt '-s' '--sign-off' && { soff=1; }
             sopt '-S' '--gpg-sign' && { gsign=1; }
