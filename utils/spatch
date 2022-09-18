@@ -1043,7 +1043,7 @@ spatch_exec() {
                                     -k5.1,5.2 -k5.4,5.5 -k5.7,5.8
     )
 
-    if [ "$invert" ]; then
+    if [ "$isort" ]; then
         SFILE=$(
             echo "$SFILE" | \
             awk '{a[i++]=$0;} END {for (j=i-1; j>=0;) print a[j--];}'
@@ -1060,20 +1060,20 @@ spatch_exec() {
         )
     fi
 
-    if [ "$tstamp" ]; then
+    if [ "$timestamp" ]; then
         SFILE=$(
             printf "%s\nTIMESTAMP: %s\n" "$SFILE" "$(date '+%b %-e, %T %:z %Y')"
         )
     fi
 
-    if [ "$tfile" ]; then
-        if [ -d "${tfile%/*}" ]; then
-            echo "$SFILE" 2> /dev/null > "$tfile" || {
-                warn "Error code $? while trying to write output to '$tfile'."
+    if [ "$output" ]; then
+        if [ -d "${output%/*}" ]; then
+            echo "$SFILE" 2> /dev/null > "$output" || {
+                warn "Error code $? while trying to write output to '$output'."
                 echo "$SFILE"
             }
         else
-            warn "'${tfile%/*}' is not a valid directory."
+            warn "'${output%/*}' is not a valid directory."
             echo "$SFILE"
         fi
     else
@@ -1713,18 +1713,18 @@ options() {
             copt "--locale" && { locale="$_opt_arg"; }
 
             sopt '-d' '--direct-url' && { durl=1; }
-            sopt '-i' '--invert-sort' && { invert=1; }
+            sopt '-i' '--invert-sort' && { isort=1; }
             sopt '-l' '--line-numbers' && { lnumbers=1; }
             sopt '-p' '--preserve-url' && { purl=1; }
             sopt '-s' '--short-commit' && { scommit=1; }
-            sopt '-t' '--timestamp' && { tstamp=1; }
+            sopt '-t' '--timestamp' && { timestamp=1; }
             sopt '-v' '--verbose' && { verbose=1; }
 
             copt '-o' '--output' && {
                 assert 6 "$_opt_arg" || {
                     opt_err "$_opt_match" "$_opt_arg"; exit 2
                 }
-                get_fpath "$_opt_arg" 0 && tfile="$_path"
+                get_fpath "$_opt_arg" 0 && output="$_path"
             }
         ;;
     esac

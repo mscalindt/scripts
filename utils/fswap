@@ -323,8 +323,8 @@ fswap_env() {
     zswapar_path=/sys/module/zswap/parameters/zpool
     zswapcr_path=/sys/module/zswap/parameters/compressor
 
-    [ "$ssize" ] || ssize=1G
-    [ "$sfile" ] || sfile="$HOME"/.swapfile
+    [ "$size" ] || size=1G
+    [ "$location" ] || location="$HOME"/.swapfile
 }
 
 fswap_check() {
@@ -335,7 +335,7 @@ fswap_check() {
 
     swapoff -a || exit "$?"
 
-    [ -f "$sfile" ] && rm -f "$sfile"
+    [ -f "$location" ] && rm -f "$location"
 }
 
 fswap_info() {
@@ -379,32 +379,32 @@ fswap_info() {
         ;;
     esac
 
-    info "Swap size: '$ssize'."
-    info "Swap file: '$sfile'."
+    info "Swap size: '$size'."
+    info "Swap file: '$location'."
 }
 
 fswap_work() {
-    case $ssize in
-        *'M' | *'MiB') ssize="${ssize%M*}"K ;;
-        *'G' | *'GiB') ssize="${ssize%G*}"M ;;
-        *'MB') ssize="${ssize%MB}"KB ;;
-        *'GB') ssize="${ssize%GB}"MB ;;
+    case $size in
+        *'M' | *'MiB') size="${size%M*}"K ;;
+        *'G' | *'GiB') size="${size%G*}"M ;;
+        *'MB') size="${size%MB}"KB ;;
+        *'GB') size="${size%GB}"MB ;;
         *) err 2 'Wrong swap size specified. Supported units: M,G[B]' ;;
     esac
 
-    case $ssize in
+    case $size in
         *'B') bscount=1000 ;;
         *) bscount=1024 ;;
     esac
 }
 
 fswap_exec() {
-    dd 'if=/dev/zero' "of=$sfile" \
-       "bs=$ssize" "count=$bscount" \
+    dd 'if=/dev/zero' "of=$location" \
+       "bs=$size" "count=$bscount" \
        'status=progress' && \
-    chmod 600 "$sfile" && \
-    mkswap "$sfile" && \
-    swapon "$sfile"
+    chmod 600 "$location" && \
+    mkswap "$location" && \
+    swapon "$location"
 }
 
 fswap_post() {
@@ -1051,10 +1051,10 @@ options() {
                 assert 6 "$_opt_arg" || {
                     opt_err "$_opt_match" "$_opt_arg"; exit 2
                 }
-                get_fpath "$_opt_arg" 0 && sfile="$_path"
+                get_fpath "$_opt_arg" 0 && location="$_path"
             }
             copt '-s' '--size' && {
-                ssize="$_opt_arg"
+                size="$_opt_arg"
             }
             copt '-S' '--swappiness' && {
                 swappiness="$_opt_arg"
