@@ -255,30 +255,6 @@ _fwrite() {
 }
 
 _fswap() {
-    case :"$ncolor$NO_COLOR" in
-        :)
-            ES_inf='\033[1;37m'
-            ES_neg='\033[1;31m'
-            ES_pos='\033[1;32m'
-            ES_res='\033[0m'
-
-            err() { err_clr "$@"; }
-            info() { info_clr "$@"; }
-            info_fmt() { info_fmt_clr "$@"; }
-            warn() { warn_clr "$@"; }
-
-            [ "$NO_COLOR" ] && export NO_COLOR=
-        ;;
-        *)
-            ES_inf=
-            ES_neg=
-            ES_pos=
-            ES_res=
-
-            [ "$NO_COLOR" ] || export NO_COLOR=1
-        ;;
-    esac
-
     case :"$locale" in
         :)
             LCgo() {
@@ -314,6 +290,30 @@ _fswap() {
     LANGreset() { LANGstop; LANGgo; }
 
     LCgo; LANGgo;
+
+    case :"$ncolor$NO_COLOR" in
+        :)
+            ES_inf='\033[1;37m'
+            ES_neg='\033[1;31m'
+            ES_pos='\033[1;32m'
+            ES_res='\033[0m'
+
+            err() { err_clr "$@"; }
+            info() { info_clr "$@"; }
+            info_fmt() { info_fmt_clr "$@"; }
+            warn() { warn_clr "$@"; }
+
+            [ "$NO_COLOR" ] && export NO_COLOR=
+        ;;
+        *)
+            ES_inf=
+            ES_neg=
+            ES_pos=
+            ES_res=
+
+            [ "$NO_COLOR" ] || export NO_COLOR=1
+        ;;
+    esac
 }
 
 fswap_env() {

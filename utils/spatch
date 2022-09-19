@@ -931,16 +931,6 @@ _get_url() {
 }
 
 _spatch() {
-    case :"$ncolor$NO_COLOR" in
-        :)
-            err() { err_clr "$@"; }
-            info() { info_clr "$@"; }
-            warn() { warn_clr "$@"; }
-
-            [ "$NO_COLOR" ] && export NO_COLOR=
-        ;;
-    esac
-
     case :"$locale" in
         :)
             LCgo() {
@@ -976,6 +966,16 @@ _spatch() {
     LANGreset() { LANGstop; LANGgo; }
 
     LCgo; LANGgo;
+
+    case :"$ncolor$NO_COLOR" in
+        :)
+            err() { err_clr "$@"; }
+            info() { info_clr "$@"; }
+            warn() { warn_clr "$@"; }
+
+            [ "$NO_COLOR" ] && export NO_COLOR=
+        ;;
+    esac
 }
 
 spatch_env() {

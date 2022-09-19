@@ -582,28 +582,6 @@ _in_merge() {
 }
 
 _admerge() {
-    case :"$ncolor$NO_COLOR" in
-        :)
-            ES_inf='\033[1;37m'
-            ES_res='\033[0m'
-
-            err() { err_clr "$@"; }
-            git() { command git -c 'color.ui=always' "$@"; }
-
-            [ "$NO_COLOR" ] && export NO_COLOR=
-        ;;
-        *)
-            ES_inf=
-            ES_res=
-
-            git() { command git -c 'color.ui=never' "$@"; }
-
-            [ "$NO_COLOR" ] || export NO_COLOR=1
-        ;;
-    esac
-
-    hash git > /dev/null 2>&1
-
     case :"$locale" in
         :)
             LCgo() {
@@ -639,6 +617,28 @@ _admerge() {
     LANGreset() { LANGstop; LANGgo; }
 
     LCgo; LANGgo;
+
+    case :"$ncolor$NO_COLOR" in
+        :)
+            ES_inf='\033[1;37m'
+            ES_res='\033[0m'
+
+            err() { err_clr "$@"; }
+            git() { command git -c 'color.ui=always' "$@"; }
+
+            [ "$NO_COLOR" ] && export NO_COLOR=
+        ;;
+        *)
+            ES_inf=
+            ES_res=
+
+            git() { command git -c 'color.ui=never' "$@"; }
+
+            [ "$NO_COLOR" ] || export NO_COLOR=1
+        ;;
+    esac
+
+    hash git > /dev/null 2>&1
 }
 
 admerge_env() {
