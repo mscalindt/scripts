@@ -639,6 +639,15 @@ _admerge() {
     esac
 
     hash git > /dev/null 2>&1
+
+    # Adjust $PWD accordingly if we are not at the top level of the repository
+    if [ ! -d "$PWD"/.git ]; then
+        # We use the legacy command 'git rev-parse --git-dir' to support git
+        # versions older than 1.7; upward versions can use the command
+        # 'git rev-parse --show-toplevel' to directly get the absolute root of
+        # the repository.
+        cd "$(git rev-parse --git-dir 2> /dev/null)"/..
+    fi
 }
 
 admerge_env() {
