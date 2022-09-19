@@ -1463,11 +1463,9 @@ main() {
 
     # Parse operands
     while [ "$1" ]; do
-        _opt="$1"
-
         case :"$BRANCH" in
-            :) BRANCH="$_opt" ;;
-            *) opd_max "$BRANCH" "$_opt" "$2"; exit 2 ;;
+            :) BRANCH="$1" ;;
+            *) opd_max "$BRANCH" "$1" "$2"; exit 2 ;;
         esac
 
         shift
