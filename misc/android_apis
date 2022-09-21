@@ -4,173 +4,83 @@
 : <<'notice'
  * SPDX-License-Identifier: GPL-3.0-only
  *
- * Copyright (C) 2021 Dimitar Yurukov <mscalindt@protonmail.com>
+ * Copyright (C) 2021-2022 Dimitar Yurukov <mscalindt@protonmail.com>
  *
 notice
 
-# > Install an APK contained in URL for user 0 using ADB
-# Arguments: <"$1"> - APK URL
-adb_pkg_install() {
-    adb shell \
-<< EOF
-    DIR="/data/local/tmp/pkg_install"
-    FILE="/data/local/tmp/pkg_install/00.apk"
-
-    mkdir "\$DIR" || return \$?
-    curl --location "$1" --output "\$FILE" || { rm -rf "\$DIR"; return 1; }
-    pm install --user 0 "\$FILE" || { rm -rf "\$DIR"; return 1; }
-    rm -rf "\$DIR" || return \$?
-EOF
-}
-
-# > Install an APK split into chunks contained in URLs for user 0 using ADB
-# Arguments: <"$1+"> - APK URL of sequential chunk
-adb_pkg_install_chunks() {
-    adb shell \
-<<EOF
-  {
-    DIR="/data/local/tmp/pkg_install"
-    FILE="/data/local/tmp/pkg_install/00.apk"
-    COUNT=0
-
-    mkdir "\$DIR" || return \$?
-
-    for URL in $*; do
-        [ -n "\$FARGS" ] && FARGS="\${FARGS} \$FILE" || FARGS="\$FILE"
-        curl --location "\$URL" --output "\$FILE" || \
-        {
-            rm -rf "\$DIR"; return 1
-        }
-        COUNT=\$((COUNT + 1))
-        FILE="/data/local/tmp/pkg_install/0\${COUNT}.apk"
-    done
-    cat \$FARGS > "\$FILE" || { rm -rf "\$DIR"; return 1; }
-
-    pm install --user 0 "\$FILE" || { rm -rf "\$DIR"; return 1; }
-
-    rm -rf "\$DIR" || return \$?
-  }
-EOF
-}
-
-# > Remove (uninstall) a package for user 0 using ADB
-# Arguments: <"$1"> - package name
-adb_pkg_remove() {
-    adb shell \
-<<EOF
-  {
-    DIR="/storage/emulated/0/Android"
-
-    pm uninstall --user 0 "$1"
-
-    if [ -d "\$DIR/data/$1" ]; then
-        rm -rf "\$DIR/data/$1"
-    fi
-
-    if [ -d "\$DIR/media/$1" ]; then
-        rm -rf "\$DIR/media/$1"
-    fi
-
-    if [ -d "\$DIR/obb/$1" ]; then
-        rm -rf "\$DIR/obb/$1"
-    fi
-  }
-EOF
-}
-
-# > Reset (clear all data of) a package for user 0 using ADB
-# Arguments: <"$1"> - package name
-adb_pkg_reset() {
-    adb shell \
-<<EOF
-  {
-    DIR="/storage/emulated/0/Android"
-
-    pm clear --user 0 "$1"
-
-    if [ -d "\$DIR/data/$1" ]; then
-        rm -rf "\$DIR/data/$1"/*
-    fi
-  }
-EOF
-}
-
-# > Restore (reinstall) deleted system package for user 0 using ADB
-# Arguments: <"$1"> - package name
-adb_pkg_restore() {
-    adb shell pm install-existing --user 0 "$1"
-}
-
 # > Install an APK contained in URL for user 0
 # Arguments: <"$1"> - APK URL
-pkg_install() {
-    DIR="/data/local/tmp/pkg_install"
-    FILE="/data/local/tmp/pkg_install/00.apk"
+pkg_install() (
+    _errh() { [ -d "$DIR" ] && rm -rf "$DIR"; return "$1"; }
+    trap '_errh $?' INT TERM EXIT; set -e
 
-    mkdir "$DIR" || return $?
-    curl --location "$1" --output "$FILE" || { rm -rf "$DIR"; return 1; }
-    pm install --user 0 "$FILE" || { rm -rf "$DIR"; return 1; }
-    rm -rf "$DIR" || return $?
-}
+    DIR='/data/local/tmp/pkg_install'
+    FILE='/data/local/tmp/pkg_install/00.apk'
+
+    mkdir -p "$DIR"
+    curl --location "$1" --output "$FILE"
+    pm install --user 0 "$FILE"
+)
 
 # > Install an APK split into chunks contained in URLs for user 0
 # Arguments: <"$1+"> - APK URL of sequential chunk
-pkg_install_chunks() {
-  {
-    DIR="/data/local/tmp/pkg_install"
-    FILE="/data/local/tmp/pkg_install/00.apk"
+pkg_install_chunks() (
+    _errh() { [ -d "$DIR" ] && rm -rf "$DIR"; return "$1"; }
+    trap '_errh $?' INT TERM EXIT; set -e
+
+    DIR='/data/local/tmp/pkg_install'
     COUNT=0
+    FARGS=
 
-    mkdir "$DIR" || return $?
+    mkdir -p "$DIR"
 
-    for URL in $*; do
-        [ -n "$FARGS" ] && FARGS="${FARGS} $FILE" || FARGS="$FILE"
-        curl --location "$URL" --output "$FILE" || \
-        {
-            rm -rf "$DIR"; return 1
-        }
+    while [ "$1" ]; do
         COUNT=$((COUNT + 1))
-        FILE="/data/local/tmp/pkg_install/0${COUNT}.apk"
-    done
-    cat $FARGS > "$FILE" || { rm -rf "$DIR"; return 1; }
+        FILE="$DIR"/0"$COUNT".apk
 
-    pm install --user 0 "$FILE" || { rm -rf "$DIR"; return 1; }
+        case :"$FARGS" in
+            :) FARGS="'$FILE'" ;;
+            *) FARGS="$FARGS '$FILE'" ;;
+        esac
 
-    rm -rf "$DIR" || return $?
-  }
-}
+        curl --location "$1" --output "$FILE" &
+
+        shift
+    done; wait
+
+    FILE="$DIR"/00.apk
+
+    eval set -- "$FARGS"
+    cat "$@" > "$FILE"
+    pm install --user 0 "$FILE"
+)
 
 # > Remove (uninstall) a package for user 0
 # Arguments: <"$1"> - package name
-pkg_remove() {
-    DIR="/storage/emulated/0/Android"
+pkg_remove() (
+    _errh() { return "$1"; }
+    trap '_errh $?' INT TERM EXIT; set -e
+
+    DIR='/storage/emulated/0/Android'
 
     pm uninstall --user 0 "$1"
-
-    if [ -d "$DIR/data/$1" ]; then
-        rm -rf "$DIR/data/$1"
-    fi
-
-    if [ -d "$DIR/media/$1" ]; then
-        rm -rf "$DIR/media/$1"
-    fi
-
-    if [ -d "$DIR/obb/$1" ]; then
-        rm -rf "$DIR/obb/$1"
-    fi
-}
+    rm -rf "$DIR/data/$1"
+    rm -rf "$DIR/media/$1"
+    rm -rf "$DIR/obb/$1"
+)
 
 # > Reset (clear all data of) a package for user 0
 # Arguments: <"$1"> - package name
-pkg_reset() {
-    DIR="/storage/emulated/0/Android"
+pkg_reset() (
+    _errh() { return "$1"; }
+    trap '_errh $?' INT TERM EXIT; set -e
+
+    DIR='/storage/emulated/0/Android'
 
     pm clear --user 0 "$1"
 
-    if [ -d "$DIR/data/$1" ]; then
-        rm -rf "$DIR/data/$1"/*
-    fi
-}
+    rm -rf "$DIR/data/$1"/*
+)
 
 # > Restore (reinstall) deleted system package for user 0
 # Arguments: <"$1"> - package name
