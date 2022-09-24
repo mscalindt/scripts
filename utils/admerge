@@ -662,7 +662,7 @@ admerge_env() {
 
 admerge_check() {
     [ "$OBR" ] || err 2 'Failed to identify current branch.'
-    [ -f "$ALOCK" ] && err 2 "A merge is already in progress. ($ALOCK)"
+    [ -f "$ALOCK" ] && err 2 "A merge is already in progress."
     [ -f "$AMSG" ] && rm -f "$AMSG"
 }
 
