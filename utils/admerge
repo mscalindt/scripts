@@ -546,9 +546,11 @@ _alock_write() {
 # <_alock_test> ()
 #
 _commit() {
-    set -- '-eF'
-    set -- "$@" "$AMSG"
-    set -- "$@" '--no-edit'
+    if [ -f "$AMSG" ]; then
+        set -- '-eF'
+        set -- "$@" "$AMSG"
+        set -- "$@" '--no-edit'
+    fi
 
     _alock_test 's' && set -- "$@" '--signoff'
     _alock_test 'S' && set -- "$@" '--gpg-sign'
@@ -666,7 +668,10 @@ admerge_env() {
 }
 
 admerge_check() {
-    [ -f "$ALOCK" ] && err 2 "A merge is already in progress."
+    if _in_merge; then
+        err 2 "A merge is already in progress."
+    fi
+
     [ -f "$AMSG" ] && rm -f "$AMSG"
 }
 
@@ -730,11 +735,7 @@ admerge_abort() {
 admerge_continue() {
     _admerge
     admerge_env
-
-    [ -f "$ALOCK" ] || err 2 'No lock file found. (no merge in progress?)'
-
     _commit || exit "$?"
-
     admerge_post
 }
 
