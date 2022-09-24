@@ -720,8 +720,6 @@ admerge_abort() {
     _admerge
     admerge_env
 
-    [ -f "$ALOCK" ] || err 2 'No lock file found. (no merge in progress?)'
-
     if ! git merge --abort; then
         _in_merge && exit 1
     fi
