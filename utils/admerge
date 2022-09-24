@@ -702,19 +702,16 @@ admerge_msg() {
 
 admerge_exec() {
     if ! _merge; then
-        if _in_merge; then
+        if ! _in_merge; then
             exit 1
         else
             RC=1 && return 1
         fi
     fi
 
-    # Return code of git will not be reliable on a literal "HEAD" merge,
-    # therefore the merge check above is unreliable; do a merge check now --
-    # again -- to abort prematurely if we are not in a merge.
-    _in_merge || return 0
-
-    _commit || exit "$?"
+    if _in_merge; then
+        _commit || exit "$?"
+    fi
 }
 
 admerge_post() {
