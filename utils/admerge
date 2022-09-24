@@ -751,32 +751,33 @@ admerge_status() {
            "${ES_inf}" "${ES_res}" \
            "$OBR" \
            "${ES_inf}" "${ES_res}"
-    if [ -f "$ALOCK" ]; then
-        printf "%bTheir branch: [%b\n%s\n%b]%b\n" \
-               "${ES_inf}" "${ES_res}" \
-               "$(_alock_get 1)" \
-               "${ES_inf}" "${ES_res}"
-
-        printf "%bLock file location: [%b\n%s\n%b]%b\n" \
-               "${ES_inf}" "${ES_res}" \
-               "$ALOCK" \
-               "${ES_inf}" "${ES_res}"
-        printf "%bMerge options: [%b\n%s\n%b]%b\n" \
-               "${ES_inf}" "${ES_res}" \
-               "$(pline 1 "$ALOCK")" \
-               "${ES_inf}" "${ES_res}"
-
-        printf "%bCommit message file location: [%b\n%s\n%b]%b\n" \
-               "${ES_inf}" "${ES_res}" \
-               "$AMSG" \
-               "${ES_inf}" "${ES_res}"
-        printf "%bCommit message: [%b\n%s\n%b]%b\n" \
-               "${ES_inf}" "${ES_res}" \
-               "$(parse "$AMSG")" \
-               "${ES_inf}" "${ES_res}"
-    fi
 
     if _in_merge; then
+        if [ -f "$ALOCK" ]; then
+            printf "%bTheir branch: [%b\n%s\n%b]%b\n" \
+                   "${ES_inf}" "${ES_res}" \
+                   "$(_alock_get 1)" \
+                   "${ES_inf}" "${ES_res}"
+
+            printf "%bLock file location: [%b\n%s\n%b]%b\n" \
+                   "${ES_inf}" "${ES_res}" \
+                   "$ALOCK" \
+                   "${ES_inf}" "${ES_res}"
+            printf "%bMerge options: [%b\n%s\n%b]%b\n" \
+                   "${ES_inf}" "${ES_res}" \
+                   "$(pline 1 "$ALOCK")" \
+                   "${ES_inf}" "${ES_res}"
+
+            printf "%bCommit message file location: [%b\n%s\n%b]%b\n" \
+                   "${ES_inf}" "${ES_res}" \
+                   "$AMSG" \
+                   "${ES_inf}" "${ES_res}"
+            printf "%bCommit message: [%b\n%s\n%b]%b\n" \
+                   "${ES_inf}" "${ES_res}" \
+                   "$(parse "$AMSG")" \
+                   "${ES_inf}" "${ES_res}"
+        fi
+
         printf "%bStatus of files: [%b\n%s\n%b]%b\n" \
                "${ES_inf}" "${ES_res}" \
                "$(git status -s)" \
