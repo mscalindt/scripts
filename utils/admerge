@@ -647,6 +647,8 @@ _admerge() {
         # 'git rev-parse --show-toplevel' to directly get the absolute root of
         # the repository.
         cd "$(git rev-parse --git-dir 2> /dev/null)"/..
+
+        [ -d "$PWD"/.git ] || err 2 'Failed to find repository root.'
     fi
 }
 
@@ -659,7 +661,7 @@ admerge_env() {
 }
 
 admerge_check() {
-    [ "$OBR" ] || err 2 'Failed to identify current branch. (not in .git dir?)'
+    [ "$OBR" ] || err 2 'Failed to identify current branch.'
     [ -f "$ALOCK" ] && err 2 "A merge is already in progress. ($ALOCK)"
     [ -f "$AMSG" ] && rm -f "$AMSG"
 }
@@ -714,7 +716,7 @@ admerge_abort() {
     _admerge
     admerge_env
 
-    [ "$OBR" ] || err 2 'Failed to identify current branch. (not in .git dir?)'
+    [ "$OBR" ] || err 2 'Failed to identify current branch.'
     [ -f "$ALOCK" ] || err 2 'No lock file found. (no merge in progress?)'
 
     if ! git merge --abort; then
@@ -728,7 +730,7 @@ admerge_continue() {
     _admerge
     admerge_env
 
-    [ "$OBR" ] || err 2 'Failed to identify current branch. (not in .git dir?)'
+    [ "$OBR" ] || err 2 'Failed to identify current branch.'
     [ -f "$ALOCK" ] || err 2 'No lock file found. (no merge in progress?)'
 
     _commit || exit "$?"
@@ -740,7 +742,7 @@ admerge_status() {
     _admerge
     admerge_env
 
-    [ "$OBR" ] || err 2 'Failed to identify current branch. (not in .git dir?)'
+    [ "$OBR" ] || err 2 'Failed to identify current branch.'
     [ -f "$ALOCK" ] || err 2 'No lock file found. (no merge in progress?)'
 
     printf "%bOur branch: [%b\n%s\n%b]%b\n" \
