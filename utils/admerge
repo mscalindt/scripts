@@ -756,7 +756,7 @@ admerge_status() {
                "${ES_inf}" "${ES_res}" \
                "$ALOCK" \
                "${ES_inf}" "${ES_res}"
-        printf "%bLock file content: [%b\n%s\n%b]%b\n" \
+        printf "%bMerge options: [%b\n%s\n%b]%b\n" \
                "${ES_inf}" "${ES_res}" \
                "$(pline 1 "$ALOCK")" \
                "${ES_inf}" "${ES_res}"
@@ -765,7 +765,7 @@ admerge_status() {
                "${ES_inf}" "${ES_res}" \
                "$AMSG" \
                "${ES_inf}" "${ES_res}"
-        printf "%bCommit message file content: [%b\n%s\n%b]%b\n" \
+        printf "%bCommit message: [%b\n%s\n%b]%b\n" \
                "${ES_inf}" "${ES_res}" \
                "$(parse "$AMSG")" \
                "${ES_inf}" "${ES_res}"
