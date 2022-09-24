@@ -742,39 +742,41 @@ admerge_status() {
     _admerge
     admerge_env
 
-    [ -f "$ALOCK" ] || err 2 'No lock file found. (no merge in progress?)'
-
     printf "%bOur branch: [%b\n%s\n%b]%b\n" \
            "${ES_inf}" "${ES_res}" \
            "$OBR" \
            "${ES_inf}" "${ES_res}"
-    printf "%bTheir branch: [%b\n%s\n%b]%b\n" \
-           "${ES_inf}" "${ES_res}" \
-           "$(_alock_get 1)" \
-           "${ES_inf}" "${ES_res}"
+    if [ -f "$ALOCK" ]; then
+        printf "%bTheir branch: [%b\n%s\n%b]%b\n" \
+               "${ES_inf}" "${ES_res}" \
+               "$(_alock_get 1)" \
+               "${ES_inf}" "${ES_res}"
 
-    printf "%bLock file location: [%b\n%s\n%b]%b\n" \
-           "${ES_inf}" "${ES_res}" \
-           "$ALOCK" \
-           "${ES_inf}" "${ES_res}"
-    printf "%bLock file content: [%b\n%s\n%b]%b\n" \
-           "${ES_inf}" "${ES_res}" \
-           "$(pline 1 "$ALOCK")" \
-           "${ES_inf}" "${ES_res}"
+        printf "%bLock file location: [%b\n%s\n%b]%b\n" \
+               "${ES_inf}" "${ES_res}" \
+               "$ALOCK" \
+               "${ES_inf}" "${ES_res}"
+        printf "%bLock file content: [%b\n%s\n%b]%b\n" \
+               "${ES_inf}" "${ES_res}" \
+               "$(pline 1 "$ALOCK")" \
+               "${ES_inf}" "${ES_res}"
 
-    printf "%bCommit message file location: [%b\n%s\n%b]%b\n" \
-           "${ES_inf}" "${ES_res}" \
-           "$AMSG" \
-           "${ES_inf}" "${ES_res}"
-    printf "%bCommit message file content: [%b\n%s\n%b]%b\n" \
-           "${ES_inf}" "${ES_res}" \
-           "$(parse "$AMSG")" \
-           "${ES_inf}" "${ES_res}"
+        printf "%bCommit message file location: [%b\n%s\n%b]%b\n" \
+               "${ES_inf}" "${ES_res}" \
+               "$AMSG" \
+               "${ES_inf}" "${ES_res}"
+        printf "%bCommit message file content: [%b\n%s\n%b]%b\n" \
+               "${ES_inf}" "${ES_res}" \
+               "$(parse "$AMSG")" \
+               "${ES_inf}" "${ES_res}"
+    fi
 
-    printf "%bStatus of files: [%b\n%s\n%b]%b\n" \
-           "${ES_inf}" "${ES_res}" \
-           "$(git status -s)" \
-           "${ES_inf}" "${ES_res}"
+    if _in_merge; then
+        printf "%bStatus of files: [%b\n%s\n%b]%b\n" \
+               "${ES_inf}" "${ES_res}" \
+               "$(git status -s)" \
+               "${ES_inf}" "${ES_res}"
+    fi
 }
 
 admerge() {
