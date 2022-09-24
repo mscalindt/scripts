@@ -735,7 +735,11 @@ admerge_abort() {
 admerge_continue() {
     _admerge
     admerge_env
-    _commit || exit "$?"
+
+    if ! _commit; then
+        _in_merge && exit 1
+    fi
+
     admerge_post
 }
 
