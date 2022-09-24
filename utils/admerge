@@ -718,7 +718,9 @@ admerge_exec() {
 }
 
 admerge_post() {
-    rm -f "$ALOCK" "$AMSG"
+    if ! _in_merge; then
+        rm -f "$ALOCK" "$AMSG"
+    fi
 }
 
 admerge_abort() {
@@ -783,6 +785,8 @@ admerge_status() {
                "$(git status -s)" \
                "${ES_inf}" "${ES_res}"
     fi
+
+    admerge_post
 }
 
 admerge() {
