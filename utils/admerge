@@ -650,10 +650,15 @@ _admerge() {
 
         [ -d "$PWD"/.git ] || err 2 'Failed to find repository root.'
     fi
+
+    # Assert "HEAD" is pointing to a branch (i.e. head is attached)
+    git symbolic-ref --short HEAD > /dev/null 2>&1 || {
+        err 2 'Failed: HEAD is detached.'
+    }
 }
 
 admerge_env() {
-    OBR=$(git symbolic-ref --short HEAD 2> /dev/null)
+    OBR=$(git symbolic-ref --short HEAD)
     ALOCK="$PWD"/.git/admerge_lock
     AMSG="$PWD"/.git/admerge_msg
     CDIFF_NEW="$OBR..$BRANCH"
@@ -661,7 +666,6 @@ admerge_env() {
 }
 
 admerge_check() {
-    [ "$OBR" ] || err 2 'Failed to identify current branch.'
     [ -f "$ALOCK" ] && err 2 "A merge is already in progress."
     [ -f "$AMSG" ] && rm -f "$AMSG"
 }
@@ -716,7 +720,6 @@ admerge_abort() {
     _admerge
     admerge_env
 
-    [ "$OBR" ] || err 2 'Failed to identify current branch.'
     [ -f "$ALOCK" ] || err 2 'No lock file found. (no merge in progress?)'
 
     if ! git merge --abort; then
@@ -730,7 +733,6 @@ admerge_continue() {
     _admerge
     admerge_env
 
-    [ "$OBR" ] || err 2 'Failed to identify current branch.'
     [ -f "$ALOCK" ] || err 2 'No lock file found. (no merge in progress?)'
 
     _commit || exit "$?"
@@ -742,7 +744,6 @@ admerge_status() {
     _admerge
     admerge_env
 
-    [ "$OBR" ] || err 2 'Failed to identify current branch.'
     [ -f "$ALOCK" ] || err 2 'No lock file found. (no merge in progress?)'
 
     printf "%bOur branch: [%b\n%s\n%b]%b\n" \
