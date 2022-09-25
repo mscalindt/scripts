@@ -671,8 +671,6 @@ admerge_check() {
     if _in_merge; then
         err 2 "A merge is already in progress."
     fi
-
-    [ -f "$AMSG" ] && rm -f "$AMSG"
 }
 
 admerge_lock() {
@@ -684,7 +682,7 @@ admerge_lock() {
     [ "$gsign" ] && _alock_write 'S'
 
     echo ' '
-} >> "$ALOCK"
+} > "$ALOCK"
 
 admerge_msg() {
     printf "Merge '%s' into '%s'\n\n" "$BRANCH" "$OBR"
@@ -698,7 +696,7 @@ admerge_msg() {
         TMP=$(git --version 2> /dev/null)
         [ "$TMP" ] && printf "\n%s\n" "$TMP"
     fi
-} >> "$AMSG"
+} > "$AMSG"
 
 admerge_exec() {
     if ! _merge; then
