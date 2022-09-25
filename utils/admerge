@@ -467,6 +467,64 @@ str() {
 }
 
 # Description:
+# Print N indentation level info-formatted text
+#
+# Parameters:
+# <$1> - N
+# <"$2+"> - text
+#
+# Returns:
+# (0) info-formatted $2
+# (255) bad input
+#
+_info() {
+    case :$1${1#*[!0123456789]} in
+        :) return 255 ;;
+        :00) : ;;
+        :0*) return 255 ;;
+        :"$1$1") : ;;
+        *) return 255 ;;
+    esac
+
+    _str=; _i=0; until [ "$_i" -eq "$1" ]; do
+        _str="$_str "
+        _i=$((_i + 1))
+    done
+
+    shift
+    printf "%s=>>: %s\n" "$_str" "$*"
+}
+
+# Description:
+# Colorfully print N indentation level info-formatted text
+#
+# Parameters:
+# <$1> - N
+# <"$2+"> - text
+#
+# Returns:
+# (0) info-formatted $2
+# (255) bad input
+#
+_info_clr() {
+    case :$1${1#*[!0123456789]} in
+        :) return 255 ;;
+        :00) : ;;
+        :0*) return 255 ;;
+        :"$1$1") : ;;
+        *) return 255 ;;
+    esac
+
+    _str=; _i=0; until [ "$_i" -eq "$1" ]; do
+        _str="$_str "
+        _i=$((_i + 1))
+    done
+
+    shift
+    printf "%b%s=>>: %s%b\n" '\033[1;37m' "$_str" "$*" '\033[0m'
+}
+
+# Description:
 # Get N attribute in the lock file
 #
 # Parameters:
@@ -625,6 +683,7 @@ _admerge() {
             ES_inf='\033[1;37m'
             ES_res='\033[0m'
 
+            _info() { _info_clr "$@"; }
             err() { err_clr "$@"; }
             git() { command git -c 'color.ui=always' "$@"; }
 
@@ -744,10 +803,14 @@ admerge_status() {
     _admerge
     admerge_env
 
-    printf "%bOur branch: [%b\n%s\n%b]%b\n" \
-           "${ES_inf}" "${ES_res}" \
-           "$OBR" \
-           "${ES_inf}" "${ES_res}"
+    if _in_merge; then
+        printf "%bOur branch: [%b\n%s\n%b]%b\n" \
+               "${ES_inf}" "${ES_res}" \
+               "$OBR" \
+               "${ES_inf}" "${ES_res}"
+    else
+        _info 0 'No merge is in progress.'
+    fi
 
     if _in_merge; then
         if [ -f "$ALOCK" ]; then
