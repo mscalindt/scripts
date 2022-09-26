@@ -119,188 +119,102 @@ err_clr() {
 }
 
 # Description:
-# Get positional substring, (from&to LTR) (N)character(s), in a string
+# Escape all POSIX-defined shell meta characters in a string; characters are:
+# \ | & ; < > ( ) $ ` " ' * ? [ ] # ~ = %
 #
 # Parameters:
-# <$1> - from "N" LTR character('0' - max)
-# <"$2"> - from "X" character(s)
-# <$3> - to "N" $2-TR character('0' - max)
-# <"$4"> - to "X" character(s)
-# <"$5"> - string
-# [$6] - mode0-2('0' - strip all leading whitespace characters,
-#                '1' - strip all trailing whitespace characters,
-#                '2' - strip all leading/trailing whitespace characters)
-# [$7] - mode3-5('3' - keep $2,
-#                '4' - keep $4,
-#                '5' - keep $2/$4)
-# [$8] - mode6('6' - verify the expansion)
-# [$9] - mode7('7' - no output)
+# <"$1"> - string
+# ["$2"] - mode0("0 X" - escape only "X" whitespace-separated character(s))
+# [$3] - mode1-2('1' - strip the characters,
+#                '2' - escape single quote character with itself)
+# [$4] - mode3('3' - no output)
 #
 # Provides:
 # (0) <"$_str"> - the modified string
-# [$_i] - the iterations completed;
-#         whole number
+# <"$_chars"> - the characters;
+#               whitespace delimited;
+#               sorted by order parsed
 #
 # Returns:
-# (0) substring | incorrect substring ($1/$3 > $2/$4)
-# (1) empty <unspecified/incorrect> expansion
-# (2) unspecified <empty/incorrect> expansion
-# (255) bad input
+# (0) escaped/stripped $1
+# (1) no meta characters in $1
 #
-# Returns (mode '6'):
-# (0) substring
-# (1) unspecified expansion ($2 is the last character by the given ruleset)
-# (2) unspecified expansion (! $2)
-# (3) incorrect expansion ($1 > $2)
-# (4) empty expansion ($2..$4)
-# (5) unspecified expansion (! $4)
-# (6) incorrect expansion ($3 > $4)
-# (255) bad input
-#
-ltr_substr1() {
-    case :$1${1#*[!0123456789]} in
-        :) return 255 ;;
-        :00) : ;;
-        :0*) return 255 ;;
-        :"$1$1") : ;;
-        *) return 255 ;;
+esc_str() {
+    _str="$1"
+    unset _str_ref
+
+    set -f
+
+    case "$2" in
+        0*) _chars="${2#??}" ;;
+        *) _chars='\ | & ; < > ( ) $ ` " '\'' * ? [ ] # ~ = %' ;;
     esac
 
-    case :$3${3#*[!0123456789]} in
-        :) return 255 ;;
-        :00) : ;;
-        :0*) return 255 ;;
-        :"$3$3") : ;;
-        *) return 255 ;;
+    case "$_chars" in
+        '\'*) : ;;
+        *'\') _chars='\'" ${_chars%%\\*}${_chars#*\\}" ;;
+        *'\'*) _chars='\'" ${_chars%%\\*}${_chars#*\\ }" ;;
     esac
 
-    _str="$5"
+    for _char in $_chars; do
+        case "$_str" in
+            *"$_char"*) : ;;
+            *) continue ;;
+        esac
 
-    case $8$7$6 in
-        *6*)
-            case $1 in
-                0)
-                    case "$_str" in
-                        *"$2") return 1 ;;
-                        *"$2"*) : ;;
-                        *) return 2 ;;
-                    esac
+        case $_char:$3:"$2" in
+            "'":2*|"'":"$3":2)
+                _str_ref="${_str%%\'*}'\\''"
+            ;;
+            "$_char":1*|"$_char":"$3":1)
+                _str_ref="${_str%%"$_char"*}"
+            ;;
+            *)
+                _str_ref="${_str%%"$_char"*}\\$_char"
+            ;;
+        esac
+        _str="$_str_ref${_str#*"$_char"}"
 
-                    _str="${_str##*"$2"}"
-                ;;
-                *)
-                    case $1:"$_str" in
-                        "$1":*"$2"*"$2"*) : ;;
-                        1:*"$2") return 1 ;;
-                        "$1":*"$2"*) : ;;
-                        *) return 2 ;;
-                    esac
+        case $_char:$3:"$2" in
+            "'":2*|"'":"$3":2)
+                while :; do case "$_str" in
+                    "$_str_ref"*"'"*)
+                        _str="${_str#*"$_str_ref"}"
+                        _str_ref="$_str_ref${_str%%\'*}'\\''"
+                        _str="$_str_ref${_str#*\'}"
+                    ;;
+                    *)
+                        break
+                    ;;
+                esac done
+            ;;
+            "$_char":1*|"$_char":"$3":1)
+                while :; do case "$_str" in
+                    *"$_char"*) _str="${_str%%"$_char"*}${_str#*"$_char"}" ;;
+                    *) break ;;
+                esac done
+            ;;
+            *)
+                while :; do case "$_str" in
+                    "$_str_ref"*"$_char"*)
+                        _str="${_str#*"$_str_ref"}"
+                        _str_ref="$_str_ref${_str%%"$_char"*}\\$_char"
+                        _str="$_str_ref${_str#*"$_char"}"
+                    ;;
+                    *)
+                        break
+                    ;;
+                esac done
+            ;;
+        esac
+    done
 
-                    _i=0; until [ "$_i" -eq "$1" ]; do
-                        _str="${_str#*"$2"}"
+    set +f
 
-                        case "$_str" in
-                            *"$2"*"$2"*) : ;;
-                            *"$2") [ "$((_i + 2))" -eq "$1" ] && return 1 ;;
-                            *"$2"*) : ;;
-                            *) [ "$((_i + 1))" -eq "$1" ] || return 3 ;;
-                        esac
+    [ "$_str_ref" ] || return 1
 
-                        _i=$((_i + 1))
-                    done
-                ;;
-            esac
-
-            case $3 in
-                0)
-                    case "$_str" in
-                        *"$4"*"$4"*) : ;;
-                        "$4"*) return 4 ;;
-                        *"$4"*) : ;;
-                        *) return 5 ;;
-                    esac
-
-                    _str="${_str%"$4"*}"
-                ;;
-                *)
-                    case $3:"$_str" in
-                        1:"$4"*) return 4 ;;
-                        "$3":*"$4"*) : ;;
-                        *) return 5 ;;
-                    esac
-
-                    _sfix="$_str"; _i=0; until [ "$_i" -eq "$3" ]; do
-                        _sfix="${_sfix#*"$4"}"
-
-                        case "$_sfix" in
-                            *"$4"*) : ;;
-                            *) [ "$((_i + 1))" -eq "$3" ] || return 6 ;;
-                        esac
-
-                        _i=$((_i + 1))
-                    done
-
-                    _str="${_str%"$4$_sfix"}"
-                ;;
-            esac
-        ;;
-        *)
-            case $1 in
-                0)
-                    _str="${_str##*"$2"}"
-                ;;
-                *)
-                    _i=0; until [ "$_i" -eq "$1" ]; do
-                        _str="${_str#*"$2"}"
-                        _i=$((_i + 1))
-                    done
-                ;;
-            esac
-
-            [ "$_str" = "$5" ] && return 2
-            _old_str="$_str"
-
-            case $3 in
-                0)
-                    _str="${_str%"$4"*}"
-                ;;
-                *)
-                    _sfix="$_str"; _i=0; until [ "$_i" -eq "$3" ]; do
-                        _sfix="${_sfix#*"$4"}"
-                        _i=$((_i + 1))
-                    done
-
-                    _str="${_str%"$4$_sfix"}"
-                ;;
-            esac
-
-            [ "$_str" = "$_old_str" ] && return 2
-        ;;
-    esac
-
-    [ "$_str" ] || return 1
-
-    case $6 in
-        0)
-            _str="${_str#"${_str%%[![:space:]]*}"}"
-        ;;
-        1)
-            _str="${_str%"${_str##*[![:space:]]}"}"
-        ;;
-        2)
-            _str="${_str#"${_str%%[![:space:]]*}"}"
-            _str="${_str%"${_str##*[![:space:]]}"}"
-        ;;
-    esac
-
-    case $7$6 in
-        *3*) _str="$2$_str" ;;
-        *4*) _str="$_str$4" ;;
-        *5*) _str="$2$_str$4" ;;
-    esac
-
-    case $9$8$7$6 in
-        *7*) : ;;
+    case :$4:$3:"$2" in
+        *:3*) : ;;
         *) printf "%s" "$_str" ;;
     esac
 }
@@ -442,31 +356,6 @@ pline() {
 }
 
 # Description:
-# Check the existence/position of a substring in string
-#
-# Parameters:
-# <"$1"> - substring
-# <"$2"> - string
-# [$3] - mode1-3('1' - $1 is first character(s) of $2,
-#                '2' - $1 is last character(s) of $2,
-#                '3' - $1 is, on its own, $2)
-#
-# Returns:
-# (0) match
-# (1) no match
-#
-str() {
-    case $3:"$2" in
-        1:"$1"*) return 0 ;;
-        2:*"$1") return 0 ;;
-        3:"$1") return 0 ;;
-        :*"$1"*) return 0 ;;
-    esac
-
-    return 1
-}
-
-# Description:
 # Print N indentation level info-formatted text
 #
 # Parameters:
@@ -532,23 +421,23 @@ _info_clr() {
 #
 # Uses:
 # <ALOCK> $ - the lock file's absolute path
-# <ltr_substr1> ()
-# <pline> ()
 #
 # Provides:
-# <$_attrN> - the N '@';
-#             starting point of the attribute
+# <"$_attr"> - the attribute
 #
 # Returns:
 # (0) attribute
 # (1) attribute does not exist
-# (2) lock file access error
 #
 _alock_get() {
-    _attrN=$(($1 + $1 - 1))
-    _str=$(pline 1 "$ALOCK") || return 2
+    _attrN=$1
 
-    ltr_substr1 "$_attrN" '@' 1 '@' "$_str" 6 || return 1
+    _str=; while read -r _line || [ "$_line" ]; do
+        _str="$_str$_line"
+    done 2> /dev/null < "$ALOCK"
+
+    eval set -- "$_str"; eval _attr="\$$_attrN"
+    [ "$_attr" ] && printf "%s" "$_attr"
 }
 
 # Description:
@@ -559,41 +448,43 @@ _alock_get() {
 #
 # Uses:
 # <ALOCK> $ - the lock file's absolute path
-# <pline> ()
-# <str> ()
 #
 # Returns:
 # (0) match
 # (1) no match
-# (2) invalid $1
-# (3) lock file access error
 #
 _alock_test() {
-    case "$1" in
-        *'@'*) return 2 ;;
-    esac
+    _attr="$1"
 
-    _str=$(pline 1 "$ALOCK") || return 3
+    _str=; while read -r _line || [ "$_line" ]; do
+        _str="$_str$_line"
+    done 2> /dev/null < "$ALOCK"
 
-    str "@$1@" "$_str" || return 1
+    eval set -- "$_str"
+    while [ "$1" ]; do
+        [ "$1" = "$_attr" ] && return 0 || shift
+    done
+
+    return 1
 }
 
 # Description:
-# Return attribute format for the lock file
+# Print validized attribute for the lock file
 #
 # Parameters:
 # <"$1"> - attribute
 #
-# Returns:
-# (0) format
-# (1) invalid $1
+# Uses:
+# <esc_str> ()
 #
-_alock_write() {
+# Returns:
+# (0) validized attribute
+#
+_alock_validize() {
     case "$1" in
-        *'@'*) return 1 ;;
+        *"'"*) esc_str "$1" "0 '" && printf "%s " "'$_str'" ;;
+        *) printf "%s " "'$1'" ;;
     esac
-
-    printf "@%s@ " "$1"
 }
 
 # Description:
@@ -733,14 +624,9 @@ admerge_check() {
 }
 
 admerge_lock() {
-    printf ' '
-
-    _alock_write "$BRANCH"
-
-    [ "$soff" ] && _alock_write 's'
-    [ "$gsign" ] && _alock_write 'S'
-
-    echo ' '
+    _alock_validize "$BRANCH"
+    [ "$soff" ] && _alock_validize 's'
+    [ "$gsign" ] && _alock_validize 'S'
 } > "$ALOCK"
 
 admerge_msg() {
