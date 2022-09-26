@@ -120,7 +120,7 @@ err() {
 #
 err_clr() {
     _rc="$1"; shift
-    printf "%bERROR:%b %s\n" "\033[1;31m" "\033[0m" "$*" 1>&2
+    printf "%bERROR:%b %s\n" '\033[1;31m' '\033[0m' "$*" 1>&2
     exit "$_rc"
 }
 
@@ -169,7 +169,7 @@ info() {
 # (0) info-formatted $1
 #
 info_clr() {
-    printf "%bINFO:%b %s\n" "\033[1;37m" "\033[0m" "$*"
+    printf "%bINFO:%b %s\n" '\033[1;37m' '\033[0m' "$*"
 }
 
 # Description:
@@ -199,7 +199,7 @@ info_fmt() {
 #
 info_fmt_clr() {
     _printf_fmt="$1"; shift
-    printf "%bINFO:%b ${_printf_fmt}%s\n" "\033[1;37m" "\033[0m" "$*"
+    printf "%bINFO:%b ${_printf_fmt}%s\n" '\033[1;37m' '\033[0m' "$*"
 }
 
 # Description:
@@ -225,7 +225,7 @@ warn() {
 # (0) warning-formatted $1
 #
 warn_clr() {
-    printf "%bWARNING:%b %s\n" "\033[1;33m" "\033[0m" "$*"
+    printf "%bWARNING:%b %s\n" '\033[1;33m' '\033[0m' "$*"
 }
 
 # Description:

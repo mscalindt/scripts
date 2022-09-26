@@ -114,7 +114,7 @@ err() {
 #
 err_clr() {
     _rc="$1"; shift
-    printf "%bERROR:%b %s\n" "\033[1;31m" "\033[0m" "$*" 1>&2
+    printf "%bERROR:%b %s\n" '\033[1;31m' '\033[0m' "$*" 1>&2
     exit "$_rc"
 }
 
@@ -227,7 +227,7 @@ esc_str() {
 # [$2] - mode1-4('1' - add one leading/trailing whitespace character,
 #                '2' - add two leading/trailing whitespace characters,
 #                '3' - skip empty lines,
-#                '4' - strip trailing/leading whitespace characters)
+#                '4' - strip all leading/trailing whitespace characters)
 # ["$3"] - mode5("5 N" - stop parsing further than "N" line)
 #
 # Returns:
@@ -329,6 +329,7 @@ parse() {
 # <$1> - line number
 # <"$2"> - file
 # [$3] - mode0('0' - no output)
+# [$4] - mode1('1' - strip all leading/trailing whitespace characters)
 #
 # Provides:
 # (0) <"$_line"> - the line
@@ -347,10 +348,38 @@ pline() {
     [ -f "$2" ] || return 2
     [ -r "$2" ] || return 3
 
-    _i=0; while read -r _line || [ "$_line" ]; do
-        _i=$((_i + 1))
-        case $_i in "$1") [ ! "$3" ] && printf "%s" "$_line"; return 0 ;; esac
-    done < "$2"
+    case $4$3 in
+        *1*)
+            _i=0; while read -r _line || [ "$_line" ]; do
+                _i=$((_i + 1))
+                case $_i in
+                    "$1")
+                        case $3 in
+                            0) : ;;
+                            *) printf "%s" "$_line" ;;
+                        esac
+
+                        return 0
+                    ;;
+                esac
+            done < "$2"
+        ;;
+        *)
+            _i=0; while IFS= read -r _line || [ "$_line" ]; do
+                _i=$((_i + 1))
+                case $_i in
+                    "$1")
+                        case $3 in
+                            0) : ;;
+                            *) printf "%s" "$_line" ;;
+                        esac
+
+                        return 0
+                    ;;
+                esac
+            done < "$2"
+        ;;
+    esac
 
     return 1
 }
@@ -712,7 +741,7 @@ admerge_status() {
                    "${ES_inf}" "${ES_res}"
             printf "%bMerge options: [%b\n%s\n%b]%b\n" \
                    "${ES_inf}" "${ES_res}" \
-                   "$(pline 1 "$ALOCK")" \
+                   "$(pline 1 "$ALOCK" 1)" \
                    "${ES_inf}" "${ES_res}"
 
             printf "%bCommit message file location: [%b\n%s\n%b]%b\n" \
