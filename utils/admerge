@@ -501,8 +501,8 @@ _commit() {
         set -- "$@" '--no-edit'
     fi
 
-    _alock_test 's' && set -- "$@" '--signoff'
-    _alock_test 'S' && set -- "$@" '--gpg-sign'
+    _alock_test 's/signoff' && set -- "$@" '--signoff'
+    _alock_test 'S/gpgsign' && set -- "$@" '--gpg-sign'
 
     git commit "$@"
 }
@@ -625,8 +625,8 @@ admerge_check() {
 
 admerge_lock() {
     _alock_validize "$BRANCH"
-    [ "$soff" ] && _alock_validize 's'
-    [ "$gsign" ] && _alock_validize 'S'
+    [ "$soff" ] && _alock_validize 's/signoff'
+    [ "$gsign" ] && _alock_validize 'S/gpgsign'
 } > "$ALOCK"
 
 admerge_msg() {
