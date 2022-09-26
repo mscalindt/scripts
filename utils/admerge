@@ -627,6 +627,7 @@ admerge_lock() {
     _alock_validize "$BRANCH"
     [ "$soff" ] && _alock_validize 's/signoff'
     [ "$gsign" ] && _alock_validize 'S/gpgsign'
+    [ "$gver" ] && _alock_validize 'v/gitver'
 } > "$ALOCK"
 
 admerge_msg() {
