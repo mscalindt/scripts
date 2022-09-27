@@ -698,8 +698,12 @@ admerge_abort() {
     _admerge
     admerge_env
 
-    if ! git merge --abort; then
-        _in_merge && exit 1
+    if _in_merge; then
+        if ! git merge --abort; then
+            _in_merge && exit 1
+        fi
+    else
+        _info 0 'No merge is in progress.'
     fi
 
     admerge_post
@@ -709,8 +713,12 @@ admerge_continue() {
     _admerge
     admerge_env
 
-    if ! _commit; then
-        _in_merge && exit 1
+    if _in_merge; then
+        if ! _commit; then
+            _in_merge && exit 1
+        fi
+    else
+        _info 0 'No merge is in progress.'
     fi
 
     admerge_post
