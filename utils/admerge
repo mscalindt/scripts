@@ -558,7 +558,7 @@ _merge() {
 # (1) no
 #
 _in_merge() {
-    git merge HEAD > /dev/null 2>&1 && return 1 || return 0
+    [ -f "$GMSG" ] && return 0 || return 1
 }
 
 _admerge() {
@@ -642,6 +642,7 @@ admerge_env() {
     OBR=$(git symbolic-ref --short HEAD)
     ALOCK="$PWD"/.git/admerge_lock
     AMSG="$PWD"/.git/admerge_msg
+    GMSG="$PWD"/.git/MERGE_MSG
     CDIFF_NEW="$OBR..$BRANCH"
     CDIFF_ALL="$OBR...$BRANCH"
 }
@@ -660,16 +661,16 @@ admerge_lock() {
 } > "$ALOCK"
 
 admerge_msg() {
-    printf "Merge '%s' into '%s'\n\n" "$BRANCH" "$OBR"
+    printf "Merge '%s' into '%s'\n" "$BRANCH" "$OBR"
 
-    TMP=$(git rev-list --count "$CDIFF_NEW" 2> /dev/null)
-    [ "$TMP" ] && printf "Summary of commits (%s):\n" "$TMP"
-    TMP=$(git log --oneline "$CDIFF_NEW" 2> /dev/null)
-    [ "$TMP" ] && printf "%s\n" "$TMP"
+    {
+        echo; printf 'Summary of commits: #'
+        git rev-list --count "$CDIFF_NEW" 2> /dev/null && \
+        git log --oneline "$CDIFF_NEW" 2> /dev/null
+    } || > /dev/null 2>&1
 
     if [ "$gver" ]; then
-        TMP=$(git --version 2> /dev/null)
-        [ "$TMP" ] && printf "\n%s\n" "$TMP"
+        { echo; git --version; } || > /dev/null 2>&1
     fi
 } > "$AMSG"
 
@@ -730,33 +731,37 @@ admerge_status() {
 
     if _in_merge; then
         if [ -f "$ALOCK" ]; then
-            printf "%bTheir branch: [%b\n%s\n%b]%b\n" \
-                   "${ES_inf}" "${ES_res}" \
-                   "$(_alock_get 1)" \
+            printf "%bTheir branch: [%b\n" \
+                   "${ES_inf}" "${ES_res}"
+            _alock_get 1
+            printf "\n%b]%b\n" \
                    "${ES_inf}" "${ES_res}"
 
             printf "%bLock file location: [%b\n%s\n%b]%b\n" \
                    "${ES_inf}" "${ES_res}" \
                    "$ALOCK" \
                    "${ES_inf}" "${ES_res}"
-            printf "%bMerge options: [%b\n%s\n%b]%b\n" \
-                   "${ES_inf}" "${ES_res}" \
-                   "$(pline 1 "$ALOCK" 1)" \
+            printf "%bMerge options: [%b\n" \
+                   "${ES_inf}" "${ES_res}"
+            parse "$ALOCK" 4
+            printf "\n%b]%b\n" \
                    "${ES_inf}" "${ES_res}"
 
             printf "%bCommit message file location: [%b\n%s\n%b]%b\n" \
                    "${ES_inf}" "${ES_res}" \
                    "$AMSG" \
                    "${ES_inf}" "${ES_res}"
-            printf "%bCommit message: [%b\n%s\n%b]%b\n" \
-                   "${ES_inf}" "${ES_res}" \
-                   "$(parse "$AMSG")" \
+            printf "%bCommit message: [%b\n" \
+                   "${ES_inf}" "${ES_res}"
+            parse "$AMSG"
+            printf "%b]%b\n" \
                    "${ES_inf}" "${ES_res}"
         fi
 
-        printf "%bStatus of files: [%b\n%s\n%b]%b\n" \
-               "${ES_inf}" "${ES_res}" \
-               "$(git status -s)" \
+        printf "%bStatus of files: [%b\n" \
+               "${ES_inf}" "${ES_res}"
+        git status -s
+        printf "%b]%b\n" \
                "${ES_inf}" "${ES_res}"
     fi
 
