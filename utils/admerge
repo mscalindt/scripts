@@ -766,7 +766,7 @@ admerge_status() {
 
         printf "%bStatus of files: [%b\n" \
                "${ES_inf}" "${ES_res}"
-        git status -s
+        git status --short
         printf "%b]%b\n" \
                "${ES_inf}" "${ES_res}"
     else
