@@ -733,11 +733,7 @@ admerge_status() {
                "${ES_inf}" "${ES_res}" \
                "$OBR" \
                "${ES_inf}" "${ES_res}"
-    else
-        _info 0 'No merge is in progress.'
-    fi
 
-    if _in_merge; then
         if [ -f "$ALOCK" ]; then
             printf "%bTheir branch: [%b\n" \
                    "${ES_inf}" "${ES_res}"
@@ -771,6 +767,8 @@ admerge_status() {
         git status -s
         printf "%b]%b\n" \
                "${ES_inf}" "${ES_res}"
+    else
+        _info 0 'No merge is in progress.'
     fi
 
     admerge_post
