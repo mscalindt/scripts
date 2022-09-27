@@ -690,7 +690,9 @@ admerge_exec() {
 
 admerge_post() {
     if ! _in_merge; then
-        rm -f "$ALOCK" "$AMSG"
+        if [ -f "$ALOCK" ] || [ -f "$AMSG" ]; then
+            rm -f "$ALOCK" "$AMSG"
+        fi
     fi
 }
 
