@@ -529,6 +529,10 @@ _alock_validize() {
 # <AMSG> $ - the commit message file's absolute path
 # <_alock_test> ()
 #
+# Returns:
+# (0) success
+# (!) failure
+#
 _commit() {
     if [ -f "$AMSG" ]; then
         set -- '-eF'
@@ -547,6 +551,10 @@ _commit() {
 #
 # Uses:
 # <BRANCH> $ - the branch being merged
+#
+# Returns:
+# (0) success
+# (!) failure
 #
 _merge() {
     set -- '--no-ff'
