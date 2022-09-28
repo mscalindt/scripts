@@ -572,7 +572,7 @@ _merge() {
 # (1) no
 #
 _in_merge() {
-    [ -f "$GMSG" ] && return 0 || return 1
+    [ -f "$GMSG" ]
 }
 
 _admerge() {
