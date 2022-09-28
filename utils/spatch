@@ -105,6 +105,9 @@ version() {
 # <$1> - exit code
 # <"$2"+> - text
 #
+# Returns:
+# (!) $1
+#
 err() {
     _rc="$1"; shift
     printf "ERROR: %s\n" "$*" 1>&2
@@ -117,6 +120,9 @@ err() {
 # Parameters:
 # <$1> - exit code
 # <"$2"+> - text
+#
+# Returns:
+# (!) $1
 #
 err_clr() {
     _rc="$1"; shift
@@ -316,7 +322,10 @@ get_fpath() {
         *) _path="$PWD/$1" ;;
     esac
 
-    [ ! "$2" ] && printf "%s" "$_path"
+    case $2 in
+        0) : ;;
+        *) printf "%s" "$_path" ;;
+    esac
 }
 
 # Description:

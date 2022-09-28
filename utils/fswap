@@ -105,6 +105,9 @@ version() {
 # <$1> - exit code
 # <"$2"+> - text
 #
+# Returns:
+# (!) $1
+#
 err() {
     _rc="$1"; shift
     printf "ERROR: %s\n" "$*" 1>&2
@@ -117,6 +120,9 @@ err() {
 # Parameters:
 # <$1> - exit code
 # <"$2"+> - text
+#
+# Returns:
+# (!) $1
 #
 err_clr() {
     _rc="$1"; shift
@@ -143,7 +149,10 @@ get_fpath() {
         *) _path="$PWD/$1" ;;
     esac
 
-    [ ! "$2" ] && printf "%s" "$_path"
+    case $2 in
+        0) : ;;
+        *) printf "%s" "$_path" ;;
+    esac
 }
 
 # Description:
@@ -181,10 +190,11 @@ info_clr() {
 #
 # Returns:
 # (0) info-formatted $2
+# (1) printf format error
 #
 info_fmt() {
     _printf_fmt="$1"; shift
-    printf "INFO: ${_printf_fmt}%s\n" "$*"
+    printf "INFO: ${_printf_fmt}%s\n" "$*" 2> /dev/null || return 1
 }
 
 # Description:
@@ -196,10 +206,12 @@ info_fmt() {
 #
 # Returns:
 # (0) info-formatted $2
+# (1) printf format error
 #
 info_fmt_clr() {
     _printf_fmt="$1"; shift
-    printf "%bINFO:%b ${_printf_fmt}%s\n" '\033[1;37m' '\033[0m' "$*"
+    printf "%bINFO:%b ${_printf_fmt}%s\n" \
+           '\033[1;37m' '\033[0m' "$*" 2> /dev/null || return 1
 }
 
 # Description:
