@@ -1,6 +1,5 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
-# shellcheck disable=SC2048 # ShellCheck incorrect pedantic warning
 
 _copyright() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
