@@ -315,7 +315,7 @@ op1_fMvList() {
 
             case $_i in
                 "$FCOUNT")
-                    :
+                    printf "%s; " "mv -f -- $BAD_ARRAY $TMP_DIR/$GOOD_ARRAY"
                 ;;
                 *00)
                     printf "%s; " "mv -f -- $BAD_ARRAY $TMP_DIR/$GOOD_ARRAY; _infowhite 0 \"($_i/$FCOUNT)\""
@@ -342,7 +342,7 @@ op1_fMvList() {
 
             case $_i in
                 "$FCOUNT")
-                    :
+                    printf "%s; " "mv -f -- $BAD_ARRAY $TMP_DIR/$GOOD_ARRAY"
                 ;;
                 *500|*000)
                     printf "%s; " "mv -f -- $BAD_ARRAY $TMP_DIR/$GOOD_ARRAY; _infowhite 0 \"($_i/$FCOUNT)\""
@@ -369,7 +369,7 @@ op1_fMvList() {
 
             case $_i in
                 "$FCOUNT")
-                    :
+                    printf "%s; " "mv -f -- $BAD_ARRAY $TMP_DIR/$GOOD_ARRAY"
                 ;;
                 *000)
                     printf "%s; " "mv -f -- $BAD_ARRAY $TMP_DIR/$GOOD_ARRAY; _infowhite 0 \"($_i/$FCOUNT)\""
