@@ -1,0 +1,576 @@
+#!/bin/dash
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2022 Dimitar Yurukov <mscalindt@protonmail.com>
+# DO NOT USE!!! I REPEAT: DO NOT USE! ò_ó (or use but first read and backup ^‿^)
+# "$1" - DIR
+#
+# FILENAMES WITH NEWLINES... ARE GOING TO GET FORCEFULLY CHANGED CUZ THAT'S
+# REALLY EVIL NGL WTF!? TELL ME ONE GOOD REASON TO HAVE NEWLINES IN YOUR FILES.
+# AND DONT TELL ME THE SCRIPT IS BROKEN BECAUSE IT CANT HANDLE NEWLINES IN
+# FILENAMES, THIS AINT C BRO. AND I'LL BE WAITING FOR YOUR INPUT, FIGURATIVELY
+# AND LITERALLY. WAITING LIKE THIS: ò_ó
+#
+# Ignore the paragraph above, it was applicable only for V1. This is V2! ^‿^
+# WARNING: The code below might make you vomit and question the sanity of its
+#          writers. Copyrighters are not held liable for any chaos caused!
+
+err() {
+    [ -d "$TMP_DIR" ] && rm -rf "$TMP_DIR"
+    _rc="$1"; shift
+    printf "%b[%s] %s=>>: %b%s%b\n" '\033[1;31m' "$(date "+%H:%M:%S")" "$_str" '\033[1;37m' "$*" '\033[0m' 1>&2
+    exit "$_rc"
+}
+
+esc_str() {
+    _str="$1"
+    unset _str_ref
+
+    set -f
+
+    case "$2" in
+        0*) _chars="${2#??}" ;;
+        *) _chars='\ | & ; < > ( ) $ ` " '\'' * ? [ ] # ~ = %' ;;
+    esac
+
+    case "$_chars" in
+        \\*) : ;;
+        *\\) _chars=\\" ${_chars%%\\*}${_chars#*\\}" ;;
+        *\\*) _chars=\\" ${_chars%%\\*}${_chars#*\\ }" ;;
+    esac
+
+    for _char in $_chars; do
+        case "$_str" in
+            *"$_char"*) : ;;
+            *) continue ;;
+        esac
+
+        case $_char:$3:"$2" in
+            "'":2*|"'":"$3":2)
+                _str_ref="${_str%%\'*}'\\''"
+            ;;
+            "$_char":1*|"$_char":"$3":1)
+                _str_ref="${_str%%"$_char"*}"
+            ;;
+            *)
+                _str_ref="${_str%%"$_char"*}\\$_char"
+            ;;
+        esac
+        _str="$_str_ref${_str#*"$_char"}"
+
+        case $_char:$3:"$2" in
+            "'":2*|"'":"$3":2)
+                while :; do case "$_str" in
+                    "$_str_ref"*"'"*)
+                        _str="${_str#*"$_str_ref"}"
+                        _str_ref="$_str_ref${_str%%\'*}'\\''"
+                        _str="$_str_ref${_str#*\'}"
+                    ;;
+                    *)
+                        break
+                    ;;
+                esac done
+            ;;
+            "$_char":1*|"$_char":"$3":1)
+                while :; do case "$_str" in
+                    *"$_char"*) _str="${_str%%"$_char"*}${_str#*"$_char"}" ;;
+                    *) break ;;
+                esac done
+            ;;
+            *)
+                while :; do case "$_str" in
+                    "$_str_ref"*"$_char"*)
+                        _str="${_str#*"$_str_ref"}"
+                        _str_ref="$_str_ref${_str%%"$_char"*}\\$_char"
+                        _str="$_str_ref${_str#*"$_char"}"
+                    ;;
+                    *)
+                        break
+                    ;;
+                esac done
+            ;;
+        esac
+    done
+
+    set +f
+
+    [ "$_str_ref" ] || return 1
+
+    case :$4:$3:"$2" in
+        *:3*) : ;;
+        *) printf "%s" "$_str" ;;
+    esac
+}
+
+# V2: top quality name
+LF_escEsc() {
+    _str="$1"
+    _char='\n'
+
+    _str_ref="${_str%%"$_char"*}a'$_char"
+    _str="$_str_ref${_str#*"$_char"}"
+
+    while :; do case "$_str" in
+        "$_str_ref"*"$_char"*)
+            _str="${_str#*"$_str_ref"}"
+            _str_ref="$_str_ref${_str%%"$_char"*}a'$_char"
+            _str="$_str_ref${_str#*"$_char"}"
+        ;;
+        *)
+            break
+        ;;
+    esac done
+}
+
+# V2: pretty please
+LF_goAway() {
+    _str="$1"
+    _char="$char_LF"
+
+    _str_ref="${_str%%"$_char"*}\\n"
+    _str="$_str_ref${_str#*"$_char"}"
+
+    while :; do case "$_str" in
+        "$_str_ref"*"$_char"*)
+            _str="${_str#*"$_str_ref"}"
+            _str_ref="$_str_ref${_str%%"$_char"*}\\n"
+            _str="$_str_ref${_str#*"$_char"}"
+        ;;
+        *)
+            break
+        ;;
+    esac done
+}
+
+# XD
+# NOTE: this function works because we escape ' with '\'' beforehand,
+#       so if there is a pattern such as a'\n, it means that this is
+#       not a newline but a literal pattern \n in the filename, otherwise
+#       it is a newline part of the filename. basically, a pattern such as
+#       a'\n tells us that this is our escape of a literal pattern \n.
+LF_unGo_unEsc() {
+    case "$1" in
+        *'\n'*)
+            _str="$1"
+            _char='\n'
+
+            _str_ref="${_str%%"$_char"*}"
+            case "$_str_ref" in
+                *"a'") _str_ref="${_str_ref%??}\\n" ;;
+                *) _str_ref="$_str_ref$char_LF" ;;
+            esac
+            _str="$_str_ref${_str#*"$_char"}"
+
+            while :; do case "$_str" in
+                "$_str_ref"*"$_char"*)
+                    _str="${_str#*"$_str_ref"}"
+                    _str_ref="$_str_ref${_str%%"$_char"*}"
+                    case "$_str_ref" in
+                        *"a'") _str_ref="${_str_ref%??}\\n" ;;
+                        *) _str_ref="$_str_ref$char_LF" ;;
+                    esac
+                    _str="$_str_ref${_str#*"$_char"}"
+                ;;
+                *)
+                    break
+                ;;
+            esac done
+
+            set -- "$_str"
+        ;;
+    esac
+
+    printf "%s " "$1"
+}
+
+op1_sortPrep() {
+            case "$1" in
+                *"'"*) esc_str "$1" "0 '" 2 3 && set -- "$_str" ;;
+            esac
+
+            { # order of func exec matters ò_ó
+            case "$1" in
+                *'\n'*) LF_escEsc "$1" && set -- "$_str" ;;
+            esac
+
+            case "$1" in
+                *"$char_LF"*) LF_goAway "$1" && set -- "$_str" ;;
+            esac
+            }
+
+            set -- "'$1'
+"
+
+            BAD_ARRAYS="$BAD_ARRAYS$1"
+}
+
+# optimization king guys
+op2_sortPrep() {
+            case "$1" in
+                *"'"*) esc_str "$1" "0 '" 2 3 && set -- "$_str" ;;
+            esac
+
+            { # order of func exec matters ò_ó
+            case "$1" in
+                *'\n'*) LF_escEsc "$1" && set -- "$_str" ;;
+            esac
+
+            case "$1" in
+                *"$char_LF"*) LF_goAway "$1" && set -- "$_str" ;;
+            esac
+            }
+
+            set -- "'$1'"
+
+            printf "%s\n" "$1"
+}
+
+op1_fNamesFix() {
+    # there probably is some better way to write this but brain=dead ò_ó
+    case ${#i} in
+        2)
+            case $_if in
+                2) ;;
+                *) _if=2; zeroD_i="${zeroD_i#?}" ;;
+            esac
+        ;;
+        3)
+            case $_if in
+                3) ;;
+                *) _if=3; zeroD_i="${zeroD_i#?}" ;;
+            esac
+        ;;
+    esac
+
+            case "$1" in
+                *"'"*) esc_str "$1" "0 '" 2 3 && set -- "'$_str'" ;;
+                *) set -- "'$1'" ;;
+            esac
+
+    _sfix="${1#*[0123456789]}"
+    case "$_sfix" in
+        [0123456789]*) _sfix="${_sfix#"${_sfix%%[!0123456789]*}"}" ;;
+    esac
+    _str="${1%%[0123456789]*}$zeroD_i$i$_sfix"
+    GOOD_ARRAYS="$GOOD_ARRAYS$_str "
+
+    i=$((i + 1))
+}
+
+# optimization king guys
+op2_fNamesFix() {
+    # there probably is some better way to write this but brain=dead ò_ó
+    case ${#i} in
+        2)
+            case $_if in
+                2) ;;
+                *) _if=2; zeroD_i="${zeroD_i#?}" ;;
+            esac
+        ;;
+        3)
+            case $_if in
+                3) ;;
+                *) _if=3; zeroD_i="${zeroD_i#?}" ;;
+            esac
+        ;;
+    esac
+
+            case "$1" in
+                *"'"*) esc_str "$1" "0 '" 2 3 && set -- "'$_str'" ;;
+                *) set -- "'$1'" ;;
+            esac
+
+    _sfix="${1#*[0123456789]}"
+    case "$_sfix" in
+        [0123456789]*) _sfix="${_sfix#"${_sfix%%[!0123456789]*}"}" ;;
+    esac
+    _str="${1%%[0123456789]*}$zeroD_i$i$_sfix"
+
+    printf "%s " "$_str"
+
+    i=$((i + 1))
+}
+
+op1_fMvList() {
+    eval set -- "$1" "$2"
+    GARRAY_FCOUNT=$((FCOUNT + 1))
+    eval "GOOD_ARRAY=\${$GARRAY_FCOUNT}"
+    _i=1
+    MVLIST=$(
+            case "$TMP_DIR" in
+                *"'"*) esc_str "$TMP_DIR" "0 '" 2 3 && TMP_DIR="'$_str" ;;
+                *) TMP_DIR="'$TMP_DIR" ;;
+            esac
+        if [ "$FCOUNT" -le 1000 ]; then
+        while [ "$GOOD_ARRAY" ]; do
+            BAD_ARRAY="$1"
+
+            case "$BAD_ARRAY" in
+                *"'"*) esc_str "$BAD_ARRAY" "0 '" 2 3 && BAD_ARRAY="'$_str'" ;;
+                *) BAD_ARRAY="'$BAD_ARRAY'" ;;
+            esac
+            case "$GOOD_ARRAY" in
+                *"'"*) esc_str "$GOOD_ARRAY" "0 '" 2 3 && GOOD_ARRAY="$_str'" ;;
+                *) GOOD_ARRAY="$GOOD_ARRAY'" ;;
+            esac
+
+            case $_i in
+                "$FCOUNT")
+                    :
+                ;;
+                *00)
+                    printf "%s; " "mv -f -- $BAD_ARRAY $TMP_DIR/$GOOD_ARRAY; _infowhite 0 \"($_i/$FCOUNT)\""
+                ;;
+                *)
+                    printf "%s; " "mv -f -- $BAD_ARRAY $TMP_DIR/$GOOD_ARRAY"
+                ;;
+            esac
+
+            shift; eval "GOOD_ARRAY=\${$GARRAY_FCOUNT}"; _i=$((_i + 1))
+        done
+        elif [ "$FCOUNT" -le 5000 ]; then
+        while [ "$GOOD_ARRAY" ]; do
+            BAD_ARRAY="$1"
+
+            case "$BAD_ARRAY" in
+                *"'"*) esc_str "$BAD_ARRAY" "0 '" 2 3 && BAD_ARRAY="'$_str'" ;;
+                *) BAD_ARRAY="'$BAD_ARRAY'" ;;
+            esac
+            case "$GOOD_ARRAY" in
+                *"'"*) esc_str "$GOOD_ARRAY" "0 '" 2 3 && GOOD_ARRAY="$_str'" ;;
+                *) GOOD_ARRAY="$GOOD_ARRAY'" ;;
+            esac
+
+            case $_i in
+                "$FCOUNT")
+                    :
+                ;;
+                *500|*000)
+                    printf "%s; " "mv -f -- $BAD_ARRAY $TMP_DIR/$GOOD_ARRAY; _infowhite 0 \"($_i/$FCOUNT)\""
+                ;;
+                *)
+                    printf "%s; " "mv -f -- $BAD_ARRAY $TMP_DIR/$GOOD_ARRAY"
+                ;;
+            esac
+
+            shift; eval "GOOD_ARRAY=\${$GARRAY_FCOUNT}"; _i=$((_i + 1))
+        done
+        else
+        while [ "$GOOD_ARRAY" ]; do
+            BAD_ARRAY="$1"
+
+            case "$BAD_ARRAY" in
+                *"'"*) esc_str "$BAD_ARRAY" "0 '" 2 3 && BAD_ARRAY="'$_str'" ;;
+                *) BAD_ARRAY="'$BAD_ARRAY'" ;;
+            esac
+            case "$GOOD_ARRAY" in
+                *"'"*) esc_str "$GOOD_ARRAY" "0 '" 2 3 && GOOD_ARRAY="$_str'" ;;
+                *) GOOD_ARRAY="$GOOD_ARRAY'" ;;
+            esac
+
+            case $_i in
+                "$FCOUNT")
+                    :
+                ;;
+                *000)
+                    printf "%s; " "mv -f -- $BAD_ARRAY $TMP_DIR/$GOOD_ARRAY; _infowhite 0 \"($_i/$FCOUNT)\""
+                ;;
+                *)
+                    printf "%s; " "mv -f -- $BAD_ARRAY $TMP_DIR/$GOOD_ARRAY"
+                ;;
+            esac
+
+            shift; eval "GOOD_ARRAY=\${$GARRAY_FCOUNT}"; _i=$((_i + 1))
+        done
+        fi
+    )
+    MVLIST="${MVLIST%?}"
+}
+
+_info() {
+    case :$1${1#*[!0123456789]} in
+        :) return 255 ;;
+        :00) : ;;
+        :0*) return 255 ;;
+        :"$1$1") : ;;
+        *) return 255 ;;
+    esac
+
+    _str=; _i=0; until [ "$_i" -eq "$1" ]; do
+        _str="$_str "
+        _i=$((_i + 1))
+    done
+
+    shift
+    printf "%b[%s] %s=>>: %b%s%b\n" '\033[1;34m' "$(date "+%H:%M:%S")" "$_str" '\033[1;37m' "$*" '\033[0m'
+}
+
+_infogreen() {
+    case :$1${1#*[!0123456789]} in
+        :) return 255 ;;
+        :00) : ;;
+        :0*) return 255 ;;
+        :"$1$1") : ;;
+        *) return 255 ;;
+    esac
+
+    _str=; _i=0; until [ "$_i" -eq "$1" ]; do
+        _str="$_str "
+        _i=$((_i + 1))
+    done
+
+    shift
+    printf "%b[%s] %s=>>: %b%s%b\n" '\033[1;32m' "$(date "+%H:%M:%S")" "$_str" '\033[1;37m' "$*" '\033[0m'
+}
+
+_infowhite() {
+    case :$1${1#*[!0123456789]} in
+        :) return 255 ;;
+        :00) : ;;
+        :0*) return 255 ;;
+        :"$1$1") : ;;
+        *) return 255 ;;
+    esac
+
+    _str=; _i=0; until [ "$_i" -eq "$1" ]; do
+        _str="$_str "
+        _i=$((_i + 1))
+    done
+
+    shift
+    printf "%b[%s] %s=>>: %b%s%b\n" '\033[1;37m' "$(date "+%H:%M:%S")" "$_str" '\033[1;37m' "$*" '\033[0m'
+}
+
+# i swear this is the last color function guys i swear!
+_infoyellow() {
+    case :$1${1#*[!0123456789]} in
+        :) return 255 ;;
+        :00) : ;;
+        :0*) return 255 ;;
+        :"$1$1") : ;;
+        *) return 255 ;;
+    esac
+
+    _str=; _i=0; until [ "$_i" -eq "$1" ]; do
+        _str="$_str "
+        _i=$((_i + 1))
+    done
+
+    shift
+    printf "%b[%s] %s=>>: %b%s%b\n" '\033[1;33m' "$(date "+%H:%M:%S")" "$_str" '\033[1;37m' "$*" '\033[0m'
+}
+
+# requires: date mkdir mv rm 'sort -V'
+main() {
+    export LC_ALL=C
+    char_LF='
+' # this is used in some functions for prettiness (yeah just ignore the fact this script is glued in with ugliness)
+
+    [ "$1" ] || err 2 'Are you dumb? I require DIRECTORY. Now give fast or else... ò_ó'
+    [ -d "$1" ] || err 2 "Are you stupid? '$1' is not a directory. ò_ó"
+    DIR="$1"
+    cd "$DIR" || err "$?" "I cannot cd into your directory '$1'. Fix this fast. ò_ó"
+
+    set -- * 2> /dev/null || err 1 'You can'\''t just pass me more than a million files. What are you, a data hoarder? A streaming service? A self-presumed god of indexing?'
+    FCOUNT=$#
+
+    _info 0 'Testing if files are valid'
+
+    (
+        while [ "$1" ]; do
+            true >> "$1" || err "$?" "Your file '$1' is not valid. Sorry! ^‿^"
+            shift
+        done
+    )
+
+    _infogreen 0 'Done! (｡◕‿◕｡)'
+
+    _info 0 'Filenames are being prepared for '\''sort'\'''
+
+    # V1: lets make sure your bad filenames will be handled correctly ò_ó
+    # V2: Your filenames are, in fact, handled correctly! ^‿^
+    #     The angry comments are unjustified but understandable! ^‿^
+    if [ "$FCOUNT" -le 420 ]; then
+        while [ "$1" ]; do
+            op1_sortPrep "$1"; shift
+        done
+        BAD_ARRAYS="${BAD_ARRAYS%?}"
+    elif [ "$FCOUNT" -le 69420 ]; then  # you have 420+ files? it's fine it's fine plan B we go ò_ó
+      BAD_ARRAYS=$(
+        while [ "$1" ]; do
+            op2_sortPrep "$1"; shift
+        done
+      )
+    else # you have 69420+ files? it's fine it's fine plan C we go ò_ó ò_ó
+        # TODO: use C to enum the files
+        err 1 "At this time, the max number of files is 69420; yours are $FCOUNT. Sorry! ^‿^"
+    fi
+
+    _infogreen 0 'Done! (｡◕‿◕｡)'
+
+    _info 0 'Filenames are being sorted'
+
+    {
+    sort -V > /dev/null 2>&1 <<'EOF'
+abcdefu
+EOF
+    } || err 1 'sort '\''-V'\'' is not available. Sorry!'
+
+    # sort '-V' is not POSIX; any alternative? (will have to deal with sort keys if there's any alternative (URGH ò_ó))
+    BAD_ARRAYS=$(printf "%s" "$BAD_ARRAYS" | sort -V) # V1: them bad filenames are here URGH how I wish to rm instead of mv ò_ó
+                                                      # V2: I made sure the naughty V1 won't accidentally do that LOL ^‿^
+    BAD_ARRAYS=$(
+        printf "%s\n" "$BAD_ARRAYS" | while IFS= read -r LINE; do
+            LF_unGo_unEsc "$LINE"
+        done
+    )
+    BAD_ARRAYS="${BAD_ARRAYS%?}"
+
+    _infogreen 0 'Done! (｡◕‿◕｡)'
+
+    _info 0 'Filenames are being fixed'
+
+    eval set -- "$BAD_ARRAYS"
+    i=1
+    case ${#FCOUNT} in
+        5) zeroD_i=0000 ;;
+        4) zeroD_i=000 ;;
+        3) zeroD_i=00 ;;
+        2) zeroD_i=0 ;;
+        1) zeroD_i= ;;
+    esac
+    if [ "$FCOUNT" -le 420 ]; then
+        while [ "$1" ]; do
+            op1_fNamesFix "$1"; shift
+        done
+    elif [ "$FCOUNT" -le 69420 ]; then
+      GOOD_ARRAYS=$(
+        while [ "$1" ]; do
+            op2_fNamesFix "$1"; shift
+        done
+      )
+    fi
+    GOOD_ARRAYS="${GOOD_ARRAYS%?}"
+
+    _infogreen 0 'Done! (｡◕‿◕｡)'
+
+    _info 0 'Filenames are being written'
+
+    case "$DIR" in
+        '/'*) : ;;
+        *) DIR="$PWD" ;;
+    esac
+    TMP_DIR="$DIR"/.j82IDGYacWQ1G0T123yx93k1NMY1cvJ82P455W0RDZgzQKLMMJHI9
+    [ -d "$TMP_DIR" ] && { _infoyellow 0 "Are you doing something naughty?! Does '$TMP_DIR' remind you of something? ò_ó"; rm -rf "$TMP_DIR"; }
+    mkdir "$TMP_DIR" || err "$?" 'Creation of temporary directory failed. ò_ó'
+    op1_fMvList "$BAD_ARRAYS" "$GOOD_ARRAYS" # Provides $MVLIST
+    eval "hash mv; $MVLIST" # this needs to be ported to awk/perl/C for +90% performance optimization; imagine if mv supported multiple file pairs -- ~99% performance optimization... hire me for more performance hints!
+    mv "$TMP_DIR"/* "$DIR"
+    rm -rf "$TMP_DIR"
+    set -- * # we never moved from $DIR aka our current working directory aka $PWD i.e. '*'
+    [ "$FCOUNT" -eq "$#" ] || err 1 'I think I fucked up your files... somehow. Sorry. Please don'\''t _execute_ me. ಠ‿↼ At least you have a backup, right? Right?! ･_･'
+
+    _infowhite 0 "($FCOUNT/$FCOUNT)"
+    _infogreen 0 'Done! (｡◕‿◕｡)'
+}
+
+main "$@"
