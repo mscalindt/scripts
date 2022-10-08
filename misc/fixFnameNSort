@@ -477,10 +477,10 @@ main() {
 
     (
         while [ "$1" ]; do
-            true >> "$1" || err "$?" "Your file '$1' is not valid. Sorry! ^‿^"
+            { true >> "$1"; } 2> /dev/null || err "$?" "'$1' is not valid. Sorry! ^‿^"
             shift
         done
-    )
+    ) || exit "$?"
 
     _infogreen 0 'Done! (｡◕‿◕｡)'
 
