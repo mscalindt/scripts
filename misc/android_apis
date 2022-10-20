@@ -1,12 +1,7 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2021-2022 Dimitar Yurukov <mscalindt@protonmail.com>
 # Usage (intended): source android_apis
-
-: <<'notice'
- * SPDX-License-Identifier: GPL-3.0-only
- *
- * Copyright (C) 2021-2022 Dimitar Yurukov <mscalindt@protonmail.com>
- *
-notice
 
 # > Install an APK contained in URL for user 0
 # Arguments: <"$1"> - APK URL

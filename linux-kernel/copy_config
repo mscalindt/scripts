@@ -1,4 +1,6 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2020-2022 Dimitar Yurukov <mscalindt@protonmail.com>
 # shellcheck disable=SC2086
 
 : <<'notice'
@@ -18,10 +20,6 @@
  *   VENDOR_DCONF: [toggle] [0]
  *   0 = .config will be copied to arch/<arch>/configs
  *   1 = .config will be copied to arch/<arch>/configs/vendor
- *
- * SPDX-License-Identifier: GPL-3.0-only
- *
- * Copyright (C) 2020-2021 Dimitar Yurukov <mscalindt@protonmail.com>
  *
 notice
 

@@ -1,12 +1,7 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2021-2022 Dimitar Yurukov <mscalindt@protonmail.com>
 # Usage (intended): adb shell < drs_apks
-
-: <<'notice'
- * SPDX-License-Identifier: GPL-3.0-only
- *
- * Copyright (C) 2021 Dimitar Yurukov <mscalindt@protonmail.com>
- *
-notice
 
 pkg_install() {
     DIR="/data/local/tmp/pkg_install"
