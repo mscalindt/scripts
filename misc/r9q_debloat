@@ -1,0 +1,1133 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2022 Dimitar Yurukov <mscalindt@protonmail.com>
+# Usage (intended): adb shell < r9q_debloat
+# [r9q | Samsung Galaxy S21 FE 5G (Model number)[SM-G990B2/DS]]
+#        Android 12 (Build number)[SP1A.210812.016.G990B2XXS1CVI5]
+
+info_white() {
+    printf "%b[%s] =>>: %b%s%b\n" '\033[1;37m' "$(date "+%H:%M:%S")" \
+                                  '\033[1;37m' "$*" '\033[0m'
+}
+
+pkg_rm() (
+    _errh() { return "$1"; }
+    trap '_errh $?' INT TERM EXIT; set -e
+    info_white "pkg_rm: $1:"
+
+    DIR='/storage/emulated/0/Android'
+
+    pm clear --user 0 "$1" > /dev/null 2>&1
+    pm uninstall --user 0 "$1"
+    rm -rf "$DIR/data/$1" "$DIR/media/$1" "$DIR/obb/$1" 2> /dev/null
+)
+
+pkg_clr() (
+    _errh() { return "$1"; }
+    trap '_errh $?' INT TERM EXIT; set -e
+    info_white "pkg_clr: $1:"
+
+    DIR='/storage/emulated/0/Android'
+
+    pm clear --user 0 "$1"
+    rm -rf "$DIR/data/$1"/* 2> /dev/null
+)
+
+main() {
+    # SP1A.210812.016.G990B2XXS1CVI5
+    # Full stock app list, 447/448; excl. 'android'; 2022-10-21T06:00:00
+    # $ AAPKslurp list-wlabel | \
+     #   while IFS= read -r LINE; do printf "        %s\n" "$LINE"; done
+    ( return 1
+        android.auto_generated_rro_product__ >> android.auto_generated_rro_product__
+        android.auto_generated_rro_vendor__ >> android.auto_generated_rro_vendor__
+        android.autoinstalls.config.samsung >> ConfigAPK
+        com.android.apps.tag >> Tags
+        com.android.backupconfirm >> com.android.backupconfirm
+        com.android.bips >> Default Print Service
+        com.android.bluetooth >> Bluetooth
+        com.android.bluetoothmidiservice >> Bluetooth MIDI Service
+        com.android.bookmarkprovider >> Bookmark Provider
+        com.android.calllogbackup >> Call Log Backup/Restore
+        com.android.cameraextensions >> CameraExtensionsProxy
+        com.android.carrierconfig >> com.android.carrierconfig
+        com.android.carrierdefaultapp >> CarrierDefaultApp
+        com.android.certinstaller >> Certificate Installer
+        com.android.chrome >> Chrome
+        com.android.companiondevicemanager >> Companion Device Manager
+        com.android.cts.ctsshim >> com.android.cts.ctsshim
+        com.android.cts.priv.ctsshim >> com.android.cts.priv.ctsshim
+        com.android.dreams.basic >> Basic Daydreams
+        com.android.dreams.phototable >> Photo Screensavers
+        com.android.dynsystem >> Dynamic System Updates
+        com.android.egg >> Android S Easter Egg
+        com.android.externalstorage >> External Storage
+        com.android.hotspot2.osulogin >> OsuLogin
+        com.android.hotwordenrollment.okgoogle >> Google Assistant
+        com.android.hotwordenrollment.xgoogle >> Google Assistant
+        com.android.htmlviewer >> HTML Viewer
+        com.android.inputdevices >> Input Devices
+        com.android.internal.display.cutout.emulation.corner >> Corner cutout
+        com.android.internal.display.cutout.emulation.double >> Double cutout
+        com.android.internal.display.cutout.emulation.hole >> Punch Hole cutout
+        com.android.internal.display.cutout.emulation.tall >> Tall cutout
+        com.android.internal.display.cutout.emulation.waterfall >> Waterfall cutout
+        com.android.internal.systemui.navbar.gestural >> Gestural Navigation Bar
+        com.android.internal.systemui.navbar.gestural_extra_wide_back >> Gestural Navigation Bar
+        com.android.internal.systemui.navbar.gestural_narrow_back >> Gestural Navigation Bar
+        com.android.internal.systemui.navbar.gestural_wide_back >> Gestural Navigation Bar
+        com.android.internal.systemui.navbar.threebutton >> 3 Button Navigation Bar
+        com.android.internal.systemui.onehanded.gestural >> One Handed Mode
+        com.android.keychain >> Key Chain
+        com.android.localtransport >> com.android.localtransport
+        com.android.location.fused >> Fused Location
+        com.android.managedprovisioning >> Work Setup
+        com.android.mms.service >> MmsService
+        com.android.mtp >> MTP Host
+        com.android.nfc >> NFC
+        com.android.ons >> com.android.ons
+        com.android.pacprocessor >> PacProcessor
+        com.android.phone >> Phone services
+        com.android.printspooler >> Print Spooler
+        com.android.providers.blockednumber >> Blocked Numbers Storage
+        com.android.providers.calendar >> Calendar Storage
+        com.android.providers.downloads >> Download Manager
+        com.android.providers.downloads.ui >> Downloads
+        com.android.providers.media >> com.android.providers.media
+        com.android.providers.partnerbookmarks >> com.android.providers.partnerbookmarks
+        com.android.providers.settings >> Settings Storage
+        com.android.providers.telephony >> Phone and Messaging Storage
+        com.android.providers.userdictionary >> User Dictionary
+        com.android.proxyhandler >> ProxyHandler
+        com.android.se >> SecureElementApplication
+        com.android.server.telecom >> Phone calls
+        com.android.settings >> Settings
+        com.android.settings.intelligence >> Settings Suggestions
+        com.android.sharedstoragebackup >> com.android.sharedstoragebackup
+        com.android.shell >> Shell
+        com.android.simappdialog >> Sim App Dialog
+        com.android.stk >> SIM Toolkit
+        com.android.stk2 >> SIM Toolkit
+        com.android.storagemanager >> Storage Manager
+        com.android.systemui >> System UI
+        com.android.theme.font.notoserifsource >> Noto Serif / Source Sans Pro
+        com.android.traceur >> System Tracing
+        com.android.vending >> Google Play Store
+        com.android.vpndialogs >> VpnDialogs
+        com.android.wallpaper.livepicker >> Live Wallpaper Picker
+        com.android.wallpaperbackup >> com.android.wallpaperbackup
+        com.android.wallpapercropper >> com.android.wallpapercropper
+        com.android.wifi.resources >> System Wi-Fi Resources
+        com.diotek.sec.lookup.dictionary >> Dictionary
+        com.facebook.appmanager >> Meta App Manager
+        com.facebook.katana >> Facebook
+        com.facebook.services >> Meta Services
+        com.facebook.system >> Meta App Installer
+        com.google.android.apps.carrier.carrierwifi >> Google Wi-Fi Provisioner
+        com.google.android.apps.docs >> Drive
+        com.google.android.apps.maps >> Maps
+        com.google.android.apps.messaging >> Messages
+        com.google.android.apps.photos >> Photos
+        com.google.android.apps.restore >> Data Restore Tool
+        com.google.android.apps.setupwizard.searchselector >> Search Engine Selector
+        com.google.android.apps.tachyon >> Meet
+        com.google.android.apps.turbo >> Device Health Services
+        com.google.android.apps.youtube.music >> YouTube Music
+        com.google.android.as >> Android System Intelligence
+        com.google.android.as.oss >> Private Compute Services
+        com.google.android.captiveportallogin >> CaptivePortalLogin
+        com.google.android.cellbroadcastreceiver >> Wireless emergency alerts
+        com.google.android.cellbroadcastservice >> Cell Broadcast Service
+        com.google.android.configupdater >> ConfigUpdater
+        com.google.android.connectivity.resources >> System Connectivity Resources
+        com.google.android.documentsui >> Files
+        com.google.android.ext.services >> Android Services Library
+        com.google.android.ext.shared >> Android Shared Library
+        com.google.android.feedback >> Market Feedback Agent
+        com.google.android.gm >> Gmail
+        com.google.android.gms >> Google Play services
+        com.google.android.gms.location.history >> Google Location History
+        com.google.android.googlequicksearchbox >> Google
+        com.google.android.gsf >> Google Services Framework
+        com.google.android.ims >> Carrier Services
+        com.google.android.modulemetadata >> Main components
+        com.google.android.nearby.halfsheet >> com.google.android.nearby.halfsheet
+        com.google.android.networkstack >> Network manager
+        com.google.android.networkstack.permissionconfig >> com.google.android.networkstack.permissionconfig
+        com.google.android.networkstack.tethering >> Tethering
+        com.google.android.networkstack.tethering.overlay >> com.google.android.networkstack.tethering.overlay
+        com.google.android.onetimeinitializer >> Google One Time Init
+        com.google.android.overlay.gmsconfig.common >> com.google.android.overlay.gmsconfig.common
+        com.google.android.overlay.gmsconfig.geotz >> com.google.android.overlay.gmsconfig.geotz
+        com.google.android.overlay.gmsconfig.gsa >> com.google.android.overlay.gmsconfig.gsa
+        com.google.android.overlay.gmsconfig.photos >> com.google.android.overlay.gmsconfig.photos
+        com.google.android.overlay.modules.cellbroadcastreceiver >> com.google.android.overlay.modules.cellbroadcastreceiver
+        com.google.android.overlay.modules.cellbroadcastservice >> com.google.android.overlay.modules.cellbroadcastservice
+        com.google.android.overlay.modules.documentsui >> com.google.android.overlay.modules.documentsui
+        com.google.android.overlay.modules.ext.services >> com.google.android.overlay.modules.ext.services
+        com.google.android.overlay.modules.modulemetadata.forframework >> com.google.android.overlay.modules.modulemetadata.forframework
+        com.google.android.overlay.modules.permissioncontroller >> com.google.android.overlay.modules.permissioncontroller
+        com.google.android.overlay.modules.permissioncontroller.forframework >> com.google.android.overlay.modules.permissioncontroller.forframework
+        com.google.android.packageinstaller >> Package installer
+        com.google.android.partnersetup >> Google Partner Setup
+        com.google.android.permissioncontroller >> Permission controller
+        com.google.android.printservice.recommendation >> Print Service Recommendation Service
+        com.google.android.projection.gearhead >> Android Auto
+        com.google.android.providers.media.module >> Media Storage
+        com.google.android.safetycenter.resources >> Google Safety Center Resources
+        com.google.android.setupwizard >> Android Setup
+        com.google.android.syncadapters.calendar >> Google Calendar Sync
+        com.google.android.syncadapters.contacts >> Google Contacts Sync
+        com.google.android.tts >> Speech Services by Google
+        com.google.android.videos >> Google TV
+        com.google.android.webview >> Android System WebView
+        com.google.android.youtube >> YouTube
+        com.google.ar.core >> Google Play Services for AR
+        com.google.audio.hearing.visualization.accessibility.scribe >> Live Transcribe & Sound Notifications
+        com.google.mainline.telemetry >> Support components
+        com.hiya.star >> Hiya Service
+        com.knox.vpn.proxyhandler >> KnoxVpnPacProcessor
+        com.linkedin.android >> LinkedIn
+        com.microsoft.appmanager >> Link to Windows
+        com.microsoft.office.officehubrow >> Office
+        com.microsoft.office.outlook >> Outlook
+        com.microsoft.skydrive >> OneDrive
+        com.monotype.android.font.foundation >> Foundation
+        com.monotype.android.font.samsungone >> SamsungOne
+        com.netflix.mediaclient >> Netflix
+        com.osp.app.signin >> Samsung account
+        com.qti.snapdragon.qdcm_ff >> QDCM-FF
+        com.qualcomm.qti.gpudrivers.lahaina.api30 >> com.qualcomm.qti.gpudrivers.lahaina.api30
+        com.qualcomm.qti.services.secureui >> Secure UI Service
+        com.qualcomm.qti.services.systemhelper >> System Helper Service
+        com.qualcomm.qti.smq >> QTR
+        com.qualcomm.timeservice >> com.qualcomm.timeservice
+        com.samsung.SMT >> Samsung text-to-speech engine
+        com.samsung.aasaservice >> AASAservice
+        com.samsung.accessibility >> Accessibility
+        com.samsung.advp.imssettings >> IMS Settings
+        com.samsung.android.ConnectivityOverlay >> ConnectivityOverlay
+        com.samsung.android.ConnectivityUxOverlay >> ConnectivityUxOverlay
+        com.samsung.android.accessibility.talkback >> TalkBack
+        com.samsung.android.aircommandmanager >> FACM
+        com.samsung.android.allshare.service.fileshare >> Wi-Fi Direct
+        com.samsung.android.allshare.service.mediashare >> Nearby Service
+        com.samsung.android.app.aodservice >> AlwaysOnDisplay
+        com.samsung.android.app.appsedge >> Apps
+        com.samsung.android.app.camera.sticker.facearavatar.preload >> Crocro and friends
+        com.samsung.android.app.clipboardedge >> Clipboard edge
+        com.samsung.android.app.cocktailbarservice >> Edge panels
+        com.samsung.android.app.contacts >> Contacts
+        com.samsung.android.app.dofviewer >> Live focus
+        com.samsung.android.app.dressroom >> Wallpaper and style
+        com.samsung.android.app.earphonetypec >> TestWandFota
+        com.samsung.android.app.galaxyfinder >> Finder
+        com.samsung.android.app.kfa >> KFA
+        com.samsung.android.app.ledbackcover >> LED Cover
+        com.samsung.android.app.notes >> Samsung Notes
+        com.samsung.android.app.notes.addons >> Samsung Notes Add-ons
+        com.samsung.android.app.omcagent >> Recommended apps
+        com.samsung.android.app.reminder >> Reminder
+        com.samsung.android.app.routines >> Bixby Routines
+        com.samsung.android.app.settings.bixby >> SettingsBixby
+        com.samsung.android.app.sharelive >> Quick Share
+        com.samsung.android.app.simplesharing >> Link Sharing
+        com.samsung.android.app.smartcapture >> Samsung capture
+        com.samsung.android.app.smartwidget >> Smart Widget
+        com.samsung.android.app.soundpicker >> Sound picker
+        com.samsung.android.app.spage >> Samsung Free
+        com.samsung.android.app.taskedge >> Tasks
+        com.samsung.android.app.telephonyui >> Call settings
+        com.samsung.android.app.tips >> Tips
+        com.samsung.android.app.updatecenter >> App update
+        com.samsung.android.app.watchmanager >> Galaxy Wearable
+        com.samsung.android.app.watchmanagerstub >> Wearable Manager Installer
+        com.samsung.android.appseparation >> Separated Apps
+        com.samsung.android.ardrawing >> AR Doodle
+        com.samsung.android.aremoji >> AR Emoji
+        com.samsung.android.aremojieditor >> AR Emoji Editor
+        com.samsung.android.arzone >> AR Zone
+        com.samsung.android.authfw >> Authentication Framework
+        com.samsung.android.aware.service >> Quick Share Agent
+        com.samsung.android.bbc.bbcagent >> BBCAgent
+        com.samsung.android.beaconmanager >> Nearby device scanning
+        com.samsung.android.biometrics.app.setting >> com.samsung.android.biometrics.app.setting
+        com.samsung.android.bixby.agent >> Bixby Voice
+        com.samsung.android.bixby.service >> Bixby Dictation
+        com.samsung.android.bixby.wakeup >> \"Bixby\" voice wake-up
+        com.samsung.android.bixbyvision.framework >> BixbyVision Framework
+        com.samsung.android.bluelightfilter >> Eye comfort shield
+        com.samsung.android.brightnessbackupservice >> com.samsung.android.brightnessbackupservice
+        com.samsung.android.calendar >> Calendar
+        com.samsung.android.callbgprovider >> CallBGProvider
+        com.samsung.android.camerasdkservice >> SCameraService
+        com.samsung.android.cameraxservice >> SCameraXService
+        com.samsung.android.carkey >> Digital Key Framework
+        com.samsung.android.cidmanager >> Configuration update
+        com.samsung.android.cmfa.framework >> CMFA Framework
+        com.samsung.android.coldwalletservice >> Samsung Blockchain Keystore
+        com.samsung.android.container >> com.samsung.android.container
+        com.samsung.android.da.daagent >> Dual Messenger
+        com.samsung.android.dialer >> Phone
+        com.samsung.android.dkey >> Samsung Wallet Digital Key
+        com.samsung.android.dqagent >> DQA
+        com.samsung.android.dsms >> Dsms
+        com.samsung.android.dynamiclock >> Wallpaper services
+        com.samsung.android.easysetup >> Nearby device scanning
+        com.samsung.android.fast >> Secure Wi-Fi
+        com.samsung.android.fmm >> Find My Mobile
+        com.samsung.android.forest >> Digital Wellbeing
+        com.samsung.android.galaxy >> Galaxy Shop
+        com.samsung.android.game.gamehome >> Game Launcher
+        com.samsung.android.game.gametools >> Game Booster
+        com.samsung.android.game.gos >> Game Optimizing Service
+        com.samsung.android.gru >> Galaxy Resource Updater
+        com.samsung.android.hdmapp >> HdmApp
+        com.samsung.android.honeyboard >> Samsung Keyboard
+        com.samsung.android.incall.contentprovider >> CallContentProvider
+        com.samsung.android.incallui >> Call
+        com.samsung.android.ipsgeofence >> Samsung Visit In
+        com.samsung.android.kgclient >> Device Services
+        com.samsung.android.kidsinstaller >> Samsung Kids Installer
+        com.samsung.android.knox.analytics.uploader >> Knox Analytics Uploader
+        com.samsung.android.knox.attestation >> com.samsung.android.knox.attestation
+        com.samsung.android.knox.containeragent >> Work profile
+        com.samsung.android.knox.containercore >> Work profile
+        com.samsung.android.knox.kpecore >> KPECore
+        com.samsung.android.knox.pushmanager >> KnoxPushManager
+        com.samsung.android.livestickers >> DECO PIC
+        com.samsung.android.localeoverlaymanager >> Locale Overlay Manager
+        com.samsung.android.location >> slocation
+        com.samsung.android.lool >> Device care
+        com.samsung.android.mapsagent >> Application recommendations
+        com.samsung.android.mateagent >> Samsung Galaxy Friends
+        com.samsung.android.mcfds >> Continuity Service
+        com.samsung.android.mcfserver >> Samsung Multi Connectivity
+        com.samsung.android.mdecservice >> Call & text on other devices
+        com.samsung.android.mdm >> MDMApp
+        com.samsung.android.mdx >> Link to Windows Service
+        com.samsung.android.mdx.kit >> MDE Service Framework
+        com.samsung.android.mdx.quickboard >> Media and devices
+        com.samsung.android.messaging >> Messages
+        com.samsung.android.mobileservice >> Group Sharing
+        com.samsung.android.mtp >> MTP application
+        com.samsung.android.net.wifi.wifiguider >> Wi-Fi Tips
+        com.samsung.android.networkdiagnostic >> NetworkDiagnostic
+        com.samsung.android.networkstack >> NetworkStackOverlay
+        com.samsung.android.networkstack.tethering.overlay >> com.samsung.android.networkstack.tethering.overlay
+        com.samsung.android.oneconnect >> Smart​Things
+        com.samsung.android.peripheral.framework >> Peripheral Framework
+        com.samsung.android.privacydashboard >> Permission usage
+        com.samsung.android.privateshare >> Private Share
+        com.samsung.android.provider.filterprovider >> Filter Provider
+        com.samsung.android.providers.contacts >> Contacts Storage
+        com.samsung.android.providers.factory >> FactoryTestProvider
+        com.samsung.android.providers.media >> Sec Media Storage
+        com.samsung.android.rubin.app >> Customization Service
+        com.samsung.android.samsungpass >> Samsung Pass
+        com.samsung.android.samsungpassautofill >> Autofill with Samsung Pass
+        com.samsung.android.samsungpositioning >> SamsungPositioning
+        com.samsung.android.scloud >> Samsung Cloud
+        com.samsung.android.scs >> Samsung Core Services
+        com.samsung.android.sdk.handwriting >> HandwritingService
+        com.samsung.android.sdm.config >> Configuration update
+        com.samsung.android.secsoundpicker >> SecSoundPicker
+        com.samsung.android.server.wifi.mobilewips >> MobileWips
+        com.samsung.android.service.health >> Health Platform
+        com.samsung.android.service.peoplestripe >> People edge
+        com.samsung.android.service.stplatform >> SmartThings Framework
+        com.samsung.android.service.tagservice >> Tags
+        com.samsung.android.setting.multisound >> Separate app sound
+        com.samsung.android.shortcutbackupservice >> ShortcutBNR
+        com.samsung.android.singletake.service >> Single Take
+        com.samsung.android.sm.devicesecurity >> Device security
+        com.samsung.android.sm.policy >> SCPM Client
+        com.samsung.android.smartcallprovider >> Smart Call
+        com.samsung.android.smartface >> SmartFaceService
+        com.samsung.android.smartmirroring >> Smart View
+        com.samsung.android.smartsuggestions >> Smart Suggestions
+        com.samsung.android.smartswitchassistant >> com.samsung.android.smartswitchassistant
+        com.samsung.android.spay >> Samsung Pay
+        com.samsung.android.spayfw >> Samsung PaymentFramework
+        com.samsung.android.stickercenter >> Sticker Center
+        com.samsung.android.sume.nn.service >> SumeNN
+        com.samsung.android.svcagent >> SVC Agent
+        com.samsung.android.svoiceime >> Samsung voice input
+        com.samsung.android.tadownloader >> TADownloader
+        com.samsung.android.tapack.authfw >> AuthFw TaPack
+        com.samsung.android.themecenter >> Galaxy Themes Service
+        com.samsung.android.themestore >> Galaxy Themes
+        com.samsung.android.tvplus >> Samsung TV Plus
+        com.samsung.android.video >> Video Player
+        com.samsung.android.visionintelligence >> Bixby Vision
+        com.samsung.android.visualars >> Smart Touch Call
+        com.samsung.android.voc >> Samsung Members
+        com.samsung.android.vtcamerasettings >> Video call effects
+        com.samsung.android.wallpaper.res >> com.samsung.android.wallpaper.res
+        com.samsung.android.wcmurlsnetworkstack >> WcmUrlsNetworkStackOverlay
+        com.samsung.android.wifi.h2e.resources >> com.samsung.android.wifi.h2e.resources
+        com.samsung.android.wifi.p2paware.resources >> com.samsung.android.wifi.p2paware.resources
+        com.samsung.android.wifi.resources >> com.samsung.android.wifi.resources
+        com.samsung.android.wifi.softap.resources >> com.samsung.android.wifi.softap.resources
+        com.samsung.android.wifi.softapwpathree.resources >> com.samsung.android.wifi.softapwpathree.resources
+        com.samsung.app.newtrim >> Editor Lite
+        com.samsung.clipboardsaveservice >> ClipboardSaveService
+        com.samsung.cmfa.AuthTouch >> CMFA AuthTouchService
+        com.samsung.cmh >> CMHProvider
+        com.samsung.crane >> Phone
+        com.samsung.desktopsystemui >> Samsung DeX System UI
+        com.samsung.faceservice >> FaceService
+        com.samsung.gamedriver.sm8350 >> Samsung SM8350 GameDriver
+        com.samsung.gpuwatchapp >> GPUWatch
+        com.samsung.huxextension >> Hux Extension
+        com.samsung.ims.smk >> SimMobilityKit
+        com.samsung.internal.systemui.navbar.gestural_no_hint >> Gestural Navigation Bar
+        com.samsung.internal.systemui.navbar.sec_gestural >> Gestural Navigation Bar
+        com.samsung.internal.systemui.navbar.sec_gestural_no_hint >> Gestural Navigation Bar
+        com.samsung.ipservice >> IPService
+        com.samsung.klmsagent >> KLMS Agent
+        com.samsung.knox.securefolder >> Secure Folder
+        com.samsung.mlp >> mlp
+        com.samsung.phone.overlay.common >> com.samsung.phone.overlay.common
+        com.samsung.rcs >> RcsSettings
+        com.samsung.safetyinformation >> Safety Information
+        com.samsung.sait.sohservice >> com.samsung.sait.sohservice
+        com.samsung.sec.android.application.csc >> CSC
+        com.samsung.sree >> Samsung Global Goals
+        com.samsung.ssu >> Network unlock
+        com.samsung.storyservice >> StoryService
+        com.samsung.systemui.bixby2 >> SystemUIBixby2
+        com.samsung.ucs.agent.ese >> com.samsung.ucs.agent.ese
+        com.samsung.unifiedtp >> Tethering Provision
+        com.samsung.vklayer.sm8350 >> Samsung SM8350 VKLayer
+        com.sec.android.RilServiceModeApp >> Service mode RIL
+        com.sec.android.app.DataCreate >> Automation Test
+        com.sec.android.app.SecSetupWizard >> Samsung SetupWizard
+        com.sec.android.app.apex >> Samsung ApexService
+        com.sec.android.app.applinker >> AppLinker
+        com.sec.android.app.billing >> Samsung Checkout
+        com.sec.android.app.bluetoothtest >> BluetoothTest
+        com.sec.android.app.camera >> Camera
+        com.sec.android.app.chromecustomizations >> ChromeCustomizations
+        com.sec.android.app.clockpackage >> Clock
+        com.sec.android.app.desktoplauncher >> Samsung DeX Home
+        com.sec.android.app.dexonpc >> DeX for PC
+        com.sec.android.app.factorykeystring >> DeviceKeystring
+        com.sec.android.app.hwmoduletest >> HwModuleTest
+        com.sec.android.app.kidshome >> Samsung Kids
+        com.sec.android.app.launcher >> One UI Home
+        com.sec.android.app.magnifier >> Magnifier
+        com.sec.android.app.myfiles >> My Files
+        com.sec.android.app.parser >> DRParser Mode
+        com.sec.android.app.personalization >> Perso
+        com.sec.android.app.popupcalculator >> Calculator
+        com.sec.android.app.quicktool >> Tools
+        com.sec.android.app.safetyassurance >> Send SOS messages
+        com.sec.android.app.samsungapps >> Galaxy Store
+        com.sec.android.app.sbrowser >> Samsung Internet
+        com.sec.android.app.servicemodeapp >> Service mode
+        com.sec.android.app.setupwizardlegalprovider >> SetupWizardLegalProvider
+        com.sec.android.app.shealth >> Samsung Health
+        com.sec.android.app.soundalive >> Sound quality and effects
+        com.sec.android.app.ve.vebgm >> Samsung Editing Assets
+        com.sec.android.app.vepreload >> Video Editor
+        com.sec.android.app.voicenote >> Voice Recorder
+        com.sec.android.app.volumemonitorprovider >> VolumeMonitorProvider
+        com.sec.android.app.wlantest >> WlanTest
+        com.sec.android.autodoodle.service >> AutoDoodle
+        com.sec.android.daemonapp >> Weather
+        com.sec.android.desktopmode.uiservice >> Samsung DeX
+        com.sec.android.diagmonagent >> DiagMonAgent
+        com.sec.android.easyMover >> Smart Switch
+        com.sec.android.easyMover.Agent >> Smart Switch Agent
+        com.sec.android.easyonehand >> EasyOneHand
+        com.sec.android.emergencylauncher >> Launcher
+        com.sec.android.emergencymode.service >> EmergencyManagerService
+        com.sec.android.gallery3d >> Gallery
+        com.sec.android.mimage.avatarstickers >> AR Emoji Stickers
+        com.sec.android.mimage.photoretouching >> Photo Editor
+        com.sec.android.provider.badge >> BadgeProvider
+        com.sec.android.provider.emergencymode >> EmergencyProvider
+        com.sec.android.sdhms >> Samsung Device Health Manager Service
+        com.sec.android.smartfpsadjuster >> SmartFPSAdjuster
+        com.sec.android.soagent >> Software update
+        com.sec.android.systemupdate >> SystemUpdate
+        com.sec.android.widgetapp.easymodecontactswidget >> Favourite Contacts
+        com.sec.android.widgetapp.webmanual >> User Manual
+        com.sec.app.RilErrorNotifier >> RilNotifier
+        com.sec.automation >> TetheringAutomation
+        com.sec.bcservice >> com.sec.bcservice
+        com.sec.enterprise.knox.cloudmdm.smdms >> Knox Enrollment Service
+        com.sec.enterprise.mdm.services.simpin >> Enterprise Sim Pin Service
+        com.sec.epdg >> com.sec.epdg
+        com.sec.epdgtestapp >> EpdgTestApp
+        com.sec.factory >> DeviceTest
+        com.sec.factory.camera >> FactoryCamera
+        com.sec.factory.cameralyzer >> Cameralyzer
+        com.sec.hearingadjust >> Adapt Sound
+        com.sec.imslogger >> ImsLogger
+        com.sec.imsservice >> IMS Service
+        com.sec.location.nfwlocationprivacy >> Service provider location
+        com.sec.location.nsflp2 >> Samsung Location SDK
+        com.sec.mhs.smarttethering >> Auto Hotspot
+        com.sec.modem.settings >> SilentLogging
+        com.sec.phone >> com.sec.phone
+        com.sec.spp.push >> Samsung Push Service
+        com.sec.sve >> SecVideoEngineService
+        com.sec.unifiedwfc >> Wi-Fi Calling
+        com.sec.usbsettings >> USBSettings
+        com.sec.vsim.ericssonnsds.webapp >> NSDSWebApp
+        com.sem.factoryapp >> SEMFactoryApp
+        com.skms.android.agent >> SKMSAgentService
+        com.spotify.music >> Spotify
+        com.swiftkey.swiftkeyconfigurator >> Microsoft SwiftKey Factory Settings
+        com.touchtype.swiftkey >> Microsoft SwiftKey Keyboard
+        com.wsomacp >> Configuration message
+        com.wssyncmldm >> Software update
+        de.axelspringer.yana.zeropage >> upday
+        vendor.qti.hardware.cacert.server >> vendor.qti.hardware.cacert.server
+    )
+
+    # SP1A.210812.016.G990B2XXS1CVI5
+    # Post-r9q_debloat app list, 419/420; excl. 'android'; 2022-10-22T08:00:00
+    # $ AAPKslurp list-wlabel | \
+     #   while IFS= read -r LINE; do printf "        %s\n" "$LINE"; done
+    ( return 0
+        android.auto_generated_rro_product__ >> android.auto_generated_rro_product__
+        android.auto_generated_rro_vendor__ >> android.auto_generated_rro_vendor__
+        android.autoinstalls.config.samsung >> ConfigAPK
+        com.android.apps.tag >> Tags
+        com.android.backupconfirm >> com.android.backupconfirm
+        com.android.bips >> Default Print Service
+        com.android.bluetooth >> Bluetooth
+        com.android.bluetoothmidiservice >> Bluetooth MIDI Service
+        com.android.bookmarkprovider >> Bookmark Provider
+        com.android.calllogbackup >> Call Log Backup/Restore
+        com.android.cameraextensions >> CameraExtensionsProxy
+        com.android.carrierconfig >> com.android.carrierconfig
+        com.android.carrierdefaultapp >> CarrierDefaultApp
+        com.android.certinstaller >> Certificate Installer
+        com.android.chrome >> Chrome
+        com.android.companiondevicemanager >> Companion Device Manager
+        com.android.cts.ctsshim >> com.android.cts.ctsshim
+        com.android.cts.priv.ctsshim >> com.android.cts.priv.ctsshim
+        com.android.dreams.basic >> Basic Daydreams
+        com.android.dreams.phototable >> Photo Screensavers
+        com.android.dynsystem >> Dynamic System Updates
+        com.android.egg >> Android S Easter Egg
+        com.android.externalstorage >> External Storage
+        com.android.hotspot2.osulogin >> OsuLogin
+        com.android.hotwordenrollment.okgoogle >> Google Assistant
+        com.android.hotwordenrollment.xgoogle >> Google Assistant
+        com.android.htmlviewer >> HTML Viewer
+        com.android.inputdevices >> Input Devices
+        com.android.internal.display.cutout.emulation.corner >> Corner cutout
+        com.android.internal.display.cutout.emulation.double >> Double cutout
+        com.android.internal.display.cutout.emulation.hole >> Punch Hole cutout
+        com.android.internal.display.cutout.emulation.tall >> Tall cutout
+        com.android.internal.display.cutout.emulation.waterfall >> Waterfall cutout
+        com.android.internal.systemui.navbar.gestural >> Gestural Navigation Bar
+        com.android.internal.systemui.navbar.gestural_extra_wide_back >> Gestural Navigation Bar
+        com.android.internal.systemui.navbar.gestural_narrow_back >> Gestural Navigation Bar
+        com.android.internal.systemui.navbar.gestural_wide_back >> Gestural Navigation Bar
+        com.android.internal.systemui.navbar.threebutton >> 3 Button Navigation Bar
+        com.android.internal.systemui.onehanded.gestural >> One Handed Mode
+        com.android.keychain >> Key Chain
+        com.android.localtransport >> com.android.localtransport
+        com.android.location.fused >> Fused Location
+        com.android.managedprovisioning >> Work Setup
+        com.android.mms.service >> MmsService
+        com.android.mtp >> MTP Host
+        com.android.nfc >> NFC
+        com.android.ons >> com.android.ons
+        com.android.pacprocessor >> PacProcessor
+        com.android.phone >> Phone services
+        com.android.printspooler >> Print Spooler
+        com.android.providers.blockednumber >> Blocked Numbers Storage
+        com.android.providers.calendar >> Calendar Storage
+        com.android.providers.downloads >> Download Manager
+        com.android.providers.downloads.ui >> Downloads
+        com.android.providers.media >> com.android.providers.media
+        com.android.providers.partnerbookmarks >> com.android.providers.partnerbookmarks
+        com.android.providers.settings >> Settings Storage
+        com.android.providers.telephony >> Phone and Messaging Storage
+        com.android.providers.userdictionary >> User Dictionary
+        com.android.proxyhandler >> ProxyHandler
+        com.android.se >> SecureElementApplication
+        com.android.server.telecom >> Phone calls
+        com.android.settings >> Settings
+        com.android.settings.intelligence >> Settings Suggestions
+        com.android.sharedstoragebackup >> com.android.sharedstoragebackup
+        com.android.shell >> Shell
+        com.android.simappdialog >> Sim App Dialog
+        com.android.stk >> SIM Toolkit
+        com.android.stk2 >> SIM Toolkit
+        com.android.storagemanager >> Storage Manager
+        com.android.systemui >> System UI
+        com.android.theme.font.notoserifsource >> Noto Serif / Source Sans Pro
+        com.android.traceur >> System Tracing
+        com.android.vending >> Google Play Store
+        com.android.vpndialogs >> VpnDialogs
+        com.android.wallpaper.livepicker >> Live Wallpaper Picker
+        com.android.wallpaperbackup >> com.android.wallpaperbackup
+        com.android.wallpapercropper >> com.android.wallpapercropper
+        com.android.wifi.resources >> System Wi-Fi Resources
+        com.diotek.sec.lookup.dictionary >> Dictionary
+        com.google.android.apps.carrier.carrierwifi >> Google Wi-Fi Provisioner
+        com.google.android.apps.maps >> Maps
+        com.google.android.apps.messaging >> Messages
+        com.google.android.apps.restore >> Data Restore Tool
+        com.google.android.apps.setupwizard.searchselector >> Search Engine Selector
+        com.google.android.apps.turbo >> Device Health Services
+        com.google.android.as >> Android System Intelligence
+        com.google.android.as.oss >> Private Compute Services
+        com.google.android.captiveportallogin >> CaptivePortalLogin
+        com.google.android.cellbroadcastreceiver >> Wireless emergency alerts
+        com.google.android.cellbroadcastservice >> Cell Broadcast Service
+        com.google.android.configupdater >> ConfigUpdater
+        com.google.android.connectivity.resources >> System Connectivity Resources
+        com.google.android.documentsui >> Files
+        com.google.android.ext.services >> Android Services Library
+        com.google.android.ext.shared >> Android Shared Library
+        com.google.android.feedback >> Market Feedback Agent
+        com.google.android.gm >> Gmail
+        com.google.android.gms >> Google Play services
+        com.google.android.gms.location.history >> Google Location History
+        com.google.android.googlequicksearchbox >> Google
+        com.google.android.gsf >> Google Services Framework
+        com.google.android.ims >> Carrier Services
+        com.google.android.modulemetadata >> Main components
+        com.google.android.nearby.halfsheet >> com.google.android.nearby.halfsheet
+        com.google.android.networkstack >> Network manager
+        com.google.android.networkstack.permissionconfig >> com.google.android.networkstack.permissionconfig
+        com.google.android.networkstack.tethering >> Tethering
+        com.google.android.networkstack.tethering.overlay >> com.google.android.networkstack.tethering.overlay
+        com.google.android.onetimeinitializer >> Google One Time Init
+        com.google.android.overlay.gmsconfig.common >> com.google.android.overlay.gmsconfig.common
+        com.google.android.overlay.gmsconfig.geotz >> com.google.android.overlay.gmsconfig.geotz
+        com.google.android.overlay.gmsconfig.gsa >> com.google.android.overlay.gmsconfig.gsa
+        com.google.android.overlay.gmsconfig.photos >> com.google.android.overlay.gmsconfig.photos
+        com.google.android.overlay.modules.cellbroadcastreceiver >> com.google.android.overlay.modules.cellbroadcastreceiver
+        com.google.android.overlay.modules.cellbroadcastservice >> com.google.android.overlay.modules.cellbroadcastservice
+        com.google.android.overlay.modules.documentsui >> com.google.android.overlay.modules.documentsui
+        com.google.android.overlay.modules.ext.services >> com.google.android.overlay.modules.ext.services
+        com.google.android.overlay.modules.modulemetadata.forframework >> com.google.android.overlay.modules.modulemetadata.forframework
+        com.google.android.overlay.modules.permissioncontroller >> com.google.android.overlay.modules.permissioncontroller
+        com.google.android.overlay.modules.permissioncontroller.forframework >> com.google.android.overlay.modules.permissioncontroller.forframework
+        com.google.android.packageinstaller >> Package installer
+        com.google.android.partnersetup >> Google Partner Setup
+        com.google.android.permissioncontroller >> Permission controller
+        com.google.android.printservice.recommendation >> Print Service Recommendation Service
+        com.google.android.projection.gearhead >> Android Auto
+        com.google.android.providers.media.module >> Media Storage
+        com.google.android.safetycenter.resources >> Google Safety Center Resources
+        com.google.android.setupwizard >> Android Setup
+        com.google.android.syncadapters.calendar >> Google Calendar Sync
+        com.google.android.syncadapters.contacts >> Google Contacts Sync
+        com.google.android.tts >> Speech Services by Google
+        com.google.android.webview >> Android System WebView
+        com.google.ar.core >> Google Play Services for AR
+        com.google.audio.hearing.visualization.accessibility.scribe >> Live Transcribe & Sound Notifications
+        com.google.mainline.telemetry >> Support components
+        com.hiya.star >> Hiya Service
+        com.knox.vpn.proxyhandler >> KnoxVpnPacProcessor
+        com.microsoft.appmanager >> Link to Windows
+        com.microsoft.skydrive >> OneDrive
+        com.monotype.android.font.foundation >> Foundation
+        com.monotype.android.font.samsungone >> SamsungOne
+        com.osp.app.signin >> Samsung account
+        com.qti.snapdragon.qdcm_ff >> QDCM-FF
+        com.qualcomm.qti.gpudrivers.lahaina.api30 >> com.qualcomm.qti.gpudrivers.lahaina.api30
+        com.qualcomm.qti.services.secureui >> Secure UI Service
+        com.qualcomm.qti.services.systemhelper >> System Helper Service
+        com.qualcomm.timeservice >> com.qualcomm.timeservice
+        com.samsung.SMT >> Samsung text-to-speech engine
+        com.samsung.aasaservice >> AASAservice
+        com.samsung.accessibility >> Accessibility
+        com.samsung.advp.imssettings >> IMS Settings
+        com.samsung.android.ConnectivityOverlay >> ConnectivityOverlay
+        com.samsung.android.ConnectivityUxOverlay >> ConnectivityUxOverlay
+        com.samsung.android.accessibility.talkback >> TalkBack
+        com.samsung.android.aircommandmanager >> FACM
+        com.samsung.android.allshare.service.fileshare >> Wi-Fi Direct
+        com.samsung.android.allshare.service.mediashare >> Nearby Service
+        com.samsung.android.app.aodservice >> AlwaysOnDisplay
+        com.samsung.android.app.appsedge >> Apps
+        com.samsung.android.app.camera.sticker.facearavatar.preload >> Crocro and friends
+        com.samsung.android.app.clipboardedge >> Clipboard edge
+        com.samsung.android.app.cocktailbarservice >> Edge panels
+        com.samsung.android.app.contacts >> Contacts
+        com.samsung.android.app.dofviewer >> Live focus
+        com.samsung.android.app.dressroom >> Wallpaper and style
+        com.samsung.android.app.earphonetypec >> TestWandFota
+        com.samsung.android.app.galaxyfinder >> Finder
+        com.samsung.android.app.kfa >> KFA
+        com.samsung.android.app.ledbackcover >> LED Cover
+        com.samsung.android.app.notes >> Samsung Notes
+        com.samsung.android.app.notes.addons >> Samsung Notes Add-ons
+        com.samsung.android.app.omcagent >> Recommended apps
+        com.samsung.android.app.reminder >> Reminder
+        com.samsung.android.app.routines >> Bixby Routines
+        com.samsung.android.app.settings.bixby >> SettingsBixby
+        com.samsung.android.app.sharelive >> Quick Share
+        com.samsung.android.app.simplesharing >> Link Sharing
+        com.samsung.android.app.smartcapture >> Samsung capture
+        com.samsung.android.app.smartwidget >> Smart Widget
+        com.samsung.android.app.soundpicker >> Sound picker
+        com.samsung.android.app.spage >> Samsung Free
+        com.samsung.android.app.taskedge >> Tasks
+        com.samsung.android.app.telephonyui >> Call settings
+        com.samsung.android.app.tips >> Tips
+        com.samsung.android.app.updatecenter >> App update
+        com.samsung.android.appseparation >> Separated Apps
+        com.samsung.android.ardrawing >> AR Doodle
+        com.samsung.android.aremoji >> AR Emoji
+        com.samsung.android.aremojieditor >> AR Emoji Editor
+        com.samsung.android.arzone >> AR Zone
+        com.samsung.android.authfw >> Authentication Framework
+        com.samsung.android.aware.service >> Quick Share Agent
+        com.samsung.android.bbc.bbcagent >> BBCAgent
+        com.samsung.android.beaconmanager >> Nearby device scanning
+        com.samsung.android.biometrics.app.setting >> com.samsung.android.biometrics.app.setting
+        com.samsung.android.bixby.agent >> Bixby Voice
+        com.samsung.android.bixby.service >> Bixby Dictation
+        com.samsung.android.bixby.wakeup >> \"Bixby\" voice wake-up
+        com.samsung.android.bixbyvision.framework >> BixbyVision Framework
+        com.samsung.android.bluelightfilter >> Eye comfort shield
+        com.samsung.android.brightnessbackupservice >> com.samsung.android.brightnessbackupservice
+        com.samsung.android.calendar >> Calendar
+        com.samsung.android.callbgprovider >> CallBGProvider
+        com.samsung.android.camerasdkservice >> SCameraService
+        com.samsung.android.cameraxservice >> SCameraXService
+        com.samsung.android.carkey >> Digital Key Framework
+        com.samsung.android.cidmanager >> Configuration update
+        com.samsung.android.cmfa.framework >> CMFA Framework
+        com.samsung.android.coldwalletservice >> Samsung Blockchain Keystore
+        com.samsung.android.container >> com.samsung.android.container
+        com.samsung.android.da.daagent >> Dual Messenger
+        com.samsung.android.dialer >> Phone
+        com.samsung.android.dkey >> Samsung Wallet Digital Key
+        com.samsung.android.dqagent >> DQA
+        com.samsung.android.dsms >> Dsms
+        com.samsung.android.dynamiclock >> Wallpaper services
+        com.samsung.android.easysetup >> Nearby device scanning
+        com.samsung.android.fast >> Secure Wi-Fi
+        com.samsung.android.fmm >> Find My Mobile
+        com.samsung.android.forest >> Digital Wellbeing
+        com.samsung.android.game.gamehome >> Game Launcher
+        com.samsung.android.game.gametools >> Game Booster
+        com.samsung.android.game.gos >> Game Optimizing Service
+        com.samsung.android.gru >> Galaxy Resource Updater
+        com.samsung.android.hdmapp >> HdmApp
+        com.samsung.android.honeyboard >> Samsung Keyboard
+        com.samsung.android.incall.contentprovider >> CallContentProvider
+        com.samsung.android.incallui >> Call
+        com.samsung.android.kgclient >> Device Services
+        com.samsung.android.kidsinstaller >> Samsung Kids Installer
+        com.samsung.android.knox.attestation >> com.samsung.android.knox.attestation
+        com.samsung.android.knox.containeragent >> Work profile
+        com.samsung.android.knox.containercore >> Work profile
+        com.samsung.android.knox.kpecore >> KPECore
+        com.samsung.android.knox.pushmanager >> KnoxPushManager
+        com.samsung.android.livestickers >> DECO PIC
+        com.samsung.android.localeoverlaymanager >> Locale Overlay Manager
+        com.samsung.android.location >> slocation
+        com.samsung.android.lool >> Device care
+        com.samsung.android.mapsagent >> Application recommendations
+        com.samsung.android.mcfds >> Continuity Service
+        com.samsung.android.mcfserver >> Samsung Multi Connectivity
+        com.samsung.android.mdecservice >> Call & text on other devices
+        com.samsung.android.mdm >> MDMApp
+        com.samsung.android.mdx >> Link to Windows Service
+        com.samsung.android.mdx.kit >> MDE Service Framework
+        com.samsung.android.mdx.quickboard >> Media and devices
+        com.samsung.android.messaging >> Messages
+        com.samsung.android.mobileservice >> Group Sharing
+        com.samsung.android.mtp >> MTP application
+        com.samsung.android.net.wifi.wifiguider >> Wi-Fi Tips
+        com.samsung.android.networkdiagnostic >> NetworkDiagnostic
+        com.samsung.android.networkstack >> NetworkStackOverlay
+        com.samsung.android.networkstack.tethering.overlay >> com.samsung.android.networkstack.tethering.overlay
+        com.samsung.android.peripheral.framework >> Peripheral Framework
+        com.samsung.android.privacydashboard >> Permission usage
+        com.samsung.android.privateshare >> Private Share
+        com.samsung.android.provider.filterprovider >> Filter Provider
+        com.samsung.android.providers.contacts >> Contacts Storage
+        com.samsung.android.providers.factory >> FactoryTestProvider
+        com.samsung.android.providers.media >> Sec Media Storage
+        com.samsung.android.rubin.app >> Customization Service
+        com.samsung.android.samsungpass >> Samsung Pass
+        com.samsung.android.samsungpassautofill >> Autofill with Samsung Pass
+        com.samsung.android.samsungpositioning >> SamsungPositioning
+        com.samsung.android.scloud >> Samsung Cloud
+        com.samsung.android.scs >> Samsung Core Services
+        com.samsung.android.sdk.handwriting >> HandwritingService
+        com.samsung.android.sdm.config >> Configuration update
+        com.samsung.android.secsoundpicker >> SecSoundPicker
+        com.samsung.android.service.health >> Health Platform
+        com.samsung.android.service.peoplestripe >> People edge
+        com.samsung.android.service.stplatform >> SmartThings Framework
+        com.samsung.android.service.tagservice >> Tags
+        com.samsung.android.setting.multisound >> Separate app sound
+        com.samsung.android.shortcutbackupservice >> ShortcutBNR
+        com.samsung.android.singletake.service >> Single Take
+        com.samsung.android.sm.devicesecurity >> Device security
+        com.samsung.android.sm.policy >> SCPM Client
+        com.samsung.android.smartcallprovider >> Smart Call
+        com.samsung.android.smartface >> SmartFaceService
+        com.samsung.android.smartmirroring >> Smart View
+        com.samsung.android.smartsuggestions >> Smart Suggestions
+        com.samsung.android.smartswitchassistant >> com.samsung.android.smartswitchassistant
+        com.samsung.android.spay >> Samsung Pay
+        com.samsung.android.spayfw >> Samsung PaymentFramework
+        com.samsung.android.stickercenter >> Sticker Center
+        com.samsung.android.sume.nn.service >> SumeNN
+        com.samsung.android.svcagent >> SVC Agent
+        com.samsung.android.svoiceime >> Samsung voice input
+        com.samsung.android.tadownloader >> TADownloader
+        com.samsung.android.tapack.authfw >> AuthFw TaPack
+        com.samsung.android.themecenter >> Galaxy Themes Service
+        com.samsung.android.themestore >> Galaxy Themes
+        com.samsung.android.video >> Video Player
+        com.samsung.android.visionintelligence >> Bixby Vision
+        com.samsung.android.visualars >> Smart Touch Call
+        com.samsung.android.voc >> Samsung Members
+        com.samsung.android.vtcamerasettings >> Video call effects
+        com.samsung.android.wallpaper.res >> com.samsung.android.wallpaper.res
+        com.samsung.android.wcmurlsnetworkstack >> WcmUrlsNetworkStackOverlay
+        com.samsung.android.wifi.h2e.resources >> com.samsung.android.wifi.h2e.resources
+        com.samsung.android.wifi.p2paware.resources >> com.samsung.android.wifi.p2paware.resources
+        com.samsung.android.wifi.resources >> com.samsung.android.wifi.resources
+        com.samsung.android.wifi.softap.resources >> com.samsung.android.wifi.softap.resources
+        com.samsung.android.wifi.softapwpathree.resources >> com.samsung.android.wifi.softapwpathree.resources
+        com.samsung.app.newtrim >> Editor Lite
+        com.samsung.clipboardsaveservice >> ClipboardSaveService
+        com.samsung.cmfa.AuthTouch >> CMFA AuthTouchService
+        com.samsung.cmh >> CMHProvider
+        com.samsung.crane >> Phone
+        com.samsung.desktopsystemui >> Samsung DeX System UI
+        com.samsung.faceservice >> FaceService
+        com.samsung.gamedriver.sm8350 >> Samsung SM8350 GameDriver
+        com.samsung.gpuwatchapp >> GPUWatch
+        com.samsung.huxextension >> Hux Extension
+        com.samsung.ims.smk >> SimMobilityKit
+        com.samsung.internal.systemui.navbar.gestural_no_hint >> Gestural Navigation Bar
+        com.samsung.internal.systemui.navbar.sec_gestural >> Gestural Navigation Bar
+        com.samsung.internal.systemui.navbar.sec_gestural_no_hint >> Gestural Navigation Bar
+        com.samsung.ipservice >> IPService
+        com.samsung.klmsagent >> KLMS Agent
+        com.samsung.knox.securefolder >> Secure Folder
+        com.samsung.mlp >> mlp
+        com.samsung.phone.overlay.common >> com.samsung.phone.overlay.common
+        com.samsung.rcs >> RcsSettings
+        com.samsung.safetyinformation >> Safety Information
+        com.samsung.sait.sohservice >> com.samsung.sait.sohservice
+        com.samsung.sec.android.application.csc >> CSC
+        com.samsung.ssu >> Network unlock
+        com.samsung.storyservice >> StoryService
+        com.samsung.systemui.bixby2 >> SystemUIBixby2
+        com.samsung.ucs.agent.ese >> com.samsung.ucs.agent.ese
+        com.samsung.unifiedtp >> Tethering Provision
+        com.samsung.vklayer.sm8350 >> Samsung SM8350 VKLayer
+        com.sec.android.RilServiceModeApp >> Service mode RIL
+        com.sec.android.app.DataCreate >> Automation Test
+        com.sec.android.app.SecSetupWizard >> Samsung SetupWizard
+        com.sec.android.app.apex >> Samsung ApexService
+        com.sec.android.app.applinker >> AppLinker
+        com.sec.android.app.billing >> Samsung Checkout
+        com.sec.android.app.bluetoothtest >> BluetoothTest
+        com.sec.android.app.camera >> Camera
+        com.sec.android.app.chromecustomizations >> ChromeCustomizations
+        com.sec.android.app.clockpackage >> Clock
+        com.sec.android.app.desktoplauncher >> Samsung DeX Home
+        com.sec.android.app.dexonpc >> DeX for PC
+        com.sec.android.app.factorykeystring >> DeviceKeystring
+        com.sec.android.app.hwmoduletest >> HwModuleTest
+        com.sec.android.app.kidshome >> Samsung Kids
+        com.sec.android.app.launcher >> One UI Home
+        com.sec.android.app.magnifier >> Magnifier
+        com.sec.android.app.myfiles >> My Files
+        com.sec.android.app.parser >> DRParser Mode
+        com.sec.android.app.personalization >> Perso
+        com.sec.android.app.popupcalculator >> Calculator
+        com.sec.android.app.quicktool >> Tools
+        com.sec.android.app.safetyassurance >> Send SOS messages
+        com.sec.android.app.samsungapps >> Galaxy Store
+        com.sec.android.app.sbrowser >> Samsung Internet
+        com.sec.android.app.servicemodeapp >> Service mode
+        com.sec.android.app.setupwizardlegalprovider >> SetupWizardLegalProvider
+        com.sec.android.app.soundalive >> Sound quality and effects
+        com.sec.android.app.ve.vebgm >> Samsung Editing Assets
+        com.sec.android.app.vepreload >> Video Editor
+        com.sec.android.app.voicenote >> Voice Recorder
+        com.sec.android.app.volumemonitorprovider >> VolumeMonitorProvider
+        com.sec.android.app.wlantest >> WlanTest
+        com.sec.android.autodoodle.service >> AutoDoodle
+        com.sec.android.daemonapp >> Weather
+        com.sec.android.desktopmode.uiservice >> Samsung DeX
+        com.sec.android.diagmonagent >> DiagMonAgent
+        com.sec.android.easyMover >> Smart Switch
+        com.sec.android.easyMover.Agent >> Smart Switch Agent
+        com.sec.android.easyonehand >> EasyOneHand
+        com.sec.android.emergencylauncher >> Launcher
+        com.sec.android.emergencymode.service >> EmergencyManagerService
+        com.sec.android.gallery3d >> Gallery
+        com.sec.android.mimage.avatarstickers >> AR Emoji Stickers
+        com.sec.android.mimage.photoretouching >> Photo Editor
+        com.sec.android.provider.badge >> BadgeProvider
+        com.sec.android.provider.emergencymode >> EmergencyProvider
+        com.sec.android.sdhms >> Samsung Device Health Manager Service
+        com.sec.android.smartfpsadjuster >> SmartFPSAdjuster
+        com.sec.android.soagent >> Software update
+        com.sec.android.systemupdate >> SystemUpdate
+        com.sec.android.widgetapp.easymodecontactswidget >> Favourite Contacts
+        com.sec.android.widgetapp.webmanual >> User Manual
+        com.sec.app.RilErrorNotifier >> RilNotifier
+        com.sec.automation >> TetheringAutomation
+        com.sec.bcservice >> com.sec.bcservice
+        com.sec.enterprise.knox.cloudmdm.smdms >> Knox Enrollment Service
+        com.sec.enterprise.mdm.services.simpin >> Enterprise Sim Pin Service
+        com.sec.epdg >> com.sec.epdg
+        com.sec.epdgtestapp >> EpdgTestApp
+        com.sec.factory >> DeviceTest
+        com.sec.factory.camera >> FactoryCamera
+        com.sec.factory.cameralyzer >> Cameralyzer
+        com.sec.hearingadjust >> Adapt Sound
+        com.sec.imslogger >> ImsLogger
+        com.sec.imsservice >> IMS Service
+        com.sec.location.nfwlocationprivacy >> Service provider location
+        com.sec.location.nsflp2 >> Samsung Location SDK
+        com.sec.mhs.smarttethering >> Auto Hotspot
+        com.sec.modem.settings >> SilentLogging
+        com.sec.phone >> com.sec.phone
+        com.sec.spp.push >> Samsung Push Service
+        com.sec.sve >> SecVideoEngineService
+        com.sec.unifiedwfc >> Wi-Fi Calling
+        com.sec.usbsettings >> USBSettings
+        com.sec.vsim.ericssonnsds.webapp >> NSDSWebApp
+        com.sem.factoryapp >> SEMFactoryApp
+        com.skms.android.agent >> SKMSAgentService
+        com.swiftkey.swiftkeyconfigurator >> Microsoft SwiftKey Factory Settings
+        com.wsomacp >> Configuration message
+        com.wssyncmldm >> Software update
+        de.axelspringer.yana.zeropage >> upday
+        vendor.qti.hardware.cacert.server >> vendor.qti.hardware.cacert.server
+    )
+
+    # [not tested] Removal not possible (bootloop)
+    ( return 0
+        pkg_rm com.google.android.ext.services # Android Services Library
+    )
+
+    # Critical Android APIs (bad debloat)
+    ( return 0
+        # Adaptive Battery
+        (
+            pkg_rm com.google.android.apps.turbo # Device Health Services
+        )
+
+        # File/document picker?
+        (
+            pkg_rm com.google.android.documentsui # Files
+        )
+
+        # RCS / VoLTE
+        (
+            pkg_rm com.google.android.ims # Carrier Services
+        )
+
+        # AR
+        (
+            pkg_rm com.google.ar.core # Google Play Services for AR
+        )
+
+        # Telemetry Train
+        (
+            pkg_rm com.google.mainline.telemetry # Support components
+        )
+    )
+
+    # Critical Google APIs *depends* (bad debloat)
+    ( return 0
+        pkg_rm com.google.android.apps.carrier.carrierwifi # Google Wi-Fi Provisioner
+        pkg_rm com.google.android.gms # Google Play services
+        pkg_rm com.google.android.gsf # Google Services Framework
+        pkg_rm com.google.android.partnersetup # Google Partner Setup
+        pkg_rm com.google.android.tts # Speech Services by Google
+    )
+
+    # Critical Samsung APIs *depends* (bad debloat)
+    ( return 0
+        pkg_rm com.diotek.sec.lookup.dictionary # Dictionary
+        pkg_rm com.hiya.star # Hiya Service
+        pkg_rm com.microsoft.skydrive # OneDrive
+        pkg_rm com.osp.app.signin # Samsung account
+        pkg_rm com.samsung.SMT # Samsung text-to-speech engine
+        pkg_rm com.samsung.android.app.notes # Samsung Notes
+        pkg_rm com.samsung.android.app.notes.addons # Samsung Notes Add-ons
+        pkg_rm com.samsung.android.app.spage # Samsung Free
+        pkg_rm com.samsung.android.app.tips # Tips
+        pkg_rm com.samsung.android.fmm # Find My Mobile
+        pkg_rm com.samsung.android.forest # Digital Wellbeing
+        pkg_rm com.samsung.android.lool # Device care
+        pkg_rm com.samsung.android.net.wifi.wifiguider # Wi-Fi Tips
+        pkg_rm com.samsung.android.samsungpass # Samsung Pass
+        pkg_rm com.samsung.android.samsungpassautofill # Autofill with Samsung Pass
+        pkg_rm com.samsung.android.samsungpositioning # SamsungPositioning
+        pkg_rm com.samsung.android.spay # Samsung Pay
+        pkg_rm com.samsung.android.spayfw # Samsung PaymentFramework
+        pkg_rm com.samsung.android.sume.nn.service # SumeNN
+        pkg_rm com.samsung.android.voc # Samsung Members
+
+        # Link to Windows
+        (
+            pkg_rm com.microsoft.appmanager # Link to Windows
+            pkg_rm com.samsung.android.mdx # Link to Windows Service
+            pkg_rm com.samsung.android.mdx.kit # MDE Service Framework
+            pkg_rm com.samsung.android.mdx.quickboard # Media and devices
+        )
+
+        # Camera stickers
+        (
+            pkg_rm com.samsung.android.app.camera.sticker.facearavatar.preload # Crocro and friends
+        )
+
+        # Bixby
+        (
+            pkg_rm com.samsung.android.app.routines # Bixby Routines
+            pkg_rm com.samsung.android.app.settings.bixby # SettingsBixby
+            pkg_rm com.samsung.android.bixby.agent # Bixby Voice
+            pkg_rm com.samsung.android.bixby.service # Bixby Dictation
+            pkg_rm com.samsung.android.bixby.wakeup # \"Bixby\" voice wake-up
+            pkg_rm com.samsung.android.bixbyvision.framework # BixbyVision Framework
+            pkg_rm com.samsung.android.visionintelligence # Bixby Vision
+            pkg_rm com.samsung.systemui.bixby2 # SystemUIBixby2
+        )
+
+        # AR
+        (
+            pkg_rm com.samsung.android.ardrawing # AR Doodle
+            pkg_rm com.samsung.android.aremoji # AR Emoji
+            pkg_rm com.samsung.android.aremojieditor # AR Emoji Editor
+            pkg_rm com.samsung.android.arzone # AR Zone
+            pkg_rm com.samsung.android.livestickers # DECO PIC
+            pkg_rm com.samsung.android.stickercenter # Sticker Center
+            pkg_rm com.sec.android.mimage.avatarstickers # AR Emoji Stickers
+        )
+
+        # Knox
+        (
+            pkg_rm com.samsung.android.bbc.bbcagent # BBCAgent
+            pkg_rm com.samsung.android.cmfa.framework # CMFA Framework
+            pkg_rm com.samsung.android.hdmapp # HdmApp
+            pkg_rm com.samsung.android.knox.attestation # com.samsung.android.knox.attestation
+            pkg_rm com.samsung.android.knox.containeragent # Work profile
+            pkg_rm com.samsung.android.knox.containercore # Work profile
+            pkg_rm com.samsung.android.knox.kpecore # KPECore
+            pkg_rm com.samsung.android.knox.pushmanager # KnoxPushManager
+            pkg_rm com.samsung.cmfa.AuthTouch # CMFA AuthTouchService
+            pkg_rm com.samsung.klmsagent # KLMS Agent
+            pkg_rm com.sec.enterprise.knox.cloudmdm.smdms # Knox Enrollment Service
+        )
+
+        # Wi-Fi
+        (
+            pkg_rm com.samsung.android.dqagent # DQA
+        )
+
+        # Game Launcher
+        (
+            pkg_rm com.samsung.android.game.gamehome # Game Launcher
+            pkg_rm com.samsung.android.game.gametools # Game Booster
+            pkg_rm com.samsung.android.game.gos # Game Optimizing Service
+        )
+    )
+
+    # Critical Google apps *depends* (bad debloat)
+    ( return 0
+        pkg_rm com.android.chrome # Chrome
+        pkg_rm com.android.stk # SIM Toolkit
+        pkg_rm com.android.stk2 # SIM Toolkit
+        pkg_rm com.android.vending # Google Play Store
+    )
+
+    # Safe Android APIs (safe debloat)
+    ( return 0
+        # Android Auto
+        (
+            pkg_rm com.google.android.projection.gearhead # Android Auto
+        )
+    )
+
+    # Safe Samsung APIs (safe debloat)
+    (
+        pkg_rm com.samsung.android.app.watchmanagerstub # Wearable Manager Installer
+        #pkg_rm com.samsung.android.appseparation # Separated Apps
+        pkg_rm com.samsung.android.mateagent # Samsung Galaxy Friends
+
+        # Push notifications when near Samsung store
+        (
+            pkg_rm com.samsung.android.ipsgeofence # Samsung Visit In
+        )
+    )
+
+    # Safe Google apps (safe debloat)
+    (
+        pkg_rm com.google.android.apps.docs # Drive
+        #pkg_rm com.google.android.apps.maps # Maps
+        pkg_rm com.google.android.apps.photos # Photos
+        pkg_rm com.google.android.apps.tachyon # Meet
+        pkg_rm com.google.android.apps.youtube.music # YouTube Music
+        #pkg_rm com.google.android.gm # Gmail
+        #pkg_rm com.google.android.googlequicksearchbox # Google
+        pkg_rm com.google.android.videos # Google TV
+        pkg_rm com.google.android.youtube # YouTube
+    )
+
+    # Safe Samsung apps (safe debloat)
+    (
+        pkg_rm com.samsung.android.app.watchmanager # Galaxy Wearable
+        pkg_rm com.samsung.android.galaxy # Galaxy Shop
+        pkg_rm com.samsung.android.oneconnect # Smart​Things
+        pkg_rm com.samsung.android.tvplus # Samsung TV Plus
+        pkg_rm com.samsung.sree # Samsung Global Goals
+        pkg_rm com.sec.android.app.shealth # Samsung Health
+    )
+
+    # Literal sh1t (*ASAP* remove)
+    (
+        pkg_rm com.facebook.appmanager # Meta App Manager
+        pkg_rm com.facebook.katana # Facebook
+        pkg_rm com.facebook.services # Meta Services
+        pkg_rm com.facebook.system # Meta App Installer
+        pkg_rm com.linkedin.android # LinkedIn
+        pkg_rm com.microsoft.office.officehubrow # Office
+        pkg_rm com.microsoft.office.outlook # Outlook
+        pkg_rm com.netflix.mediaclient # Netflix
+        pkg_rm com.samsung.android.knox.analytics.uploader # Knox Analytics Uploader
+        pkg_rm com.spotify.music # Spotify
+        pkg_rm com.touchtype.swiftkey # Microsoft SwiftKey Keyboard
+
+        # Qualcomm Technology Reporting (_alternative title: Qualcomm-phone Data Beneficiary i.e. "I got your: IMEI, IP, chipset-SN, misc-software-SN, location data, full app names list, phone maker&model&OS&VER&firmware&VER&perfstats, carrier data&phone&netcode (tO iMpRoVe OuR *bUsInEsS* sErViCeS oF cOuRsE! wHaT yOu MeAn WhY?!)"_)
+        pkg_rm com.qualcomm.qti.smq # QTR
+
+        # Wireless IPS (_alternative title: "ping -c 1 '*google.com' && OhNoInstrusionDetected(); ping -c 1 'www.goooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle.com' && OkDNSIsWorking(); ping -c 1 'google.com.onion' && OhNoInstrusionDetected()"_)
+        pkg_rm com.samsung.android.server.wifi.mobilewips # MobileWips
+    )
+
+    # Apps&APIs to be reset to clean state (not needed usually)
+    ( return 0
+        pkg_clr com.android.phone # Phone services
+        pkg_clr com.android.settings # Settings
+        pkg_clr com.android.vending # Google Play Store
+        pkg_clr com.google.android.apps.messaging # Messages
+        pkg_clr com.google.android.ext.services # Android Services Library
+        pkg_clr com.google.android.gms # Google Play services
+        pkg_clr com.google.android.gsf # Google Services Framework
+        pkg_clr com.google.android.tts # Speech Services by Google
+    )
+
+    return 0
+}
+
+main "$@"
