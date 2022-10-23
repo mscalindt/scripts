@@ -17,7 +17,7 @@ pkg_rm() (
 
     DIR='/storage/emulated/0/Android'
 
-    pm clear --user 0 "$1" > /dev/null 2>&1
+    pm clear --user 0 "$1" > /dev/null 2>&1 || :
     pm uninstall --user 0 "$1"
     rm -rf "$DIR/data/$1" "$DIR/media/$1" "$DIR/obb/$1" 2> /dev/null
 )
