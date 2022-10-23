@@ -502,7 +502,7 @@ main() {
     )
 
     # SP1A.210812.016.G990B2XXS1CVI5
-    # Post-r9q_debloat app list, 407/408; excl. 'android'; 2022-10-23T07:40:00
+    # Post-r9q_debloat app list, 406/407; excl. 'android'; 2022-10-23T13:30:00
     # $ AAPKslurp list-wlabel | \
      #   while IFS= read -r LINE; do printf "        %s\n" "$LINE"; done
     ( return 0
@@ -642,7 +642,6 @@ main() {
         com.google.mainline.telemetry >> Support components
         com.hiya.star >> Hiya Service
         com.knox.vpn.proxyhandler >> KnoxVpnPacProcessor
-        com.microsoft.appmanager >> Link to Windows
         com.monotype.android.font.foundation >> Foundation
         com.monotype.android.font.samsungone >> SamsungOne
         com.osp.app.signin >> Samsung account
@@ -972,14 +971,6 @@ main() {
         pkg_rm com.samsung.android.samsungpositioning # SamsungPositioning
         pkg_rm com.samsung.android.sume.nn.service # SumeNN
 
-        # Link to Windows
-        (
-            pkg_rm com.microsoft.appmanager # Link to Windows
-            pkg_rm com.samsung.android.mdx # Link to Windows Service
-            pkg_rm com.samsung.android.mdx.kit # MDE Service Framework
-            pkg_rm com.samsung.android.mdx.quickboard # Media and devices
-        )
-
         # Camera stickers
         (
             pkg_rm com.samsung.android.app.camera.sticker.facearavatar.preload # Crocro and friends
@@ -1106,6 +1097,7 @@ main() {
         pkg_rm com.facebook.services # Meta Services
         pkg_rm com.facebook.system # Meta App Installer
         pkg_rm com.linkedin.android # LinkedIn
+        pkg_rm com.microsoft.appmanager # Link to Windows
         pkg_rm com.microsoft.office.officehubrow # Office
         pkg_rm com.microsoft.office.outlook # Outlook
         pkg_rm com.microsoft.skydrive # OneDrive
