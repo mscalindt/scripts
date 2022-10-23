@@ -489,7 +489,7 @@ main() {
     )
 
     # SP1A.210812.016.G990B2XXS1CVI5
-    # Post-r9q_debloat app list, 414/415; excl. 'android'; 2022-10-23T07:10:00
+    # Post-r9q_debloat app list, 412/413; excl. 'android'; 2022-10-23T07:20:00
     # $ AAPKslurp list-wlabel | \
      #   while IFS= read -r LINE; do printf "        %s\n" "$LINE"; done
     ( return 0
@@ -660,8 +660,6 @@ main() {
         com.samsung.android.app.galaxyfinder >> Finder
         com.samsung.android.app.kfa >> KFA
         com.samsung.android.app.ledbackcover >> LED Cover
-        com.samsung.android.app.notes >> Samsung Notes
-        com.samsung.android.app.notes.addons >> Samsung Notes Add-ons
         com.samsung.android.app.omcagent >> Recommended apps
         com.samsung.android.app.reminder >> Reminder
         com.samsung.android.app.routines >> Bixby Routines
@@ -957,8 +955,6 @@ main() {
         pkg_rm com.hiya.star # Hiya Service
         pkg_rm com.osp.app.signin # Samsung account
         pkg_rm com.samsung.SMT # Samsung text-to-speech engine
-        pkg_rm com.samsung.android.app.notes # Samsung Notes
-        pkg_rm com.samsung.android.app.notes.addons # Samsung Notes Add-ons
         pkg_rm com.samsung.android.app.tips # Tips
         pkg_rm com.samsung.android.fmm # Find My Mobile
         pkg_rm com.samsung.android.forest # Digital Wellbeing
@@ -1053,6 +1049,7 @@ main() {
 
     # Safe Samsung APIs (safe debloat)
     (
+        pkg_rm com.samsung.android.app.notes.addons # Samsung Notes Add-ons
         pkg_rm com.samsung.android.app.watchmanagerstub # Wearable Manager Installer
         #pkg_rm com.samsung.android.appseparation # Separated Apps
         pkg_rm com.samsung.android.mateagent # Samsung Galaxy Friends
@@ -1080,6 +1077,7 @@ main() {
     # Safe Samsung apps (safe debloat)
     (
         pkg_rm com.android.stk2 # SIM Toolkit
+        pkg_rm com.samsung.android.app.notes # Samsung Notes
         pkg_rm com.samsung.android.app.spage # Samsung Free
         pkg_rm com.samsung.android.app.watchmanager # Galaxy Wearable
         pkg_rm com.samsung.android.galaxy # Galaxy Shop
