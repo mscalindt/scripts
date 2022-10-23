@@ -489,7 +489,7 @@ main() {
     )
 
     # SP1A.210812.016.G990B2XXS1CVI5
-    # Post-r9q_debloat app list, 418/419; excl. 'android'; 2022-10-23T05:30:00
+    # Post-r9q_debloat app list, 417/418; excl. 'android'; 2022-10-23T06:00:00
     # $ AAPKslurp list-wlabel | \
      #   while IFS= read -r LINE; do printf "        %s\n" "$LINE"; done
     ( return 0
@@ -561,7 +561,6 @@ main() {
         com.android.shell >> Shell
         com.android.simappdialog >> Sim App Dialog
         com.android.stk >> SIM Toolkit
-        com.android.stk2 >> SIM Toolkit
         com.android.storagemanager >> Storage Manager
         com.android.systemui >> System UI
         com.android.theme.font.notoserifsource >> Noto Serif / Source Sans Pro
@@ -1084,6 +1083,7 @@ main() {
 
     # Safe Samsung apps (safe debloat)
     (
+        pkg_rm com.android.stk2 # SIM Toolkit
         pkg_rm com.samsung.android.app.watchmanager # Galaxy Wearable
         pkg_rm com.samsung.android.galaxy # Galaxy Shop
         pkg_rm com.samsung.android.oneconnect # Smart​Things
