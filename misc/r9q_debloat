@@ -489,7 +489,7 @@ main() {
     )
 
     # SP1A.210812.016.G990B2XXS1CVI5
-    # Post-r9q_debloat app list, 417/418; excl. 'android'; 2022-10-23T06:00:00
+    # Post-r9q_debloat app list, 416/417; excl. 'android'; 2022-10-23T06:30:00
     # $ AAPKslurp list-wlabel | \
      #   while IFS= read -r LINE; do printf "        %s\n" "$LINE"; done
     ( return 0
@@ -574,7 +574,6 @@ main() {
         com.diotek.sec.lookup.dictionary >> Dictionary
         com.google.android.apps.carrier.carrierwifi >> Google Wi-Fi Provisioner
         com.google.android.apps.maps >> Maps
-        com.google.android.apps.messaging >> Messages
         com.google.android.apps.restore >> Data Restore Tool
         com.google.android.apps.setupwizard.searchselector >> Search Engine Selector
         com.google.android.apps.turbo >> Device Health Services
@@ -1072,6 +1071,7 @@ main() {
     (
         pkg_rm com.google.android.apps.docs # Drive
         #pkg_rm com.google.android.apps.maps # Maps
+        pkg_rm com.google.android.apps.messaging # Messages
         pkg_rm com.google.android.apps.photos # Photos
         pkg_rm com.google.android.apps.tachyon # Meet
         pkg_rm com.google.android.apps.youtube.music # YouTube Music
@@ -1119,7 +1119,6 @@ main() {
         pkg_clr com.android.phone # Phone services
         pkg_clr com.android.settings # Settings
         pkg_clr com.android.vending # Google Play Store
-        pkg_clr com.google.android.apps.messaging # Messages
         pkg_clr com.google.android.ext.services # Android Services Library
         pkg_clr com.google.android.gms # Google Play services
         pkg_clr com.google.android.gsf # Google Services Framework
