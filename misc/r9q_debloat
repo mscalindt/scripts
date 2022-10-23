@@ -5,6 +5,16 @@
 # [r9q | Samsung Galaxy S21 FE 5G (Model number)[SM-G990B2/DS]]
 #        Android 12 (Build number)[SP1A.210812.016.G990B2XXS1CVI5]
 
+info_blue() {
+    printf "%b[%s] =>>: %b%s%b\n" '\033[1;34m' "$(date "+%H:%M:%S")" \
+                                  '\033[1;37m' "$*" '\033[0m'
+}
+
+info_green() {
+    printf "%b[%s] =>>: %b%s%b\n" '\033[1;32m' "$(date "+%H:%M:%S")" \
+                                  '\033[1;37m' "$*" '\033[0m'
+}
+
 info_white() {
     printf "%b[%s] =>>: %b%s%b\n" '\033[1;37m' "$(date "+%H:%M:%S")" \
                                   '\033[1;37m' "$*" '\033[0m'
@@ -34,6 +44,9 @@ pkg_clr() (
 )
 
 main() {
+    SN=$(getprop ro.serialno)
+    info_blue "Connected device: ${SN}"
+
     # SP1A.210812.016.G990B2XXS1CVI5
     # Full stock app list, 447/448; excl. 'android'; 2022-10-21T06:00:00
     # $ AAPKslurp list-wlabel | \
@@ -1118,6 +1131,8 @@ main() {
         pkg_clr com.google.android.gsf # Google Services Framework
         pkg_clr com.google.android.tts # Speech Services by Google
     )
+
+    info_green "Reboot your device ${SN}!"
 
     return 0
 }
