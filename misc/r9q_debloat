@@ -791,7 +791,6 @@ main() {
         com.samsung.android.video >> Video Player
         com.samsung.android.visionintelligence >> Bixby Vision
         com.samsung.android.visualars >> Smart Touch Call
-        com.samsung.android.voc >> Samsung Members
         com.samsung.android.vtcamerasettings >> Video call effects
         com.samsung.android.wallpaper.res >> com.samsung.android.wallpaper.res
         com.samsung.android.wcmurlsnetworkstack >> WcmUrlsNetworkStackOverlay
