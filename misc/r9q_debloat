@@ -489,7 +489,7 @@ main() {
     )
 
     # SP1A.210812.016.G990B2XXS1CVI5
-    # Post-r9q_debloat app list, 416/417; excl. 'android'; 2022-10-23T06:30:00
+    # Post-r9q_debloat app list, 415/416; excl. 'android'; 2022-10-23T07:00:00
     # $ AAPKslurp list-wlabel | \
      #   while IFS= read -r LINE; do printf "        %s\n" "$LINE"; done
     ( return 0
@@ -630,7 +630,6 @@ main() {
         com.hiya.star >> Hiya Service
         com.knox.vpn.proxyhandler >> KnoxVpnPacProcessor
         com.microsoft.appmanager >> Link to Windows
-        com.microsoft.skydrive >> OneDrive
         com.monotype.android.font.foundation >> Foundation
         com.monotype.android.font.samsungone >> SamsungOne
         com.osp.app.signin >> Samsung account
@@ -957,7 +956,6 @@ main() {
     ( return 0
         pkg_rm com.diotek.sec.lookup.dictionary # Dictionary
         pkg_rm com.hiya.star # Hiya Service
-        pkg_rm com.microsoft.skydrive # OneDrive
         pkg_rm com.osp.app.signin # Samsung account
         pkg_rm com.samsung.SMT # Samsung text-to-speech engine
         pkg_rm com.samsung.android.app.notes # Samsung Notes
@@ -1102,6 +1100,7 @@ main() {
         pkg_rm com.linkedin.android # LinkedIn
         pkg_rm com.microsoft.office.officehubrow # Office
         pkg_rm com.microsoft.office.outlook # Outlook
+        pkg_rm com.microsoft.skydrive # OneDrive
         pkg_rm com.netflix.mediaclient # Netflix
         pkg_rm com.samsung.android.knox.analytics.uploader # Knox Analytics Uploader
         pkg_rm com.spotify.music # Spotify
