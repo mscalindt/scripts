@@ -489,7 +489,7 @@ main() {
     )
 
     # SP1A.210812.016.G990B2XXS1CVI5
-    # Post-r9q_debloat app list, 409/410; excl. 'android'; 2022-10-23T07:30:00
+    # Post-r9q_debloat app list, 407/408; excl. 'android'; 2022-10-23T07:40:00
     # $ AAPKslurp list-wlabel | \
      #   while IFS= read -r LINE; do printf "        %s\n" "$LINE"; done
     ( return 0
@@ -771,8 +771,6 @@ main() {
         com.samsung.android.smartface >> SmartFaceService
         com.samsung.android.smartmirroring >> Smart View
         com.samsung.android.smartsuggestions >> Smart Suggestions
-        com.samsung.android.spay >> Samsung Pay
-        com.samsung.android.spayfw >> Samsung PaymentFramework
         com.samsung.android.stickercenter >> Sticker Center
         com.samsung.android.sume.nn.service >> SumeNN
         com.samsung.android.svcagent >> SVC Agent
@@ -959,8 +957,6 @@ main() {
         pkg_rm com.samsung.android.samsungpass # Samsung Pass
         pkg_rm com.samsung.android.samsungpassautofill # Autofill with Samsung Pass
         pkg_rm com.samsung.android.samsungpositioning # SamsungPositioning
-        pkg_rm com.samsung.android.spay # Samsung Pay
-        pkg_rm com.samsung.android.spayfw # Samsung PaymentFramework
         pkg_rm com.samsung.android.sume.nn.service # SumeNN
 
         # Link to Windows
@@ -1050,6 +1046,7 @@ main() {
         #pkg_rm com.samsung.android.appseparation # Separated Apps
         pkg_rm com.samsung.android.mateagent # Samsung Galaxy Friends
         pkg_rm com.samsung.android.smartswitchassistant # com.samsung.android.smartswitchassistant
+        pkg_rm com.samsung.android.spayfw # Samsung PaymentFramework
         pkg_rm com.sec.android.easyMover.Agent # Smart Switch Agent
 
         # Push notifications when near Samsung store
@@ -1081,6 +1078,7 @@ main() {
         pkg_rm com.samsung.android.app.watchmanager # Galaxy Wearable
         pkg_rm com.samsung.android.galaxy # Galaxy Shop
         pkg_rm com.samsung.android.oneconnect # Smart​Things
+        pkg_rm com.samsung.android.spay # Samsung Pay
         pkg_rm com.samsung.android.tvplus # Samsung TV Plus
         pkg_rm com.samsung.android.voc # Samsung Members
         pkg_rm com.samsung.sree # Samsung Global Goals
