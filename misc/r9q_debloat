@@ -489,7 +489,7 @@ main() {
     )
 
     # SP1A.210812.016.G990B2XXS1CVI5
-    # Post-r9q_debloat app list, 412/413; excl. 'android'; 2022-10-23T07:20:00
+    # Post-r9q_debloat app list, 409/410; excl. 'android'; 2022-10-23T07:30:00
     # $ AAPKslurp list-wlabel | \
      #   while IFS= read -r LINE; do printf "        %s\n" "$LINE"; done
     ( return 0
@@ -771,7 +771,6 @@ main() {
         com.samsung.android.smartface >> SmartFaceService
         com.samsung.android.smartmirroring >> Smart View
         com.samsung.android.smartsuggestions >> Smart Suggestions
-        com.samsung.android.smartswitchassistant >> com.samsung.android.smartswitchassistant
         com.samsung.android.spay >> Samsung Pay
         com.samsung.android.spayfw >> Samsung PaymentFramework
         com.samsung.android.stickercenter >> Sticker Center
@@ -859,8 +858,6 @@ main() {
         com.sec.android.daemonapp >> Weather
         com.sec.android.desktopmode.uiservice >> Samsung DeX
         com.sec.android.diagmonagent >> DiagMonAgent
-        com.sec.android.easyMover >> Smart Switch
-        com.sec.android.easyMover.Agent >> Smart Switch Agent
         com.sec.android.easyonehand >> EasyOneHand
         com.sec.android.emergencylauncher >> Launcher
         com.sec.android.emergencymode.service >> EmergencyManagerService
@@ -1052,6 +1049,8 @@ main() {
         pkg_rm com.samsung.android.app.watchmanagerstub # Wearable Manager Installer
         #pkg_rm com.samsung.android.appseparation # Separated Apps
         pkg_rm com.samsung.android.mateagent # Samsung Galaxy Friends
+        pkg_rm com.samsung.android.smartswitchassistant # com.samsung.android.smartswitchassistant
+        pkg_rm com.sec.android.easyMover.Agent # Smart Switch Agent
 
         # Push notifications when near Samsung store
         (
@@ -1086,6 +1085,7 @@ main() {
         pkg_rm com.samsung.android.voc # Samsung Members
         pkg_rm com.samsung.sree # Samsung Global Goals
         pkg_rm com.sec.android.app.shealth # Samsung Health
+        pkg_rm com.sec.android.easyMover # Smart Switch
     )
 
     # Literal sh1t (*ASAP* remove)
