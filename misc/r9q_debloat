@@ -489,7 +489,7 @@ main() {
     )
 
     # SP1A.210812.016.G990B2XXS1CVI5
-    # Post-r9q_debloat app list, 419/420; excl. 'android'; 2022-10-22T08:00:00
+    # Post-r9q_debloat app list, 418/419; excl. 'android'; 2022-10-23T05:30:00
     # $ AAPKslurp list-wlabel | \
      #   while IFS= read -r LINE; do printf "        %s\n" "$LINE"; done
     ( return 0
@@ -977,7 +977,6 @@ main() {
         pkg_rm com.samsung.android.spay # Samsung Pay
         pkg_rm com.samsung.android.spayfw # Samsung PaymentFramework
         pkg_rm com.samsung.android.sume.nn.service # SumeNN
-        pkg_rm com.samsung.android.voc # Samsung Members
 
         # Link to Windows
         (
@@ -1090,6 +1089,7 @@ main() {
         pkg_rm com.samsung.android.galaxy # Galaxy Shop
         pkg_rm com.samsung.android.oneconnect # Smart​Things
         pkg_rm com.samsung.android.tvplus # Samsung TV Plus
+        pkg_rm com.samsung.android.voc # Samsung Members
         pkg_rm com.samsung.sree # Samsung Global Goals
         pkg_rm com.sec.android.app.shealth # Samsung Health
     )
