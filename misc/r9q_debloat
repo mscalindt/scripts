@@ -60,6 +60,7 @@ pkg_clr() (
 
 main() {
     pm list packages > /dev/null 2>&1 || { err_red 'Not in Android shell.'; return 2; }
+    hash date pm > /dev/null 2>&1
 
     SN=$(getprop ro.serialno)
     info_white "Connected device: ${SN}"
