@@ -28,23 +28,33 @@ info_white() {
 pkg_rm() (
     _errh() { return "$1"; }
     trap '_errh $?' INT TERM EXIT; set -e
-    info_white "pkg_rm: $1:"
 
     DIR='/storage/emulated/0/Android'
 
     pm clear --user 0 "$1" > /dev/null 2>&1 || :
-    pm uninstall --user 0 "$1"
+    { OP=$(pm uninstall --user 0 "$1") && RC=0; } || RC="$?"
+    if [ "$RC" -eq 0 ]; then
+        info_blue "pkg_rm: $1:"; info_green "$OP"
+    else
+        { info_blue "pkg_rm: $1:"; err_red "$OP"; } >&2
+        return "$RC"
+    fi
     rm -rf "$DIR/data/$1" "$DIR/media/$1" "$DIR/obb/$1" 2> /dev/null
 )
 
 pkg_clr() (
     _errh() { return "$1"; }
     trap '_errh $?' INT TERM EXIT; set -e
-    info_white "pkg_clr: $1:"
 
     DIR='/storage/emulated/0/Android'
 
-    pm clear --user 0 "$1"
+    { OP=$(pm clear --user 0 "$1") && RC=0; } || RC="$?"
+    if [ "$RC" -eq 0 ]; then
+        info_blue "pkg_clr: $1:"; info_green "$OP"
+    else
+        { info_blue "pkg_clr: $1:"; err_red "$OP"; } >&2
+        return "$RC"
+    fi
     rm -rf "$DIR/data/$1"/* 2> /dev/null
 )
 
@@ -52,7 +62,7 @@ main() {
     pm list packages > /dev/null 2>&1 || { err_red 'Not in Android shell.'; return 2; }
 
     SN=$(getprop ro.serialno)
-    info_blue "Connected device: ${SN}"
+    info_white "Connected device: ${SN}"
 
     # SP1A.210812.016.G990B2XXS1CVI5
     # Full stock app list, 447/448; excl. 'android'; 2022-10-21T06:00:00
@@ -1131,7 +1141,7 @@ main() {
         pkg_clr com.google.android.tts # Speech Services by Google
     )
 
-    info_green "Reboot your device ${SN}!"
+    info_white "Reboot your device ${SN}!"
 
     return 0
 }
