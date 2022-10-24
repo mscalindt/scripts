@@ -61,9 +61,12 @@ pkg_clr() (
 main() {
     pm list packages > /dev/null 2>&1 || { err_red 'Not in Android shell.'; return 2; }
     hash date pm > /dev/null 2>&1
+    DEVICE_MODEL=$(getprop ro.product.model)
+    DEVICE_SN=$(getprop ro.serialno)
+    DEVICE="$DEVICE_MODEL $DEVICE_SN"
 
-    SN=$(getprop ro.serialno)
-    info_white "Connected device: ${SN}"
+    info_white "Connected device:"
+    info_white "$DEVICE"
 
     # SP1A.210812.016.G990B2XXS1CVI5
     # Full stock app list, 447/448; excl. 'android'; 2022-10-21T06:00:00
@@ -1142,7 +1145,7 @@ main() {
         pkg_clr com.google.android.tts # Speech Services by Google
     )
 
-    info_white "Reboot your device ${SN}!"
+    info_white "Reboot the device."
 
     return 0
 }
