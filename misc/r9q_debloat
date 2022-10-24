@@ -5,6 +5,11 @@
 # [r9q | Samsung Galaxy S21 FE 5G (Model number)[SM-G990B2/DS]]
 #        Android 12 (Build number)[SP1A.210812.016.G990B2XXS1CVI5]
 
+err_red() {
+    printf "%b[%s] =>>: %b%s%b\n" '\033[1;31m' "$(date "+%H:%M:%S")" \
+                                  '\033[1;37m' "$*" '\033[0m' 1>&2
+}
+
 info_blue() {
     printf "%b[%s] =>>: %b%s%b\n" '\033[1;34m' "$(date "+%H:%M:%S")" \
                                   '\033[1;37m' "$*" '\033[0m'
@@ -44,6 +49,8 @@ pkg_clr() (
 )
 
 main() {
+    pm list packages > /dev/null 2>&1 || { err_red 'Not in Android shell.'; return 2; }
+
     SN=$(getprop ro.serialno)
     info_blue "Connected device: ${SN}"
 
