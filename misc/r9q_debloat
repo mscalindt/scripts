@@ -523,7 +523,7 @@ main() {
     )
 
     # SP1A.210812.016.G990B2XXS1CVI5
-    # Post-r9q_debloat app list, 406/407; excl. 'android'; 2022-10-23T13:30:00
+    # Post-r9q_debloat app list, 405/406; excl. 'android'; 2022-10-23T13:30:00
     # $ AAPKslurp list-wlabel | \
      #   while IFS= read -r LINE; do printf "        %s\n" "$LINE"; done
     ( return 0
@@ -931,7 +931,6 @@ main() {
         com.swiftkey.swiftkeyconfigurator >> Microsoft SwiftKey Factory Settings
         com.wsomacp >> Configuration message
         com.wssyncmldm >> Software update
-        de.axelspringer.yana.zeropage >> upday
         vendor.qti.hardware.cacert.server >> vendor.qti.hardware.cacert.server
     )
 
@@ -1126,6 +1125,7 @@ main() {
         pkg_rm com.samsung.android.knox.analytics.uploader # Knox Analytics Uploader
         pkg_rm com.spotify.music # Spotify
         pkg_rm com.touchtype.swiftkey # Microsoft SwiftKey Keyboard
+        pkg_rm de.axelspringer.yana.zeropage # upday
 
         # Qualcomm Technology Reporting (_alternative title: Qualcomm-phone Data Beneficiary i.e. "I got your: IMEI, IP, chipset-SN, misc-software-SN, location data, full app names list, phone maker&model&OS&VER&firmware&VER&perfstats, carrier data&phone&netcode (tO iMpRoVe OuR *bUsInEsS* sErViCeS oF cOuRsE! wHaT yOu MeAn WhY?!)"_)
         pkg_rm com.qualcomm.qti.smq # QTR
