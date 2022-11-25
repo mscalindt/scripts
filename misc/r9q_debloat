@@ -3,7 +3,7 @@
 # Copyright (C) 2022 Dimitar Yurukov <mscalindt@protonmail.com>
 # Usage (intended): adb shell < r9q_debloat
 # [r9q | Samsung Galaxy S21 FE 5G (Model number)[SM-G990B2/DS]]
-#        Android 12 (Build number)[SP1A.210812.016.G990B2XXS1CVI5]
+#        Android 13 (Build number)[TP1A.220624.014.G990B2XXU1DVK3]
 
 err_red() {
     printf "%b[%s] =>>: %b%s%b\n" '\033[1;31m' "$(date "+%H:%M:%S")" \
@@ -522,8 +522,8 @@ main() {
         vendor.qti.hardware.cacert.server >> vendor.qti.hardware.cacert.server
     )
 
-    # SP1A.210812.016.G990B2XXS1CVI5
-    # Post-r9q_debloat app list, 404/405; excl. 'android'; 2022-10-23T13:30:00
+    # TP1A.220624.014.G990B2XXU1DVK3
+    # Post-r9q_debloat app list, 403/404; excl. 'android'; 2022-11-25T04:00:00
     # $ AAPKslurp list-wlabel | \
      #   while IFS= read -r LINE; do printf "        %s\n" "$LINE"; done
     ( return 0
@@ -599,13 +599,16 @@ main() {
         com.android.systemui >> System UI
         com.android.theme.font.notoserifsource >> Noto Serif / Source Sans Pro
         com.android.traceur >> System Tracing
+        com.android.uwb.resources >> System UWB Resources
         com.android.vending >> Google Play Store
         com.android.vpndialogs >> VpnDialogs
         com.android.wallpaper.livepicker >> Live Wallpaper Picker
         com.android.wallpaperbackup >> com.android.wallpaperbackup
         com.android.wallpapercropper >> com.android.wallpapercropper
+        com.android.wifi.dialog >> com.android.wifi.dialog
         com.android.wifi.resources >> System Wi-Fi Resources
         com.diotek.sec.lookup.dictionary >> Dictionary
+        com.google.android.adservices.api >> com.google.android.adservices.api
         com.google.android.apps.carrier.carrierwifi >> Google Wi-Fi Provisioner
         com.google.android.apps.maps >> Maps
         com.google.android.apps.restore >> Data Restore Tool
@@ -631,14 +634,16 @@ main() {
         com.google.android.modulemetadata >> Main components
         com.google.android.nearby.halfsheet >> com.google.android.nearby.halfsheet
         com.google.android.networkstack >> Network manager
-        com.google.android.networkstack.permissionconfig >> com.google.android.networkstack.permissionconfig
         com.google.android.networkstack.tethering >> Tethering
         com.google.android.networkstack.tethering.overlay >> com.google.android.networkstack.tethering.overlay
+        com.google.android.ondevicepersonalization.services >> com.google.android.ondevicepersonalization.services
         com.google.android.onetimeinitializer >> Google One Time Init
+        com.google.android.overlay.gmsconfig.asi >> com.google.android.overlay.gmsconfig.asi
         com.google.android.overlay.gmsconfig.common >> com.google.android.overlay.gmsconfig.common
         com.google.android.overlay.gmsconfig.geotz >> com.google.android.overlay.gmsconfig.geotz
         com.google.android.overlay.gmsconfig.gsa >> com.google.android.overlay.gmsconfig.gsa
         com.google.android.overlay.gmsconfig.photos >> com.google.android.overlay.gmsconfig.photos
+        com.google.android.overlay.modules.captiveportallogin.forframework >> com.google.android.overlay.modules.captiveportallogin.forframework
         com.google.android.overlay.modules.cellbroadcastreceiver >> com.google.android.overlay.modules.cellbroadcastreceiver
         com.google.android.overlay.modules.cellbroadcastservice >> com.google.android.overlay.modules.cellbroadcastservice
         com.google.android.overlay.modules.documentsui >> com.google.android.overlay.modules.documentsui
@@ -651,15 +656,16 @@ main() {
         com.google.android.permissioncontroller >> Permission controller
         com.google.android.printservice.recommendation >> Print Service Recommendation Service
         com.google.android.projection.gearhead >> Android Auto
-        com.google.android.providers.media.module >> Media Storage
+        com.google.android.providers.media.module >> Media
         com.google.android.safetycenter.resources >> Google Safety Center Resources
+        com.google.android.sdksandbox >> com.google.android.sdksandbox
         com.google.android.setupwizard >> Android Setup
         com.google.android.syncadapters.calendar >> Google Calendar Sync
-        com.google.android.syncadapters.contacts >> Google Contacts Sync
         com.google.android.tts >> Speech Services by Google
         com.google.android.webview >> Android System WebView
         com.google.ar.core >> Google Play Services for AR
         com.google.audio.hearing.visualization.accessibility.scribe >> Live Transcribe & Sound Notifications
+        com.google.mainline.adservices >> Main components
         com.google.mainline.telemetry >> Support components
         com.hiya.star >> Hiya Service
         com.knox.vpn.proxyhandler >> KnoxVpnPacProcessor
@@ -668,7 +674,6 @@ main() {
         com.osp.app.signin >> Samsung account
         com.qti.snapdragon.qdcm_ff >> QDCM-FF
         com.qualcomm.qti.gpudrivers.lahaina.api30 >> com.qualcomm.qti.gpudrivers.lahaina.api30
-        com.qualcomm.qti.services.secureui >> Secure UI Service
         com.qualcomm.qti.services.systemhelper >> System Helper Service
         com.qualcomm.timeservice >> com.qualcomm.timeservice
         com.samsung.SMT >> Samsung text-to-speech engine
@@ -687,15 +692,14 @@ main() {
         com.samsung.android.app.clipboardedge >> Clipboard edge
         com.samsung.android.app.cocktailbarservice >> Edge panels
         com.samsung.android.app.contacts >> Contacts
-        com.samsung.android.app.dofviewer >> Live focus
+        com.samsung.android.app.dofviewer >> Portrait
         com.samsung.android.app.dressroom >> Wallpaper and style
         com.samsung.android.app.earphonetypec >> TestWandFota
         com.samsung.android.app.galaxyfinder >> Finder
         com.samsung.android.app.kfa >> KFA
-        com.samsung.android.app.ledbackcover >> LED Cover
         com.samsung.android.app.omcagent >> Recommended apps
         com.samsung.android.app.reminder >> Reminder
-        com.samsung.android.app.routines >> Bixby Routines
+        com.samsung.android.app.routines >> Modes and Routines
         com.samsung.android.app.settings.bixby >> SettingsBixby
         com.samsung.android.app.sharelive >> Quick Share
         com.samsung.android.app.simplesharing >> Link Sharing
@@ -731,12 +735,14 @@ main() {
         com.samsung.android.coldwalletservice >> Samsung Blockchain Keystore
         com.samsung.android.container >> com.samsung.android.container
         com.samsung.android.da.daagent >> Dual Messenger
+        com.samsung.android.dck.timesync >> com.samsung.android.dck.timesync
         com.samsung.android.dialer >> Phone
         com.samsung.android.dkey >> Samsung Wallet Digital Key
         com.samsung.android.dqagent >> DQA
         com.samsung.android.dsms >> Dsms
         com.samsung.android.dynamiclock >> Wallpaper services
         com.samsung.android.easysetup >> Nearby device scanning
+        com.samsung.android.emergency >> Emergency SOS
         com.samsung.android.fast >> Secure Wi-Fi
         com.samsung.android.fmm >> Find My Mobile
         com.samsung.android.forest >> Digital Wellbeing
@@ -748,10 +754,10 @@ main() {
         com.samsung.android.honeyboard >> Samsung Keyboard
         com.samsung.android.incall.contentprovider >> CallContentProvider
         com.samsung.android.incallui >> Call
+        com.samsung.android.keycustomizationinfobackupservice >> com.samsung.android.keycustomizationinfobackupservice
         com.samsung.android.kgclient >> Device Services
         com.samsung.android.kidsinstaller >> Samsung Kids Installer
         com.samsung.android.knox.attestation >> com.samsung.android.knox.attestation
-        com.samsung.android.knox.containeragent >> Work profile
         com.samsung.android.knox.containercore >> Work profile
         com.samsung.android.knox.kpecore >> KPECore
         com.samsung.android.knox.pushmanager >> KnoxPushManager
@@ -765,7 +771,7 @@ main() {
         com.samsung.android.mdecservice >> Call & text on other devices
         com.samsung.android.mdm >> MDMApp
         com.samsung.android.mdx >> Link to Windows Service
-        com.samsung.android.mdx.kit >> MDE Service Framework
+        com.samsung.android.mdx.kit >> Quick Share Connectivity
         com.samsung.android.mdx.quickboard >> Media and devices
         com.samsung.android.messaging >> Messages
         com.samsung.android.mobileservice >> Group Sharing
@@ -775,6 +781,7 @@ main() {
         com.samsung.android.networkstack >> NetworkStackOverlay
         com.samsung.android.networkstack.tethering.overlay >> com.samsung.android.networkstack.tethering.overlay
         com.samsung.android.peripheral.framework >> Peripheral Framework
+        com.samsung.android.photoremasterservice >> PhotoRemasterService
         com.samsung.android.privacydashboard >> Permission usage
         com.samsung.android.privateshare >> Private Share
         com.samsung.android.provider.filterprovider >> Filter Provider
@@ -786,8 +793,10 @@ main() {
         com.samsung.android.samsungpassautofill >> Autofill with Samsung Pass
         com.samsung.android.samsungpositioning >> SamsungPositioning
         com.samsung.android.scloud >> Samsung Cloud
+        com.samsung.android.scpm >> Samsung Cloud Platform Manager
         com.samsung.android.scs >> Samsung Core Services
         com.samsung.android.sdk.handwriting >> HandwritingService
+        com.samsung.android.sdk.ocr >> OCRDataProvider
         com.samsung.android.sdm.config >> Configuration update
         com.samsung.android.secsoundpicker >> SecSoundPicker
         com.samsung.android.service.health >> Health Platform
@@ -798,17 +807,15 @@ main() {
         com.samsung.android.shortcutbackupservice >> ShortcutBNR
         com.samsung.android.singletake.service >> Single Take
         com.samsung.android.sm.devicesecurity >> Device security
-        com.samsung.android.sm.policy >> SCPM Client
         com.samsung.android.smartcallprovider >> Smart Call
         com.samsung.android.smartface >> SmartFaceService
+        com.samsung.android.smartface.overlay >> com.samsung.android.smartface.overlay
         com.samsung.android.smartmirroring >> Smart View
         com.samsung.android.smartsuggestions >> Smart Suggestions
         com.samsung.android.stickercenter >> Sticker Center
         com.samsung.android.sume.nn.service >> SumeNN
         com.samsung.android.svcagent >> SVC Agent
         com.samsung.android.svoiceime >> Samsung voice input
-        com.samsung.android.tadownloader >> TADownloader
-        com.samsung.android.tapack.authfw >> AuthFw TaPack
         com.samsung.android.themecenter >> Galaxy Themes Service
         com.samsung.android.themestore >> Galaxy Themes
         com.samsung.android.video >> Video Player
@@ -817,7 +824,7 @@ main() {
         com.samsung.android.vtcamerasettings >> Video call effects
         com.samsung.android.wallpaper.res >> com.samsung.android.wallpaper.res
         com.samsung.android.wcmurlsnetworkstack >> WcmUrlsNetworkStackOverlay
-        com.samsung.android.wifi.h2e.resources >> com.samsung.android.wifi.h2e.resources
+        com.samsung.android.widget.pictureframe >> Gallery
         com.samsung.android.wifi.p2paware.resources >> com.samsung.android.wifi.p2paware.resources
         com.samsung.android.wifi.resources >> com.samsung.android.wifi.resources
         com.samsung.android.wifi.softap.resources >> com.samsung.android.wifi.softap.resources
@@ -827,29 +834,22 @@ main() {
         com.samsung.cmfa.AuthTouch >> CMFA AuthTouchService
         com.samsung.cmh >> CMHProvider
         com.samsung.crane >> Phone
-        com.samsung.desktopsystemui >> Samsung DeX System UI
         com.samsung.faceservice >> FaceService
         com.samsung.gamedriver.sm8350 >> Samsung SM8350 GameDriver
         com.samsung.gpuwatchapp >> GPUWatch
-        com.samsung.huxextension >> Hux Extension
         com.samsung.ims.smk >> SimMobilityKit
         com.samsung.internal.systemui.navbar.gestural_no_hint >> Gestural Navigation Bar
         com.samsung.internal.systemui.navbar.sec_gestural >> Gestural Navigation Bar
         com.samsung.internal.systemui.navbar.sec_gestural_no_hint >> Gestural Navigation Bar
         com.samsung.ipservice >> IPService
         com.samsung.klmsagent >> KLMS Agent
-        com.samsung.knox.securefolder >> Secure Folder
-        com.samsung.mlp >> mlp
-        com.samsung.phone.overlay.common >> com.samsung.phone.overlay.common
+        com.samsung.knox.securefolder >> SecureFolder
         com.samsung.rcs >> RcsSettings
         com.samsung.safetyinformation >> Safety Information
         com.samsung.sait.sohservice >> com.samsung.sait.sohservice
         com.samsung.sec.android.application.csc >> CSC
-        com.samsung.ssu >> Network unlock
         com.samsung.storyservice >> StoryService
-        com.samsung.systemui.bixby2 >> SystemUIBixby2
         com.samsung.ucs.agent.ese >> com.samsung.ucs.agent.ese
-        com.samsung.unifiedtp >> Tethering Provision
         com.samsung.vklayer.sm8350 >> Samsung SM8350 VKLayer
         com.sec.android.RilServiceModeApp >> Service mode RIL
         com.sec.android.app.DataCreate >> Automation Test
@@ -857,7 +857,7 @@ main() {
         com.sec.android.app.apex >> Samsung ApexService
         com.sec.android.app.applinker >> AppLinker
         com.sec.android.app.billing >> Samsung Checkout
-        com.sec.android.app.bluetoothtest >> BluetoothTest
+        com.sec.android.app.bluetoothagent >> Bluetooth Agent
         com.sec.android.app.camera >> Camera
         com.sec.android.app.chromecustomizations >> ChromeCustomizations
         com.sec.android.app.clockpackage >> Clock
@@ -873,7 +873,7 @@ main() {
         com.sec.android.app.personalization >> Perso
         com.sec.android.app.popupcalculator >> Calculator
         com.sec.android.app.quicktool >> Tools
-        com.sec.android.app.safetyassurance >> Send SOS messages
+        com.sec.android.app.safetyassurance >> Emergency Sharing
         com.sec.android.app.samsungapps >> Galaxy Store
         com.sec.android.app.sbrowser >> Samsung Internet
         com.sec.android.app.servicemodeapp >> Service mode
@@ -884,13 +884,13 @@ main() {
         com.sec.android.app.voicenote >> Voice Recorder
         com.sec.android.app.volumemonitorprovider >> VolumeMonitorProvider
         com.sec.android.app.wlantest >> WlanTest
-        com.sec.android.autodoodle.service >> AutoDoodle
+        com.sec.android.autodoodle.service >> Auto Doodle
         com.sec.android.daemonapp >> Weather
         com.sec.android.desktopmode.uiservice >> Samsung DeX
+        com.sec.android.dexsystemui >> Samsung DeX System UI
         com.sec.android.diagmonagent >> DiagMonAgent
         com.sec.android.easyonehand >> EasyOneHand
         com.sec.android.emergencylauncher >> Launcher
-        com.sec.android.emergencymode.service >> EmergencyManagerService
         com.sec.android.gallery3d >> Gallery
         com.sec.android.mimage.avatarstickers >> AR Emoji Stickers
         com.sec.android.mimage.photoretouching >> Photo Editor
@@ -899,7 +899,6 @@ main() {
         com.sec.android.sdhms >> Samsung Device Health Manager Service
         com.sec.android.smartfpsadjuster >> SmartFPSAdjuster
         com.sec.android.soagent >> Software update
-        com.sec.android.systemupdate >> SystemUpdate
         com.sec.android.widgetapp.easymodecontactswidget >> Favourite Contacts
         com.sec.android.widgetapp.webmanual >> User Manual
         com.sec.app.RilErrorNotifier >> RilNotifier
@@ -909,7 +908,7 @@ main() {
         com.sec.enterprise.mdm.services.simpin >> Enterprise Sim Pin Service
         com.sec.epdg >> com.sec.epdg
         com.sec.epdgtestapp >> EpdgTestApp
-        com.sec.factory >> DeviceTest
+        com.sec.facatfunction >> FacAtFunction
         com.sec.factory.camera >> FactoryCamera
         com.sec.factory.cameralyzer >> Cameralyzer
         com.sec.hearingadjust >> Adapt Sound
@@ -1062,6 +1061,11 @@ main() {
         )
     )
 
+    # Safe Google APIs (safe debloat)
+    (
+        pkg_rm com.google.android.gms.supervision # Family Link parental controls
+    )
+
     # Safe Samsung APIs (safe debloat)
     (
         pkg_rm com.samsung.android.app.notes.addons # Samsung Notes Add-ons
@@ -1131,6 +1135,14 @@ main() {
 
         # Wireless IPS (_alternative title: "ping -c 1 '*google.com' && OhNoInstrusionDetected(); ping -c 1 'www.goooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle.com' && OkDNSIsWorking(); ping -c 1 'google.com.onion' && OhNoInstrusionDetected()"_)
         pkg_rm com.samsung.android.server.wifi.mobilewips # MobileWips
+    )
+
+    # Unknown / suspicious (help needed)
+    (
+        # https://www.hybrid-analysis.com/sample/27f2d0342fca53058c04287739f82988b835afc2120734d53a35237124c78469
+        # Very suspicious; only spyware & malware capabilities + strings.
+        # Samsung's image uploading & identifying service? (CC - credit card?)
+        pkg_rm com.sec.android.CcInfo # CcInfo
     )
 
     # Apps&APIs to be reset to clean state (not needed usually)
