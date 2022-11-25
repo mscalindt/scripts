@@ -64,11 +64,13 @@ main() {
     command -v adb > /dev/null 2>&1 || fErr_red 127 'adb not installed.'
     adb shell echo > /dev/null 2>&1 || fErr_red 127 'adb shell not available.'
 
-    info_blue 'Building raw APK list (pm list packages -f)'
-    raw_list || fErr_red "$?" 'we got error. unlucky. ¯\_(ツ)_/¯'
-    op_done;
+    [ "$#" -ge 1 ] || fErr_red 2 'specify op. fast. ò_ó'
 
     if [ "$1" = list ]; then
+        info_blue 'Building raw APK list (pm list packages -f)'
+        raw_list || fErr_red "$?" 'we got error. unlucky. ¯\_(ツ)_/¯'
+        op_done;
+
         APK_LIST=$(
             printf "%s\n" "$APK_LIST" | while read -r PKG_NAME APK; do
                 [ "$PKG_NAME" = android ] && continue
@@ -81,6 +83,10 @@ main() {
         info_white "($_count/$((_count + 1))); excl. 'android'"
         op_done;
     elif [ "$1" = list-wlabel ]; then
+        info_blue 'Building raw APK list (pm list packages -f)'
+        raw_list || fErr_red "$?" 'we got error. unlucky. ¯\_(ツ)_/¯'
+        op_done;
+
         command -v aapt > /dev/null 2>&1 || fErr_red 127 'aapt not installed.'
         TMP_DIR="${TMPDIR:-/tmp}/666apkz"
         [ -d "$TMP_DIR" ] && { info_yellow "Are you doing something naughty?! Does '$TMP_DIR' remind you of something? ò_ó"; rm -rf "$TMP_DIR"; }
@@ -125,10 +131,8 @@ EOF
         : # TODO
     elif [ "$1" = list-sysonly-wlabel ]; then
         : # TODO
-    elif [ "$1" ]; then
-        fErr_red 2 'specify valid op. fast. ò_ó'
     else
-        fErr_red 2 'specify op. fast. ò_ó'
+        fErr_red 2 'specify valid op. fast. ò_ó'
     fi
 }
 
