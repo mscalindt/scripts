@@ -27,6 +27,27 @@ function Install-App($appName, $appPath, $appUrl) {
     }
 }
 
+function Install-Static-App($appName, $appPath, $appUrl) {
+    if ([string]::IsNullOrEmpty($appName) -or [string]::IsNullOrEmpty($appPath) -or [string]::IsNullOrEmpty($appUrl)) {
+        throw "One or more parameters are null or empty."
+    }
+
+    if (Test-Path $appPath) {
+        Write-Host -NoNewline "> " -ForegroundColor Green
+        Write-Host "`"$appName`" is already installed."
+    } else {
+        Write-Host -NoNewline "> " -ForegroundColor White
+        Write-Host "Installing `"$appName`"..."
+
+        try {
+            Invoke-WebRequest -Uri $appUrl -OutFile $appPath
+        } catch {
+            Write-Host -NoNewline "> " -ForegroundColor Red
+            Write-Host "Error occurred while installing `"$appName`". Error: $($_.Exception.Message)"
+        }
+    }
+}
+
 <#
 .SYNOPSIS
    A function to remove scheduled tasks that match a specified pattern.
@@ -231,15 +252,27 @@ function UnpinFromTaskbar ($AppName) {
 Write-Host ">> mscalindt:"
 Write-Host ""
 
+$AIMP_PATH = "C:\Program Files\AIMP\AIMP.exe"
+$AMD_PATH = "C:\Program Files\AMD\CNext\CNext\RadeonSoftware.exe"
+$CHROME_PATH = "C:\Program Files\Google\Chrome\Application\chrome.exe"
 $FF_PATH = "C:\Program Files\Mozilla Firefox\firefox.exe"
+$PROCMON_PATH = "$env:USERPROFILE\Desktop\ProcMon.exe"
 $STEAM_PATH = "C:\Program Files (x86)\Steam\Steam.exe"
 $TELEGRAM_PATH = "$env:USERPROFILE\AppData\Roaming\Telegram Desktop\Telegram.exe"
 
+$AIMP_URL = "https://www.aimp.ru/?do=download.file&id=3"
+$AMD_URL = "https://drivers.amd.com/drivers/installer/23.10/whql/amd-software-adrenalin-edition-23.8.1-minimalsetup-230819_web.exe"
+$CHROME_URL = "https://dl.google.com/chrome/install/latest/chrome_installer.exe"
 $FF_URL = "https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US"
+$PROCMON_URL = "https://live.sysinternals.com/Procmon.exe"
 $STEAM_URL = "https://steamcdn-a.akamaihd.net/client/installer/SteamSetup.exe"
 $TELEGRAM_URL = "https://telegram.org/dl/desktop/win64"
 
+Install-App "AIMP" $AIMP_PATH $AIMP_URL
+Install-App "AMD Software: Adrenalin Edition" $AIMP_PATH $AIMP_URL
+Install-App "Chrome" $CHROME_PATH $CHROME_URL
 Install-App "Firefox" $FF_PATH $FF_URL
+Install-Static-App "ProcMon" $PROCMON_PATH $PROCMON_URL
 Install-App "Steam" $STEAM_PATH $STEAM_URL
 Install-App "Telegram" $TELEGRAM_PATH $TELEGRAM_URL
 
@@ -254,6 +287,8 @@ $MS_appBloat = @(
     "MicrosoftOfficeHub",
     "MicrosoftStickyNotes",
     "MixedReality",
+    "OneNote",
+    "Skype",
     "SpotifyMusic",
     "windowscommunicationsapps",
     "WindowsFeedbackHub",
@@ -629,6 +664,59 @@ if (Test-Path -Path $EDGE_IconPath) {
     Write-Host "``Microsoft Edge`` icon removed from desktop."
 }
 
+# Change scaling to (125% -> 100%) ("Change the size of text, apps, and other items").
+# Function to set the DpiValue dynamically based on the detected keys
+function Set-DpiValue {
+    param (
+        [string]$registryPath,
+        [int]$dpiValue
+    )
+
+    # Get the subkeys in the registry path
+    $subkeys = Get-ChildItem -Path $registryPath
+
+    # Iterate over each subkey and set the DpiValue
+    foreach ($subkey in $subkeys) {
+        $keyPath = Join-Path -Path $registryPath -ChildPath $subkey.PSChildName
+        Set-ItemProperty -Path $keyPath -Name "DpiValue" -Value $dpiValue
+    }
+}
+Write-Host "Changing 'Change the size of text, apps, and other items' to 100%."
+$LogPixelsPaths = @(
+    "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\FontDPI",
+    "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows NT\CurrentVersion\FontDPI",
+    "HKLM:\SYSTEM\ControlSet001\Hardware Profiles\0000\Software\Fonts",
+    "HKLM:\SYSTEM\ControlSet001\Hardware Profiles\0001\Software\Fonts",
+    "HKLM:\SYSTEM\ControlSet001\Hardware Profiles\Current\Software\Fonts",
+    "HKLM:\SYSTEM\CurrentControlSet\Hardware Profiles\0000\Software\Fonts",
+    "HKLM:\SYSTEM\CurrentControlSet\Hardware Profiles\0001\Software\Fonts",
+    "HKLM:\SYSTEM\CurrentControlSet\Hardware Profiles\Current\Software\Fonts",
+    "HKCC:\Software\Fonts",
+    "HKCU:\Control Panel\Desktop"
+)
+foreach ($path in $LogPixelsPaths) {
+    if (Test-Path $path) {
+        Set-ItemProperty -Path $path -Name "LogPixels" -Value 96
+    }
+}
+$AppliedDPIPaths = @(
+    "HKCU:\Control Panel\Desktop\WindowMetrics",
+    "HKU:\.DEFAULT\Control Panel\Desktop\WindowMetrics",
+    "HKU:\S-1-5-18\Control Panel\Desktop\WindowMetrics"
+)
+foreach ($path in $AppliedDPIPaths) {
+    if (Test-Path $path) {
+        Set-ItemProperty -Path $path -Name "AppliedDPI" -Value 96
+    }
+}
+# 0xffffffff for 100% and 0x00000000 for 125%
+Set-DpiValue -registryPath 'HKLM:\System\CurrentControlSet\Control\GraphicsDrivers\ScaleFactors' -dpiValue 0xffffffff
+Set-DpiValue -registryPath 'HKCU:\Control Panel\Desktop\PerMonitorSettings' -dpiValue 0xffffffff
+
+# Disable 'Windows try to fix apps so they're not blurry'.
+Write-Host "Disabling 'Let Windows try to fix apps so they're not blurry'."
+Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "EnablePerProcessSystemDPI" -Value 0
+
 # Stop the Explorer process for all changes to take place;
 # Windows will automatically restart the process.
 Write-Host ""
@@ -639,6 +727,12 @@ Stop-Process -Name explorer -Force
 # Set specified PC name.
 Write-Host ""
 Set-PCName -NewName $PC_Name
+
+# Disable Let websites provide locally relevant content by accessing my language list.
+Write-Host "Disable 'Let websites provide locally relevant content by accessing my language list' yourself!"
+
+# Disable Let Windows track app launches to improve Start and search results.
+Write-Host "Disable 'Let Windows track app launches to improve Start and search results' yourself!"
 
 Write-Host ""
 Write-Host ">> Done!"
