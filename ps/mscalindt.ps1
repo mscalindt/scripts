@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-only
-# Copyright (C) 2023 Dimitar Yurukov <mscalindt@protonmail.com>
+# Copyright (C) 2023-2024 Dimitar Yurukov <mscalindt@protonmail.com>
 $ErrorActionPreference = "SilentlyContinue"
 $PC_Name = 'DESKTOP-M533IA'
 
