@@ -688,7 +688,10 @@ admerge_msg() {
         *'/'*) url=$(git ls-remote --get-url "${BRANCH%%/*}" 2> /dev/null) ;;
     esac
 
-    printf "Merge '%s' into '%s'\n" "$BRANCH" "$OBR"
+    # commit title. must abort on fail.
+    {
+        printf "Merge '%s' into '%s'\n" "$BRANCH" "$OBR"
+    } || admerge_abort
 
     {
         [ "$url" ] && \
@@ -703,9 +706,11 @@ admerge_msg() {
         git log --oneline "$CDIFF_NEW"
     } || > /dev/null 2>&1
 
-    if [ "$gver" ]; then
-        { echo; git --version; } || > /dev/null 2>&1
-    fi
+    {
+        [ "$gver" ] && \
+        echo && \
+        git --version
+    } || > /dev/null 2>&1
 } > "$AMSG"
 
 admerge_exec() {
