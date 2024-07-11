@@ -559,6 +559,9 @@ _commit() {
 # (!) failure
 #
 _merge_opts() {
+    # --no-ff rationale: the usage of admerge implicitly implies --no-ff is
+    # always preferred. additionally, --no-ff is required for admerge to update
+    # the repo env appropriately in several cases.
     set -- '--no-ff'
     set -- "$@" '--no-commit'
 
