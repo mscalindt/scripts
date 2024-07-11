@@ -684,7 +684,17 @@ admerge_lock() {
 admerge_msg() {
     commit_cnt=$(git rev-list --count "$CDIFF_NEW" 2> /dev/null)
 
+    case "$BRANCH" in
+        *'/'*) url=$(git ls-remote --get-url "${BRANCH%%/*}" 2> /dev/null) ;;
+    esac
+
     printf "Merge '%s' into '%s'\n" "$BRANCH" "$OBR"
+
+    {
+        [ "$url" ] && \
+        echo && \
+        printf "%s\n" "$url"
+    } || > /dev/null 2>&1
 
     {
         [ "$commit_cnt" ] && \
