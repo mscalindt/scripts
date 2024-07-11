@@ -682,12 +682,15 @@ admerge_lock() {
 } > "$ALOCK"
 
 admerge_msg() {
+    commit_cnt=$(git rev-list --count "$CDIFF_NEW" 2> /dev/null)
+
     printf "Merge '%s' into '%s'\n" "$BRANCH" "$OBR"
 
     {
-        echo; printf 'Summary of commits: #'
-        git rev-list --count "$CDIFF_NEW" 2> /dev/null && \
-        git log --oneline "$CDIFF_NEW" 2> /dev/null
+        [ "$commit_cnt" ] && \
+        echo && \
+        printf "Summary of commits (%s):\n" "$commit_cnt" && \
+        git log --oneline "$CDIFF_NEW"
     } || > /dev/null 2>&1
 
     if [ "$gver" ]; then
