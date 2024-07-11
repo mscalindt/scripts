@@ -701,6 +701,15 @@ admerge_msg() {
         esac
     }
 
+    msg_admerge_opts() {
+        admerge_msg_newline_handler "$1" && \
+        [ "$MAIN_ARGS" ] && \
+        printf 'admerge: ' && \
+        printf "%s" '`' && \
+        printf "%s" "$MAIN_ARGS" && \
+        printf "%s\n" '`'
+    }
+
     msg_branch_url() {
         admerge_msg_newline_handler "$1" && \
         [ "$url" ] && \
@@ -746,7 +755,11 @@ admerge_msg() {
 
     msg_commits_summary n1 || > /dev/null 2>&1
 
-    msg_git_opts n1 || > /dev/null 2>&1
+    if { msg_git_opts n1 || > /dev/null 2>&1; }; then
+        msg_admerge_opts n0 || > /dev/null 2>&1
+    else
+        msg_admerge_opts n1 || > /dev/null 2>&1
+    fi
 
     msg_git_ver n1 || > /dev/null 2>&1
 } > "$AMSG"
@@ -1516,6 +1529,9 @@ options() {
 main() {
     # Source common functions
     main_functions;
+
+    # For admerge_msg() purposes save the cmdline.
+    MAIN_ARGS="$*"
 
     # Parse options
     while [ "$1" ]; do
