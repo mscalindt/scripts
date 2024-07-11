@@ -49,6 +49,9 @@ In-merge options (merge with conflicts):
   s, status                  show status of the current merge
 
 Options:
+  -a, --allow-unrelated-histories
+                             allow the merge of a history without a common
+                             ancestor
   -s, --sign-off             add Signed-off-by line at the end of the commit
                              message; requires preconfigured signoff info for
                              seamless work
@@ -558,6 +561,11 @@ _commit() {
 _merge() {
     set -- '--no-ff'
     set -- "$@" '--no-commit'
+
+    if [ "$auhistories" ]; then
+        set -- "$@" '--allow-unrelated-histories'
+    fi
+
     set -- "$@" "$BRANCH"
 
     git merge "$@"
@@ -1415,6 +1423,7 @@ options() {
             copt '--language' && { language="$_opt_arg"; }
             copt '--locale' && { locale="$_opt_arg"; }
 
+            sopt '-a' '--allow-unrelated-histories' && { auhistories=1; }
             sopt '-s' '--sign-off' && { soff=1; }
             sopt '-S' '--gpg-sign' && { gsign=1; }
             sopt '-v' '--git-version' && { gver=1; }
