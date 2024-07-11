@@ -549,7 +549,7 @@ _commit() {
 }
 
 # Description:
-# Issue admerge's merge command
+# Build and shell print the merge options
 #
 # Uses:
 # <BRANCH> $ - the branch being merged
@@ -558,7 +558,7 @@ _commit() {
 # (0) success
 # (!) failure
 #
-_merge() {
+_merge_opts() {
     set -- '--no-ff'
     set -- "$@" '--no-commit'
 
@@ -568,7 +568,18 @@ _merge() {
 
     set -- "$@" "$BRANCH"
 
-    git merge "$@"
+    printf "%s" "$*"
+}
+
+# Description:
+# Issue admerge's merge command
+#
+# Returns:
+# (0) success
+# (!) failure
+#
+_merge() {
+    git merge $(_merge_opts)
 }
 
 # Description:
@@ -703,6 +714,14 @@ admerge_msg() {
         git log --oneline "$CDIFF_NEW"
     }
 
+    msg_git_opts() {
+        admerge_msg_newline_handler "$1" && \
+        printf 'git merge: ' && \
+        printf "%s" '`' && \
+        _merge_opts && \
+        printf "%s\n" '`'
+    }
+
     msg_git_ver() {
         admerge_msg_newline_handler "$1" && \
         [ "$gver" ] && \
@@ -726,6 +745,8 @@ admerge_msg() {
     msg_branch_url n1 || > /dev/null 2>&1
 
     msg_commits_summary n1 || > /dev/null 2>&1
+
+    msg_git_opts n1 || > /dev/null 2>&1
 
     msg_git_ver n1 || > /dev/null 2>&1
 } > "$AMSG"
