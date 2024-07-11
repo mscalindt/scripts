@@ -805,7 +805,7 @@ admerge_abort() {
             _in_merge && exit 1
         fi
     else
-        _info 0 'No merge is in progress.'
+        _info 0 'No merge in progress.'
     fi
 
     admerge_post
@@ -820,7 +820,7 @@ admerge_continue() {
             _in_merge && exit 1
         fi
     else
-        _info 0 'No merge is in progress.'
+        _info 0 'No merge in progress.'
     fi
 
     admerge_post
@@ -870,7 +870,7 @@ admerge_status() {
         printf "%b]%b\n" \
                "${ES_inf}" "${ES_res}"
     else
-        _info 0 'No merge is in progress.'
+        _info 0 'No merge in progress.'
     fi
 
     admerge_post
