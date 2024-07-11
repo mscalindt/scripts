@@ -450,6 +450,11 @@ _info_clr() {
     printf "%b%s=>>: %s%b\n" '\033[1;37m' "$_str" "$*" '\033[0m'
 }
 
+# WARNING: this function is security disaster -- the evaluated string, which
+# was initially built properly by admerge, has been subsequently stored
+# externally and now cannot be trusted unless it is explicitly verified here it
+# is a valid single-quote-escaped string.
+#
 # Description:
 # Get N attribute in the lock file
 #
@@ -477,6 +482,11 @@ _alock_get() {
     [ "$_attr" ] && printf "%s" "$_attr"
 }
 
+# WARNING: this function is security disaster -- the evaluated string, which
+# was initially built properly by admerge, has been subsequently stored
+# externally and now cannot be trusted unless it is explicitly verified here it
+# is a valid single-quote-escaped string.
+#
 # Description:
 # Check if an attribute exists in the lock file
 #
