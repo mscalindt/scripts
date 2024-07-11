@@ -682,6 +682,38 @@ admerge_lock() {
 } > "$ALOCK"
 
 admerge_msg() {
+    admerge_msg_newline_handler() {
+        case "$1" in
+            'n0') : ;;  # n0: pre-output print 0 newlines
+            'n1') echo ;;  # n1: pre-output print 1 newline
+            'n2') echo; echo ;;  # n2: pre-output print 2 newlines
+        esac
+    }
+
+    msg_branch_url() {
+        admerge_msg_newline_handler "$1" && \
+        [ "$url" ] && \
+        printf "%s\n" "$url"
+    }
+
+    msg_commits_summary() {
+        admerge_msg_newline_handler "$1" && \
+        [ "$commit_cnt" ] && \
+        printf "Summary of commits (%s):\n" "$commit_cnt" && \
+        git log --oneline "$CDIFF_NEW"
+    }
+
+    msg_git_ver() {
+        admerge_msg_newline_handler "$1" && \
+        [ "$gver" ] && \
+        git --version
+    }
+
+    msg_title() {
+        admerge_msg_newline_handler "$1" && \
+        printf "Merge '%s' into '%s'\n" "$BRANCH" "$OBR"
+    }
+
     commit_cnt=$(git rev-list --count "$CDIFF_NEW" 2> /dev/null)
 
     case "$BRANCH" in
@@ -689,28 +721,13 @@ admerge_msg() {
     esac
 
     # commit title. must abort on fail.
-    {
-        printf "Merge '%s' into '%s'\n" "$BRANCH" "$OBR"
-    } || admerge_abort
+    msg_title n0 || admerge_abort
 
-    {
-        [ "$url" ] && \
-        echo && \
-        printf "%s\n" "$url"
-    } || > /dev/null 2>&1
+    msg_branch_url n1 || > /dev/null 2>&1
 
-    {
-        [ "$commit_cnt" ] && \
-        echo && \
-        printf "Summary of commits (%s):\n" "$commit_cnt" && \
-        git log --oneline "$CDIFF_NEW"
-    } || > /dev/null 2>&1
+    msg_commits_summary n1 || > /dev/null 2>&1
 
-    {
-        [ "$gver" ] && \
-        echo && \
-        git --version
-    } || > /dev/null 2>&1
+    msg_git_ver n1 || > /dev/null 2>&1
 } > "$AMSG"
 
 admerge_exec() {
