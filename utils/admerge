@@ -660,7 +660,7 @@ _admerge() {
 }
 
 admerge_env() {
-    OBR=$(git symbolic-ref --short HEAD)
+    OBR=$(git symbolic-ref --short HEAD)  # fix: it is assumed this never fails
     ALOCK="$PWD"/.git/admerge_lock
     AMSG="$PWD"/.git/admerge_msg
     GMSG="$PWD"/.git/MERGE_MSG
