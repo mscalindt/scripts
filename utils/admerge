@@ -606,6 +606,28 @@ _in_merge() {
     [ -f "$GMSG" ]
 }
 
+# Description:
+# Append string(s) to $AMSG
+#
+# Parameters:
+# <$1> - pre-string-newlines(
+#     'n0' - no newline
+#     'n1' - one newline
+#     'n2' - two newlines
+#     .
+# )
+# <"$2"+> - string
+#
+# Returns:
+# (0) success
+# (!) failure
+#
+_msg_append() {
+    admerge_msg_newline_handler "$1"
+    shift
+    printf "%s\n" "$@"
+} >> "$AMSG"
+
 _admerge() {
     case :"$locale" in
         :)
@@ -792,6 +814,15 @@ admerge_exec() {
         if ! _in_merge; then
             exit 1
         else
+            conflicts=$(printf "Conflicts:\n"; git ls-files -u 2> /dev/null)
+            footer=$(msg_footer n0)
+
+            if [ "$conflicts" ]; then
+                if { _msg_append n1 "$conflicts" || > /dev/null 2>&1; }; then
+                    _msg_append n1 "$footer" || > /dev/null 2>&1
+                fi
+            fi
+
             RC=1 && return 1
         fi
     fi
