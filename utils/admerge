@@ -45,7 +45,7 @@ _options() {
 <<'OPTIONS'
 In-merge options (merge with conflicts):
   a, abort                   abort a merge in progress
-  c, continue                resume a merge
+  c, continue                commit a merge
   s, status                  show status of the current merge
 
 Options:
