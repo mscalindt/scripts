@@ -751,12 +751,13 @@ admerge_msg() {
         printf "%s\n" "$url"
     }
 
-    msg_commits_summary() {
+    msg_commits_summary() (
+        git() { command git -c 'color.ui=never' "$@"; }
         admerge_msg_newline_handler "$1" && \
         [ "$commit_cnt" ] && \
         printf "Summary of commits (%s):\n" "$commit_cnt" && \
         git log --oneline "$CDIFF_NEW"
-    }
+    )
 
     msg_footer() {
         admerge_msg_newline_handler "$1" && \
