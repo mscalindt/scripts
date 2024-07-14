@@ -4,7 +4,7 @@
 _copyright() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
 <<'COPYRIGHT'
-Copyright (C) 2021-2022 Dimitar Yurukov <mscalindt@protonmail.com>
+Copyright (C) 2021-2024 Dimitar Yurukov <mscalindt@protonmail.com>
 COPYRIGHT
 }
 
