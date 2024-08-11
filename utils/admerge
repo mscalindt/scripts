@@ -781,7 +781,7 @@ admerge_msg() {
 
     msg_title() {
         admerge_msg_newline_handler "$1" && \
-        printf "Merge '%s' into '%s'\n" "$BRANCH" "$OBR"
+        printf "Merge \`%s\` into \`%s\`\n" "$BRANCH" "$OBR"
     }
 
     commit_cnt=$(git rev-list --count "$CDIFF_NEW" 2> /dev/null)
