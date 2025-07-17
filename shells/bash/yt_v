@@ -1,0 +1,181 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-only
+
+yt_v() (
+    err() {
+        trap - INT TERM EXIT
+
+        if [ "$1" != 0 ]; then
+            printf "%s" \
+'
+$1 -> url
+$2 -> fname
+$3 *1* -> `--format bestvideo[height<=1080]`, yt-dlp only
+$3 *2* -> `--format bestvideo[height<=1440]`, yt-dlp only
+$3 *b* -> `--format bestvideo`
+$3 *c* -> check for unknown avc1 formats
+$3 *d* -> check for unknown avc1 formats with specified config as well
+$3 *n* -> `--fixup never`
+$3 *t* -> `--no-part --no-cache-dir`, keep in tmp dir, no cleanup
+$3 *v* -> `--verbose`
+$3 *y* -> use yt-dlp
+$3 *z* -> use youtube-dl
+'
+
+            rm -rf "${TMPDIR:-/tmp}"/yt_v
+        fi
+
+        case "$OPTS" in
+            *t*) : ;;
+            *) rm -rf "${TMPDIR:-/tmp}"/yt_v ;;
+        esac
+
+        exit "$1"
+    }
+
+    set -e
+    trap "err \$?" INT TERM EXIT
+
+    URL="$1"
+    FNAME="$2"
+    OPTS="$3"
+    DIR="$PWD"
+    FILE=
+
+    [ "$URL" ] || { printf "%s\n" 'No URL specified.'; exit 2; }
+
+    case "$FNAME" in
+        *.???) FNAME="${FNAME%????}" ;;
+        *.????) FNAME="${FNAME%?????}" ;;
+    esac
+
+    rm -rf "${TMPDIR:-/tmp}"/yt_v
+    mkdir "${TMPDIR:-/tmp}"/yt_v
+    cd "${TMPDIR:-/tmp}"/yt_v
+
+    case "$OPTS" in
+        *y*)
+            set -- 'yt-dlp'
+        ;;
+        *z*)
+            set -- 'youtube-dl'
+        ;;
+        *)
+            if command -v 'yt-dlp' > /dev/null 2>&1; then
+                set -- 'yt-dlp'
+            elif command -v 'youtube-dl' > /dev/null 2>&1; then
+                set -- 'youtube-dl'
+            else
+                printf "%s\n" 'No downloader found.'; exit 1
+            fi
+        ;;
+    esac
+
+    case "$OPTS" in
+        *c* | *d*)
+            OUT=$(
+            "$@" \
+                --extractor-args "youtube:formats=missing_pot" \
+                -F "$URL" | grep avc | awk \
+                '$1 !~ /^(299|312|137|270|298|311|379|136|232|22|135|231|134|230|18|133|229|160|269)$/' 2>/dev/null
+            ) || :
+
+            if [ "$OUT" ]; then
+                printf "%s\n%s\n" 'Found formats:' "$OUT"
+            else
+                printf "%s\n" 'No new formats.'
+            fi
+
+            case "$OPTS" in
+                *c*) exit 0 ;;
+            esac
+        ;;
+    esac
+
+    case "$OPTS" in
+        *t*) set -- "$@" '--no-part' '--no-cache-dir' ;;
+    esac
+
+    case "$OPTS" in
+        *n*) set -- "$@" '--fixup' 'never' ;;
+    esac
+
+    case "$OPTS" in
+        *v*) set -- "$@" '--verbose' ;;
+    esac
+
+    set -- "$@" '--cookies-from-browser' 'firefox'
+    set -- "$@" '--extractor-args' 'youtube:formats=missing_pot'
+
+    case "$OPTS" in
+        *d*)
+            OUT=$(
+            "$@" \
+                -F "$URL" | grep avc | awk \
+                '$1 !~ /^(299|312|137|270|298|311|379|136|232|22|135|231|134|230|18|133|229|160|269)$/' 2>/dev/null
+            ) || :
+
+            if [ "$OUT" ]; then
+                printf "%s\n%s\n" 'Found formats:' "$OUT"
+            else
+                printf "%s\n" 'Also no new formats.'
+            fi
+
+            exit 0
+        ;;
+    esac
+
+    # 299/312 - 1080p HFR avc1(h.264), contained in mp4
+    # 137/270 - 1080p avc1(h.264), contained in mp4
+    # 298/311 - 720p HFR avc1(h.264), contained in mp4
+    # 379     - 720p HBR avc1(h.264), contained in mp4
+    # 136/232 - 720p avc1(h.264), contained in mp4
+    # 135/231 - 480p avc1(h.264), contained in mp4
+    # 134/230 - 360p avc1(h.264), contained in mp4
+    # 133/229 - 240p avc1(h.264), contained in mp4
+    # 160/269 - 144p avc1(h.264), contained in mp4
+    case "$OPTS" in
+        *1*)
+            set -- "$@" '--format' 'bestvideo[height<=1080]'
+        ;;
+        *2*)
+            set -- "$@" '--format' 'bestvideo[height<=1440]'
+        ;;
+        *b*)
+            set -- "$@" '--format' 'bestvideo'
+        ;;
+        *)
+            set -- "$@" '--format' '299/137/298/379/136/135/134/133/160'
+        ;;
+    esac
+
+    set -- "$@" "$URL"
+
+    "$@"
+
+    FILE=$(set -- *; printf "%s" "${1}x")
+    FILE="${FILE%?}"
+
+    if [ "$FNAME" ]; then
+        mv "$FILE" "${FNAME}.${FILE##*.}"
+
+        FILE="${FNAME}.${FILE##*.}"
+    fi
+
+    case "$OPTS" in
+        *t*)
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'FILE:' '\033[0m' \
+                '\033[1;37m' "${TMPDIR:-/tmp}"/yt_v/"$FILE" '\033[0m'
+        ;;
+        *)
+            mv "${TMPDIR:-/tmp}"/yt_v/"$FILE" "$DIR"/"$FILE"
+
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'FILE:' '\033[0m' \
+                '\033[1;37m' "$DIR"/"$FILE" '\033[0m'
+        ;;
+    esac
+)
+
+yt_v "$@"

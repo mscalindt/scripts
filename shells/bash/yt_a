@@ -1,0 +1,117 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-only
+
+yt_a() (
+    err() {
+        trap - INT TERM EXIT
+
+        if [ "$1" != 0 ]; then
+            printf "%s" \
+'
+$1 -> url
+$2 -> fname
+$3 *n* -> `--fixup never`
+$3 *t* -> `--no-part --no-cache-dir`, keep in tmp dir, no cleanup
+$3 *v* -> `--verbose`
+$3 *y* -> use yt-dlp
+$3 *z* -> use youtube-dl
+'
+
+            rm -rf "${TMPDIR:-/tmp}"/yt_a
+        fi
+
+        case "$OPTS" in
+            *t*) : ;;
+            *) rm -rf "${TMPDIR:-/tmp}"/yt_a ;;
+        esac
+
+        exit "$1"
+    }
+
+    set -e
+    trap "err \$?" INT TERM EXIT
+
+    URL="$1"
+    FNAME="$2"
+    OPTS="$3"
+    DIR="$PWD"
+    FILE=
+
+    [ "$URL" ] || { printf "%s\n" 'No URL specified.'; exit 2; }
+
+    case "$FNAME" in
+        *.???) FNAME="${FNAME%????}" ;;
+        *.????) FNAME="${FNAME%?????}" ;;
+    esac
+
+    rm -rf "${TMPDIR:-/tmp}"/yt_a
+    mkdir "${TMPDIR:-/tmp}"/yt_a
+    cd "${TMPDIR:-/tmp}"/yt_a
+
+    case "$OPTS" in
+        *y*)
+            set -- 'yt-dlp'
+        ;;
+        *z*)
+            set -- 'youtube-dl'
+        ;;
+        *)
+            if command -v 'yt-dlp' > /dev/null 2>&1; then
+                set -- 'yt-dlp'
+            elif command -v 'youtube-dl' > /dev/null 2>&1; then
+                set -- 'youtube-dl'
+            else
+                printf "%s\n" 'No downloader found.'; exit 1
+            fi
+        ;;
+    esac
+
+    case "$OPTS" in
+        *t*) set -- "$@" '--no-part' '--no-cache-dir' ;;
+    esac
+
+    case "$OPTS" in
+        *n*) set -- "$@" '--fixup' 'never' ;;
+    esac
+
+    case "$OPTS" in
+        *v*) set -- "$@" '--verbose' ;;
+    esac
+
+    set -- "$@" '--cookies-from-browser' 'firefox'
+    set -- "$@" '--extractor-args' 'youtube:formats=missing_pot'
+
+    # 141 - 256 kbps aac, contained in mp4(m4a); premium accounts only
+    # 140 - 128 kbps aac, contained in mp4(m4a)
+    set -- "$@" '--format' '141/140'
+
+    set -- "$@" "$URL"
+
+    "$@"
+
+    FILE=$(set -- *; printf "%s" "${1}x")
+    FILE="${FILE%?}"
+
+    if [ "$FNAME" ]; then
+        mv "$FILE" "${FNAME}.${FILE##*.}"
+
+        FILE="${FNAME}.${FILE##*.}"
+    fi
+
+    case "$OPTS" in
+        *t*)
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'FILE:' '\033[0m' \
+                '\033[1;37m' "${TMPDIR:-/tmp}"/yt_a/"$FILE" '\033[0m'
+        ;;
+        *)
+            mv "${TMPDIR:-/tmp}"/yt_a/"$FILE" "$DIR"/"$FILE"
+
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'FILE:' '\033[0m' \
+                '\033[1;37m' "$DIR"/"$FILE" '\033[0m'
+        ;;
+    esac
+)
+
+yt_a "$@"
