@@ -77,7 +77,7 @@ $3 *z* -> use youtube-dl
             "$@" \
                 --extractor-args "youtube:formats=missing_pot" \
                 -F "$URL" | grep avc | awk \
-                '$1 !~ /^(299|312|137|270|298|311|379|136|232|22|135|231|134|230|18|133|229|160|269)$/' 2>/dev/null
+                '$1 !~ /^(299|312|137|270|298|311|379|214|136|232|22|135|231|134|230|18|133|229|160|269)$/' 2>/dev/null
             ) || :
 
             if [ "$OUT" ]; then
@@ -112,7 +112,7 @@ $3 *z* -> use youtube-dl
             OUT=$(
             "$@" \
                 -F "$URL" | grep avc | awk \
-                '$1 !~ /^(299|312|137|270|298|311|379|136|232|22|135|231|134|230|18|133|229|160|269)$/' 2>/dev/null
+                '$1 !~ /^(299|312|137|270|298|311|379|214|136|232|22|135|231|134|230|18|133|229|160|269)$/' 2>/dev/null
             ) || :
 
             if [ "$OUT" ]; then
@@ -128,7 +128,7 @@ $3 *z* -> use youtube-dl
     # 299/312 - 1080p HFR avc1(h.264), contained in mp4
     # 137/270 - 1080p avc1(h.264), contained in mp4
     # 298/311 - 720p HFR avc1(h.264), contained in mp4
-    # 379     - 720p HBR avc1(h.264), contained in mp4
+    # 379/214 - 720p HBR avc1(h.264), contained in mp4
     # 136/232 - 720p avc1(h.264), contained in mp4
     # 135/231 - 480p avc1(h.264), contained in mp4
     # 134/230 - 360p avc1(h.264), contained in mp4
