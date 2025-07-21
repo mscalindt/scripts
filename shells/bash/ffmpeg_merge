@@ -1,0 +1,153 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-only
+
+ffmpeg_merge() (
+    err() {
+        trap - INT TERM EXIT
+
+        if [ "$1" != 0 ]; then
+            printf "%s" \
+'
+$1 -> video input
+$2 -> input
+$3 -> fname
+$4 *a* -> out PTS/DTS as-is (might choke players)
+$4 *d* -> `-loglevel debug`
+$4 *m* -> keep mtime of input 1
+$4 *n* -> keep mtime of input 2
+$4 *t* -> keep in tmp dir, no cleanup
+'
+
+            rm -rf "${TMPDIR:-/tmp}"/ffmpeg_merge
+        fi
+
+        case "$OPTS" in
+            *t*) : ;;
+            *) rm -rf "${TMPDIR:-/tmp}"/ffmpeg_merge ;;
+        esac
+
+        exit "$1"
+    }
+
+    set -e
+    trap "err \$?" INT TERM EXIT
+
+    IN="$1"
+    IN2="$2"
+    FNAME="$3"
+    OPTS="$4"
+    DIR=$(cd -Pe "$PWD" && printf "%s" "${PWD}x")
+    DIR="${DIR%?}"
+
+    [ "$IN" ] || { printf "%s\n" 'No input file specified.'; exit 2; }
+    [ -e "$IN" ] || { printf "%s\n" 'Bad input. (ENOENT)'; exit 2; }
+    [ ! -d "$IN" ] || { printf "%s\n" 'Bad input. (EISDIR)'; exit 2; }
+
+    case "$IN" in
+        */*)
+            IN="$(realpath -- "$IN" && printf "%s" x)"
+            IN="${IN%??}"
+
+            DIR="${IN%/*}"
+        ;;
+        *)
+            IN="$DIR"/"$IN"
+        ;;
+    esac
+
+    [ -e "$IN" ] || { printf "%s\n" 'Resolution error. (ENOENT)'; exit 1; }
+
+    [ "$IN2" ] || { printf "%s\n" 'No second file specified.'; exit 2; }
+    [ -e "$IN2" ] || { printf "%s\n" 'Bad second file. (ENOENT)'; exit 2; }
+    [ ! -d "$IN2" ] || { printf "%s\n" 'Bad second file. (EISDIR)'; exit 2; }
+
+    IN2="$(realpath -- "$IN2" && printf "%s" x)"
+    IN2="${IN2%??}"
+
+    [ -e "$IN2" ] || { printf "%s\n" 'Resolution error. (ENOENT)'; exit 1; }
+
+    case "$FNAME" in
+        *.???) FNAME="${FNAME%????}" ;;
+        *.????) FNAME="${FNAME%?????}" ;;
+    esac
+
+    rm -rf "${TMPDIR:-/tmp}"/ffmpeg_merge
+    mkdir "${TMPDIR:-/tmp}"/ffmpeg_merge
+    cd "${TMPDIR:-/tmp}"/ffmpeg_merge
+
+    set -- 'ffmpeg'
+    set -- "$@" '-hide_banner'
+
+    # fully regenerate PTS/DTS container timestamps by default for monotonic
+    # timeline. a timeline that is not monotonic can choke players.
+    #
+    # in either case, PTS/DTS do not affect the produced video/audio (packet)
+    # data; only the container's PTS/DTS get regenerated when not re-encoding
+    # (and `+genpts` will *not* force re-encode).
+    #
+    # if source PTS/DTS are 100% correct, `+genpts` is redundant but harmless.
+    case "$OPTS" in
+        *a*)
+            set -- "$@" '-avoid_negative_ts' 'disabled'  # 0
+        ;;
+        *)
+            set -- "$@" '-fflags' '+genpts'
+        ;;
+    esac
+
+    set -- "$@" '-i' "$IN"
+    set -- "$@" '-i' "$IN2"
+    set -- "$@" '-c' 'copy'
+    set -- "$@" '-copy_unknown'
+    set -- "$@" '-map' '0'
+    set -- "$@" '-map' '1'
+    set -- "$@" '-map_metadata' '0'
+
+    case "$OPTS" in
+        *d*) set -- "$@" '-loglevel' 'debug' ;;
+    esac
+
+    set -- "$@" "${IN##*/}"
+
+    "$@"
+
+    FILE=$(set -- *; printf "%s" "${1}x")
+    FILE="${FILE%?}"
+
+    case "$OPTS" in
+        *m*) touch -r "$IN" "$FILE" ;;
+        *n*) touch -r "$IN2" "$FILE" ;;
+    esac
+
+    if [ "$FNAME" ]; then
+        case "$FILE" in
+            *.??? | *.????)
+                mv "$FILE" "${FNAME}.${FILE##*.}"
+
+                FILE="${FNAME}.${FILE##*.}"
+            ;;
+            *)
+                mv "$FILE" "$FNAME"
+
+                FILE="$FNAME"
+            ;;
+        esac
+    fi
+
+    case "$OPTS" in
+        *t*)
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'FILE:' '\033[0m' \
+                '\033[1;37m' "${TMPDIR:-/tmp}"/ffmpeg_merge/"$FILE" '\033[0m'
+        ;;
+        *)
+            mv -f "${TMPDIR:-/tmp}"/ffmpeg_merge/"$FILE" "$DIR"/"$FILE"
+
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'FILE:' '\033[0m' \
+                '\033[1;37m' "$DIR"/"$FILE" '\033[0m'
+        ;;
+    esac
+)
+
+ffmpeg_merge "$@"

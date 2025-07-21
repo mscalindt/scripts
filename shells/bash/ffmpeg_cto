@@ -1,0 +1,213 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-only
+
+ffmpeg_cto() (
+    err() {
+        trap - INT TERM EXIT
+
+        if [ "$1" != 0 ]; then
+            printf "%s" \
+'
+$1 -> input
+$2 -> time HH:MM:SS[.SSS]
+$3 -> fname
+$4 *a* -> out PTS/DTS as-is (may go negative; might break players)
+$4 *b* -> only bump negative out PTS/DTS (might still choke players)
+$4 *c* -> non-zero out PTS/DTS start (not monotonic; can still choke players)
+$4 *d* -> `-loglevel debug`
+$4 *m* -> keep mtime
+$4 *p* -> precise (exact frame) cut; with side effects :) wont fix :) unless:
+          pay $100k and I will consider tackling this problem in a novel way,
+          providing a libre, FOSS implementation to its solution :)
+          and I will credit you copyright, too :)
+$4 *t* -> keep in tmp dir, no cleanup
+'
+
+            rm -rf "${TMPDIR:-/tmp}"/ffmpeg_cto
+        fi
+
+        case "$OPTS" in
+            *t*) : ;;
+            *) rm -rf "${TMPDIR:-/tmp}"/ffmpeg_cto ;;
+        esac
+
+        exit "$1"
+    }
+
+    set -e
+    trap "err \$?" INT TERM EXIT
+
+    IN="$1"
+    TIME="$2"
+    FNAME="$3"
+    OPTS="$4"
+    DIR=$(cd -Pe "$PWD" && printf "%s" "${PWD}x")
+    DIR="${DIR%?}"
+
+    [ "$IN" ] || { printf "%s\n" 'No input file specified.'; exit 2; }
+    [ -e "$IN" ] || { printf "%s\n" 'Bad input. (ENOENT)'; exit 2; }
+    [ ! -d "$IN" ] || { printf "%s\n" 'Bad input. (EISDIR)'; exit 2; }
+
+    case "$IN" in
+        */*)
+            IN="$(realpath -- "$IN" && printf "%s" x)"
+            IN="${IN%??}"
+
+            DIR="${IN%/*}"
+        ;;
+        *)
+            IN="$DIR"/"$IN"
+        ;;
+    esac
+
+    [ -e "$IN" ] || { printf "%s\n" 'Resolution error. (ENOENT)'; exit 1; }
+
+    [ "$TIME" ] || { printf "%s\n" 'No TO time specified.'; exit 2; }
+    case "$TIME" in
+        [0-9][0-9]:[0-9][0-9]:[0-9][0-9] | \
+        [0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9])
+            :
+        ;;
+        *)
+            printf "%s\n" 'Invalid TO time.'; exit 2
+        ;;
+    esac
+
+    case "$FNAME" in
+        *.???) FNAME="${FNAME%????}" ;;
+        *.????) FNAME="${FNAME%?????}" ;;
+    esac
+
+    rm -rf "${TMPDIR:-/tmp}"/ffmpeg_cto
+    mkdir "${TMPDIR:-/tmp}"/ffmpeg_cto
+    cd "${TMPDIR:-/tmp}"/ffmpeg_cto
+
+    set -- 'ffmpeg'
+    set -- "$@" '-hide_banner'
+
+    # negative container timestamps may choke certain players; normalize ts
+    # for flawless playback / compatibility. important to note that negative
+    # PTS/DTS are never desirable in a production-ready video and players
+    # can reject such videos or exhibit playback issues.
+    #
+    # but also consequently important, is that production videos should have
+    # a PTS/DTS timeline that starts from 0; otherwise this can also choke
+    # players, in addition to the aforementioned paragraph.
+    #
+    # and yet, a timeline that is not monotonic can also choke players. yeah.
+    # mhm. a lot of CHOKING going on over here. so we just regenerate PTS/DTS
+    # and call it yet another such day in this not-so-well-thought-of reality.
+    #
+    # in either case, PTS/DTS do not affect the produced video/audio (packet)
+    # data; only the container's PTS/DTS get shifted/regen, because we don't
+    # explicitly transcode or re-encode (and `+genpts` will *not* force full
+    # re-encode, even if first/last GoP ends up being re-encoded).
+    #
+    # if source PTS/DTS are 100% correct, `+genpts` is redundant but harmless.
+    case "$OPTS" in
+        *a*)
+            # even without the option, ffmpeg default ("-1") would allow
+            # negative ts (unless ts shifting is required by the targeted
+            # container/codec).
+            # we disable shifting explicitly for reliable behavior *here*, in
+            # this script, and I can't tell you what ffmpeg will do if shifting
+            # is necessary.
+            set -- "$@" '-avoid_negative_ts' 'disabled'  # 0
+        ;;
+        *b*)
+            set -- "$@" '-avoid_negative_ts' 'make_non_negative'  # 1
+        ;;
+        *c*)
+            set -- "$@" '-avoid_negative_ts' 'make_zero'  # 2
+        ;;
+        *)
+            set -- "$@" '-fflags' '+genpts'
+        ;;
+    esac
+
+    case "$OPTS" in
+        *p*)
+            # exact frame cut; last GOP (only) is re-encoded
+            # (with ffmpeg + ffmpeg container/codec defaults).
+            # audio common side effects: pop(s), bad playback...
+            # video common side effects: artifact(s), broken filters...
+            set -- "$@" '-i' "$IN"
+            set -- "$@" '-to' "$TIME"
+        ;;
+        *)
+            # exact early read keyframe cut; all lossless; no side effects.
+            #
+            # note that, we trust that the source PTS is not malformed for this
+            # to actually work as intended.
+            #
+            # if the source PTS is known bad/malformed, you may as well use
+            # mode "p" / exact frame cut, because ffmpeg might re-encode
+            # the last GoP either way.
+            #
+            # if source PTS cannot be trusted, depending on container/codec,
+            # ffmpeg might do a full re-encode of the stream (or refuse copy).
+            # in mode "p" too.
+            TIME=$(
+                ffprobe \
+                '-select_streams' 'v' '-read_intervals' "$TIME"'%+30' \
+                '-show_packets' '-show_entries' 'packet=pts_time,flags' '-of' \
+                'compact=p=0' '-v' 'quiet' "$IN" | grep -m1 flags=K
+            )
+            TIME="${TIME#*=}"
+            TIME="${TIME%%'|'*}"
+
+            set -- "$@" '-to' "$TIME"
+            set -- "$@" '-i' "$IN"
+        ;;
+    esac
+
+    set -- "$@" '-c' 'copy'
+    set -- "$@" '-map' '0'
+
+    case "$OPTS" in
+        *d*) set -- "$@" '-loglevel' 'debug' ;;
+    esac
+
+    set -- "$@" "${IN##*/}"
+
+    "$@"
+
+    FILE=$(set -- *; printf "%s" "${1}x")
+    FILE="${FILE%?}"
+
+    case "$OPTS" in
+        *m*) touch -r "$IN" "$FILE" ;;
+    esac
+
+    if [ "$FNAME" ]; then
+        case "$FILE" in
+            *.??? | *.????)
+                mv "$FILE" "${FNAME}.${FILE##*.}"
+
+                FILE="${FNAME}.${FILE##*.}"
+            ;;
+            *)
+                mv "$FILE" "$FNAME"
+
+                FILE="$FNAME"
+            ;;
+        esac
+    fi
+
+    case "$OPTS" in
+        *t*)
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'FILE:' '\033[0m' \
+                '\033[1;37m' "${TMPDIR:-/tmp}"/ffmpeg_cto/"$FILE" '\033[0m'
+        ;;
+        *)
+            mv -f "${TMPDIR:-/tmp}"/ffmpeg_cto/"$FILE" "$DIR"/"$FILE"
+
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'FILE:' '\033[0m' \
+                '\033[1;37m' "$DIR"/"$FILE" '\033[0m'
+        ;;
+    esac
+)
+
+ffmpeg_cto "$@"
