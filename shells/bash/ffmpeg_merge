@@ -13,7 +13,7 @@ $2 -> input
 $3 -> fname
 $4 *a* -> out PTS/DTS as-is (might choke players)
 $4 *d* -> `-loglevel debug`
-$4 *m* -> keep mtime of input 1
+$4 *m* -> dont keep mtime
 $4 *n* -> keep mtime of input 2
 $4 *t* -> keep in tmp dir, no cleanup
 '
@@ -115,8 +115,9 @@ $4 *t* -> keep in tmp dir, no cleanup
     FILE="${FILE%?}"
 
     case "$OPTS" in
-        *m*) touch -r "$IN" "$FILE" ;;
+        *m*) : ;;
         *n*) touch -r "$IN2" "$FILE" ;;
+        *) touch -r "$IN" "$FILE" ;;
     esac
 
     if [ "$FNAME" ]; then
