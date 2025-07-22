@@ -7,13 +7,13 @@
 
 ## Maintained
 
-* utils:
+* **utils:**
 
 `admerge`: _Do an advanced, better merge. (git wrapper)_.
 Somewhat maintained, might be obsolete at certain time points. Will be replaced
 by a better version in the future.
 
-* shells/bash:
+* **shells/bash:**
 
 `ffmpeg_cfrom`: Trim all (of video, audio) before X time losslessly.
 
@@ -40,14 +40,14 @@ There is NO WARRANTY, to the extent permitted by law.
 
 ## Unmaintained
 
-* linux-kernel (2020-22):
+* **linux-kernel (2020-22):**
 
 `build_kernel`: _Advanced universal script for Linux kernel building_.
 Probably irrelevant now.
 
 `copy_config`: _Copy kernel .config as defconfig_.
 
-* misc (2020-22):
+* **misc (2020-22):**
 
 `AAPKslurp`: Builds raw APK list (pm list packages -f).
 
@@ -69,11 +69,11 @@ references.
 
 `r9q_debloat`: Used to debloat _Samsung Galaxy S21 FE 5G_.
 
-* shells/ps (2023-24):
+* **shells/ps (2023-24):**
 
 `mscalindt.ps1`: Used to debloat/setup Windows 10.
 
-* utils (2020-22):
+* **utils (2020-22):**
 
 `fswap`: _Create a swap file_.
 Might be picked up again in the future.
