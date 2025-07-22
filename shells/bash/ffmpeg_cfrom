@@ -15,7 +15,7 @@ $4 *a* -> out PTS/DTS as-is (may go negative; might break players)
 $4 *b* -> only bump negative out PTS/DTS (might still choke players)
 $4 *c* -> non-zero out PTS/DTS start (not monotonic; can still choke players)
 $4 *d* -> `-loglevel debug`
-$4 *m* -> keep mtime
+$4 *m* -> dont keep mtime
 $4 *p* -> precise (exact frame) cut; with side effects :) wont fix :) unless:
           pay $100k and I will consider tackling this problem in a novel way,
           providing a libre, FOSS implementation to its solution :)
@@ -167,7 +167,8 @@ $4 *t* -> keep in tmp dir, no cleanup
     FILE="${FILE%?}"
 
     case "$OPTS" in
-        *m*) touch -r "$IN" "$FILE" ;;
+        *m*) : ;;
+        *) touch -r "$IN" "$FILE" ;;
     esac
 
     if [ "$FNAME" ]; then
