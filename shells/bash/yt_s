@@ -11,6 +11,7 @@ yt_s() (
 $1 -> url
 $2 -> fname
 $3 *a* -> write the auto-generated subs
+$3 *m* -> dont use `--mtime`
 $3 *s* -> convert to `srt` using ffmpeg
 $3 *t* -> `--no-part --no-cache-dir`, keep in tmp dir, no cleanup
 $3 *v* -> `--verbose`
@@ -65,6 +66,11 @@ $3 *z* -> use youtube-dl
                 printf "%s\n" 'No downloader found.'; exit 1
             fi
         ;;
+    esac
+
+    case "$OPTS" in
+        *m*) : ;;
+        *) [ "$1" = 'yt-dlp' ] && set -- "$@" '--mtime' || : ;;
     esac
 
     case "$OPTS" in
