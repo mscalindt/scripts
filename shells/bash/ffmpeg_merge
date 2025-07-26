@@ -66,6 +66,23 @@ $4 *t* -> keep in tmp dir, no cleanup
 
     [ -e "$IN2" ] || { printf "%s\n" 'Resolution error. (ENOENT)'; exit 1; }
 
+    case "${IN##*.}.${IN2##*.}" in
+        'm4a.mp4')
+            printf "%s" 'I think we should swap $1/$2, honey? [Y/n] '
+
+            read -r _action; [ "$_action" ] || _action=Y
+            case "$_action" in
+                [Yy]*)
+                    set -- "$IN2" "$IN" "${IN2%/*}"
+
+                    IN="$1"
+                    IN2="$2"
+                    DIR="$3"
+                ;;
+            esac
+        ;;
+    esac
+
     case "$FNAME" in
         *.???) FNAME="${FNAME%????}" ;;
         *.????) FNAME="${FNAME%?????}" ;;
