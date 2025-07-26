@@ -10,6 +10,7 @@ yt_a() (
 '
 $1 -> url
 $2 -> fname
+$3 *b* -> `--format bestaudio`
 $3 *m* -> dont use `--mtime`
 $3 *n* -> `--fixup never`
 $3 *t* -> `--no-part --no-cache-dir`, keep in tmp dir, no cleanup
@@ -89,7 +90,14 @@ $3 *z* -> use youtube-dl
 
     # 141 - 256 kbps aac, contained in mp4(m4a); premium accounts only
     # 140 - 128 kbps aac, contained in mp4(m4a)
-    set -- "$@" '--format' '141/140'
+    case "$OPTS" in
+        *b*)
+            set -- "$@" '--format' 'bestaudio'
+        ;;
+        *)
+            set -- "$@" '--format' '141/140'
+        ;;
+    esac
 
     set -- "$@" "$URL"
 
