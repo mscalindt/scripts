@@ -85,8 +85,12 @@ $3 *z* -> use youtube-dl
         *v*) set -- "$@" '--verbose' ;;
     esac
 
-    set -- "$@" '--cookies-from-browser' 'firefox'
-    set -- "$@" '--extractor-args' 'youtube:formats=missing_pot'
+    case "$OPTS" in
+        *y*)
+            set -- "$@" '--cookies-from-browser' 'firefox'
+            set -- "$@" '--extractor-args' 'youtube:formats=missing_pot'
+        ;;
+    esac
 
     # 141 - 256 kbps aac, contained in mp4(m4a); premium accounts only
     # 140 - 128 kbps aac, contained in mp4(m4a)
