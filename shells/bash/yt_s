@@ -81,7 +81,9 @@ $3 *z* -> use youtube-dl
         *v*) set -- "$@" '--verbose' ;;
     esac
 
-    set -- "$@" '--cookies-from-browser' 'firefox'
+    case "$OPTS" in
+        *y*) set -- "$@" '--cookies-from-browser' 'firefox' ;;
+    esac
     set -- "$@" '--skip-download'
 
     case "$OPTS" in
