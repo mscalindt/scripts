@@ -63,9 +63,9 @@ $3 *z* -> use youtube-dl
         ;;
         *)
             if command -v 'yt-dlp' > /dev/null 2>&1; then
-                set -- 'yt-dlp'
+                set -- 'yt-dlp'; OPTS="$OPTS"y
             elif command -v 'youtube-dl' > /dev/null 2>&1; then
-                set -- 'youtube-dl'
+                set -- 'youtube-dl'; OPTS="$OPTS"z
             else
                 printf "%s\n" 'No downloader found.'; exit 1
             fi
