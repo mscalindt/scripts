@@ -10,6 +10,7 @@ yt_a() (
 '
 $1 -> url
 $2 -> fname
+$3 *0* -> `--format bestaudio[format_id~=^140][language^=en]`, yt-dlp only
 $3 *b* -> `--format bestaudio`
 $3 *m* -> dont use `--mtime`
 $3 *n* -> `--fixup never`
@@ -95,6 +96,9 @@ $3 *z* -> use youtube-dl
     # 141 - 256 kbps aac, contained in mp4(m4a); premium accounts only
     # 140 - 128 kbps aac, contained in mp4(m4a)
     case "$OPTS" in
+        *0*)
+            set -- "$@" '--format' 'bestaudio[format_id~='\''^140'\''][language^=en]'
+        ;;
         *b*)
             set -- "$@" '--format' 'bestaudio'
         ;;
