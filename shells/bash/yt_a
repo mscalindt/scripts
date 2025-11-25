@@ -89,7 +89,6 @@ $3 *z* -> use youtube-dl
     case "$OPTS" in
         *y*)
             set -- "$@" '--cookies-from-browser' 'firefox'
-            set -- "$@" '--extractor-args' 'youtube:formats=missing_pot'
         ;;
     esac
 
