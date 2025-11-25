@@ -75,8 +75,6 @@ $3 *z* -> use youtube-dl
     case "$OPTS" in
         *c* | *d*)
             OUT=$(
-            case "$OPTS" in *y*) set -- "$@" '--extractor-args' 'youtube:formats=missing_pot' ;; esac
-
             "$@" \
                 -F "$URL" | grep avc | awk \
                 '$1 !~ /^(299|312|137|270|298|311|379|214|136|232|22|135|231|134|230|18|133|229|160|269)$/' 2>/dev/null
@@ -114,7 +112,6 @@ $3 *z* -> use youtube-dl
     case "$OPTS" in
         *y*)
             set -- "$@" '--cookies-from-browser' 'firefox'
-            set -- "$@" '--extractor-args' 'youtube:formats=missing_pot'
         ;;
     esac
 
