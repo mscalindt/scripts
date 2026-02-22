@@ -21,12 +21,14 @@ $4 *p* -> precise (exact frame) cut; with side effects :) wont fix :) unless:
           providing a libre, FOSS implementation to its solution :)
           and I will credit you copyright, too :)
 $4 *t* -> keep in tmp dir, no cleanup
+$4 *u* -> work in current dir
 '
 
             rm -rf "${TMPDIR:-/tmp}"/ffmpeg_cto
         fi
 
         case "$OPTS" in
+            *u*) rm -rf "$DIR"/.ffmpeg_cto ;;
             *t*) : ;;
             *) rm -rf "${TMPDIR:-/tmp}"/ffmpeg_cto ;;
         esac
@@ -78,9 +80,19 @@ $4 *t* -> keep in tmp dir, no cleanup
         *.????) FNAME="${FNAME%?????}" ;;
     esac
 
-    rm -rf "${TMPDIR:-/tmp}"/ffmpeg_cto
-    mkdir "${TMPDIR:-/tmp}"/ffmpeg_cto
-    cd "${TMPDIR:-/tmp}"/ffmpeg_cto
+    case "$OPTS" in
+        *u*)
+            # custom empty dir is still needed; otherwise the glob match cannot
+            # be trusted
+            mkdir "$DIR"/.ffmpeg_cto
+            cd "$DIR"/.ffmpeg_cto
+        ;;
+        *)
+            rm -rf "${TMPDIR:-/tmp}"/ffmpeg_cto
+            mkdir "${TMPDIR:-/tmp}"/ffmpeg_cto
+            cd "${TMPDIR:-/tmp}"/ffmpeg_cto
+        ;;
+    esac
 
     set -- 'ffmpeg'
     set -- "$@" '-hide_banner'
@@ -196,6 +208,13 @@ $4 *t* -> keep in tmp dir, no cleanup
     fi
 
     case "$OPTS" in
+        *u*)
+            mv "$FILE" "$DIR"/"$FILE"
+
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'FILE:' '\033[0m' \
+                '\033[1;37m' "$DIR"/"$FILE" '\033[0m'
+        ;;
         *t*)
             printf "%b%s%b %b%s%b\n" \
                 '\033[1;32m' 'FILE:' '\033[0m' \
