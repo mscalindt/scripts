@@ -16,12 +16,14 @@ $4 *d* -> `-loglevel debug`
 $4 *m* -> dont keep mtime
 $4 *n* -> keep mtime of input 2
 $4 *t* -> keep in tmp dir, no cleanup
+$4 *u* -> work in current dir
 '
 
             rm -rf "${TMPDIR:-/tmp}"/ffmpeg_merge
         fi
 
         case "$OPTS" in
+            *u*) rm -rf "$DIR"/.ffmpeg_merge ;;
             *t*) : ;;
             *) rm -rf "${TMPDIR:-/tmp}"/ffmpeg_merge ;;
         esac
@@ -88,9 +90,19 @@ $4 *t* -> keep in tmp dir, no cleanup
         *.????) FNAME="${FNAME%?????}" ;;
     esac
 
-    rm -rf "${TMPDIR:-/tmp}"/ffmpeg_merge
-    mkdir "${TMPDIR:-/tmp}"/ffmpeg_merge
-    cd "${TMPDIR:-/tmp}"/ffmpeg_merge
+    case "$OPTS" in
+        *u*)
+            # custom empty dir is still needed; otherwise the glob match cannot
+            # be trusted
+            mkdir "$DIR"/.ffmpeg_merge
+            cd "$DIR"/.ffmpeg_merge
+        ;;
+        *)
+            rm -rf "${TMPDIR:-/tmp}"/ffmpeg_merge
+            mkdir "${TMPDIR:-/tmp}"/ffmpeg_merge
+            cd "${TMPDIR:-/tmp}"/ffmpeg_merge
+        ;;
+    esac
 
     set -- 'ffmpeg'
     set -- "$@" '-hide_banner'
@@ -153,6 +165,13 @@ $4 *t* -> keep in tmp dir, no cleanup
     fi
 
     case "$OPTS" in
+        *u*)
+            mv "$FILE" "$DIR"/"$FILE"
+
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'FILE:' '\033[0m' \
+                '\033[1;37m' "$DIR"/"$FILE" '\033[0m'
+        ;;
         *t*)
             printf "%b%s%b %b%s%b\n" \
                 '\033[1;32m' 'FILE:' '\033[0m' \
