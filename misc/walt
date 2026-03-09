@@ -1,0 +1,246 @@
+#!/bin/sh
+# script is not portable; it uses /proc/uptime as a monotonic time source
+# there's no POSIX way to count below seconds in shell scripts with just
+# standard utilities
+
+cleanup() {
+    trap - INT TERM EXIT
+    stty "$tty_state"
+    exit "$1"
+}
+
+time_cur() {
+    read -r time_cur < /proc/uptime; time_cur="${time_cur%% *}"
+}
+
+time_cur_cs() {
+    time_cur;
+    time_cur_ss="${time_cur%.*}"
+    time_cur_xx="${time_cur#*.}"
+    time_cur_xx="${time_cur_xx#0}"
+    time_cur=$(((time_cur_ss * 100) + time_cur_xx))
+}
+
+ts() {
+    ts_cs "$@"
+    ts_mm=$((ts_cs / 6000))
+    case "${#ts_mm}" in
+        1) ts_mm="0$ts_mm" ;;
+    esac
+    ts_ss=$(((ts_cs / 100) % 60))
+    case "${#ts_ss}" in
+        1) ts_ss="0$ts_ss" ;;
+    esac
+    ts_xx=$((ts_cs % 100))
+    case "${#ts_xx}" in
+        1) ts_xx="0$ts_xx" ;;
+    esac
+    ts="[$ts_mm:$ts_ss.$ts_xx]"
+}
+
+ts_cs() {
+    time_cur_cs;
+    ts_cs=$((time_start - time_cur))
+    ts_cs="${ts_cs#'-'}"
+}
+
+# /proc/uptime is monotonic seconds with "xx" fractional part (first str)
+# $time_start  = start /proc/uptime
+# $time_cur    = current /proc/uptime
+#
+# /proc/uptime to cs:
+# seconds_part  = ${var%.*}
+# fraction_part = ${var#*.}
+# cs            = (seconds_part * 100) + fraction_part
+#
+# ts.cs = cs(time_start) - cs(time_cur)
+#
+# ts -> ts.mm:ts.ss.ts.xx
+# ts.mm = ts_cs / 6000
+# ts.ss = (ts_cs / 100) % 60
+# ts.xx = ts_cs % 100
+#
+# 1m = 60s
+# 1s = 100cs
+# 1m = 6000cs
+main() {
+    while :; do
+        case $(dd bs=1 count=1 2> /dev/null) in
+            ' ')
+                [ "$lyrics" ] || {
+                    ts;
+                    chunk="$ts "
+                    buf="$buf
+$chunk"
+                    printf "%s\n" "$chunk"
+                    echo 'All lyrics are synced.'
+                    break
+                }
+
+                # get $ts, a "[mm:ss.xx]" string
+                ts;
+
+                # write $ts:
+                # take first line of $lyrics, add last to $buf
+                case "$lyrics" in
+                    *'
+'*)
+                        chunk="$ts ${lyrics%%
+*}"
+                        lyrics="${lyrics#*
+}"
+                    ;;
+                    *)
+                        chunk="$ts $lyrics"
+                        lyrics=
+                    ;;
+                esac
+                if [ "$buf" ]; then
+                    buf="$buf
+$chunk"
+                else
+                    buf="$chunk"
+                fi
+                printf "%s\n" "$chunk"
+            ;;
+            'p')
+                [ "$buf" ] || { echo 'Buffer is empty.'; continue; }
+
+                printf "%s\n%s\n" "Buffer content:" "$buf"
+            ;;
+            'q')
+                cleanup 0
+            ;;
+            "$(printf "%b" '\003')")
+                cleanup 130
+            ;;
+            '?')
+                print_keybinds;
+            ;;
+            *)
+                printf "%s\n" 'Unknown key/action.'
+                print_keybinds;
+            ;;
+        esac
+    done
+}
+
+main_end() {
+    while :; do
+        case $(dd bs=1 count=1 2> /dev/null) in
+            ' ')
+                echo 'All lyrics are synced.'
+            ;;
+            'p')
+                [ "$buf" ] || { echo 'Buffer is empty.'; continue; }
+
+                printf "%s\n%s\n" "Buffer content:" "$buf"
+            ;;
+            'q')
+                cleanup 0
+            ;;
+            "$(printf "%b" '\003')")
+                cleanup 130
+            ;;
+            '?')
+                print_keybinds;
+            ;;
+            *)
+                printf "%s\n" 'Unknown key/action.'
+                print_keybinds;
+            ;;
+        esac
+    done
+}
+
+main_timer() {
+    while :; do
+        case $(dd bs=1 count=1 2> /dev/null) in
+            ' ')
+                if [ "$1" ]; then
+                    "$1" > /dev/null &
+                fi
+
+                read -r time_start < /proc/uptime
+                time_start="${time_start%% *}"
+                time_start_ss="${time_start%.*}"
+                time_start_xx="${time_start#*.}"
+                time_start=$(((time_start_ss * 100) + time_start_xx))
+                printf "%s\n" 'Timer started.'
+                break
+            ;;
+            'q')
+                cleanup 0
+            ;;
+            "$(printf "%b" '\003')")
+                cleanup 130
+            ;;
+            '?')
+                print_keybinds;
+            ;;
+            *)
+                printf "%s\n" 'Start the timer with SPACE.'
+                print_keybinds;
+            ;;
+        esac
+    done
+}
+
+print_help() {
+    printf "%s" \
+'
+
+
+---
+
+walt - wow amazing lyrics timer
+
+params (pass empty parameters if none):
+$1 = path to script to execute
+$2 = lyrics
+
+usage:
+launch walt then press SPACE to exec $1 / start timer. keep pressing to
+start creating [mm:ss.xx] timestamps.
+'
+}
+
+print_keybinds() {
+    printf "%s" \
+'- SPACE  = timestamp
+- p      = print accumulated buffer
+- q      = quit
+'
+}
+
+[ "$#" = 2 ] || \
+{ printf "%s\n" "err: Expect 2 parameters; got $#."; print_help; exit 2; }
+
+[ "$2" ] || \
+{ printf "%s\n" "err: yo cmon now pass some lyrics yeah?"; print_help; exit 2; }
+
+[ -t 0 ] && [ -t 1 ] || \
+{ printf "%s\n" 'err: not interactive / missing stdin/stdout'; print_help; exit 2; }
+
+set -e
+LC_ALL=C; export LC_ALL
+
+tty_state=$(stty -g)
+
+trap 'cleanup $?' INT TERM EXIT
+
+lyrics=$( # ignore empty lines in $2
+while IFS= read -r LINE; do
+    [ "$LINE" ] && printf "%s\n" "$LINE" || continue
+done <<EOF
+$2
+EOF
+)
+[ "$2" ] || \
+{ printf "%s\n" "err: yo cmon now pass some lyrics yeah?"; print_help; exit 2; }
+buf=
+stty -icanon -echo min 1 time 0
+printf "%s\n" "Start the timer with SPACE. Press ? for help."
+main_timer "$@"
+main "$@"
+main_end "$@"

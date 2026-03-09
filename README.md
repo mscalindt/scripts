@@ -29,6 +29,10 @@ by a better version in the future.
 
 `yt_v`: Download highest quality AVC (H.264) from YouTube videos.
 
+* **misc:**
+
+`walt`: _wow amazing lyrics timer_.
+
 ## License
 
 [GNU General Public License v3.0 only](LICENSE)
