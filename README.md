@@ -30,7 +30,7 @@ by a better version in the future.
 `yt_v`: Download highest quality AVC (H.264) from YouTube videos.
 
 `ytd`: Download a YouTube video to archive it, according to the philosophy of
-`yt_a` and `yt_v` that is (options exist, though). Uses and expects in $PATH
+`yt_a` and `yt_v` (options exist, though). Uses and expects in $PATH
 `ffmpeg_merge`, `yt_a`, `yt_s`, and `yt_v`.
 
 * **misc:**
