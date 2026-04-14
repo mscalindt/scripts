@@ -15,6 +15,7 @@ $4 *a* -> out PTS/DTS as-is (might choke players)
 $4 *d* -> `-loglevel debug`
 $4 *m* -> dont keep mtime
 $4 *n* -> keep mtime of input 2
+$4 *s* -> pass `-c:s mov_text`
 $4 *t* -> keep in tmp dir, no cleanup
 $4 *u* -> work in current dir
 '
@@ -134,6 +135,10 @@ $4 *u* -> work in current dir
 
     case "$OPTS" in
         *d*) set -- "$@" '-loglevel' 'debug' ;;
+    esac
+
+    case "$OPTS" in
+        *s*) set -- "$@" '-c:s' 'mov_text' ;;
     esac
 
     set -- "$@" "${IN##*/}"
