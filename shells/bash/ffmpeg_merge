@@ -166,7 +166,7 @@ $4 *u* -> work in current dir
 
     case "$OPTS" in
         *u*)
-            mv "$FILE" "$DIR"/"$FILE"
+            mv -f "$FILE" "$DIR"/"$FILE"
 
             printf "%b%s%b %b%s%b\n" \
                 '\033[1;32m' 'FILE:' '\033[0m' \
