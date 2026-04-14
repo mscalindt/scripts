@@ -82,7 +82,10 @@ $3 *z* -> use youtube-dl
     esac
 
     case "$OPTS" in
-        *y*) set -- "$@" '--cookies-from-browser' 'firefox' ;;
+        *y*)
+            set -- "$@" '--cookies-from-browser' 'firefox'
+            set -- "$@" '--compat-options' 'no-live-chat'
+        ;;
     esac
     set -- "$@" '--skip-download'
 
