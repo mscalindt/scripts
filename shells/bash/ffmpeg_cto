@@ -195,14 +195,28 @@ $4 *u* -> work in current dir
     if [ "$FNAME" ]; then
         case "$FILE" in
             *.??? | *.????)
-                mv "$FILE" "${FNAME}.${FILE##*.}"
+                case "$FILE" in
+                    "${FNAME}.${FILE##*.}")
+                        :
+                    ;;
+                    *)
+                        mv "$FILE" "${FNAME}.${FILE##*.}"
 
-                FILE="${FNAME}.${FILE##*.}"
+                        FILE="${FNAME}.${FILE##*.}"
+                    ;;
+                esac
             ;;
             *)
-                mv "$FILE" "$FNAME"
+                case "$FILE" in
+                    "$FNAME")
+                        :
+                    ;;
+                    *)
+                        mv "$FILE" "$FNAME"
 
-                FILE="$FNAME"
+                        FILE="$FNAME"
+                    ;;
+                esac
             ;;
         esac
     fi
