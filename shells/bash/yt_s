@@ -98,6 +98,10 @@ $3 *z* -> use youtube-dl
     FILE=$(set -- *; printf "%s" "${1}x")
     FILE="${FILE%?}"
 
+    if [ ! -e "$FILE" ]; then
+        printf "%s\n" 'No subtitle file found.'; exit 1
+    fi
+
     if [ "$FNAME" ]; then
         mv "$FILE" "${FNAME}.${FILE##*.}"
 
