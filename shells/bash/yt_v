@@ -180,9 +180,16 @@ $3 *z* -> use youtube-dl
     FILE="${FILE%?}"
 
     if [ "$FNAME" ]; then
-        mv "$FILE" "${FNAME}.${FILE##*.}"
+        case "$FILE" in
+            "${FNAME}.${FILE##*.}")
+                :
+            ;;
+            *)
+                mv "$FILE" "${FNAME}.${FILE##*.}"
 
-        FILE="${FNAME}.${FILE##*.}"
+                FILE="${FNAME}.${FILE##*.}"
+            ;;
+        esac
     fi
 
     case "$OPTS" in
