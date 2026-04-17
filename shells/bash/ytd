@@ -17,6 +17,7 @@ $3 *a* -> write the auto-generated subs
 $3 *b* -> `--format bestaudio`, `--format bestvideo`
 $3 *m* -> dont use `--mtime`
 $3 *n* -> `--fixup never`
+$3 *o* -> dont use `-o`
 $3 *s* -> convert subtitles to `srt` using ffmpeg before embed
 $3 *t* -> `--no-part --no-cache-dir`, keep in tmp dir, no cleanup
 $4 *u* -> work in current dir
