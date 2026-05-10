@@ -7,12 +7,6 @@
 
 ## Maintained
 
-* **utils:**
-
-`admerge`: _Do an advanced, better merge. (git wrapper)_.
-Somewhat maintained, might be obsolete at certain time points. Will be replaced
-by a better version in the future.
-
 * **shells/bash:**
 
 `ffmpeg_cfrom`: Trim all (of video, audio) before X time losslessly.
@@ -82,7 +76,11 @@ references.
 
 `mscalindt.ps1`: Used to debloat/setup Windows 10.
 
-* **utils (2020-22):**
+* **utils (2020-24):**
+
+`admerge`: _Do an advanced, better merge. (git wrapper)_.
+Might have an ng (reboot) version in the future, but is getting largely
+obsolete by native git anyway, hence unlikely.
 
 `fswap`: _Create a swap file_.
 Might be picked up again in the future.
