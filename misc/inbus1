@@ -39,10 +39,11 @@ cmd_exec_sys() {
     cmd "$@"
 }
 
-sys_bus() {
+sys_bus() (
     cmd_exec() { cmd_exec_sys "$@"; }
+
     user_bus "$@"
-}
+)
 
 user_bus() {
     case "$1" in
