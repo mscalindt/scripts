@@ -1,0 +1,154 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Dimitar Yurukov <mscalindt@protonmail.com>
+# inbus1 - inspect d-bus
+
+_largs() {
+    _x="$1"; shift
+    while [ "$#" -ge 1 ]; do
+        printf "%b%s%b %s\n" '\033[1;37m' "$_x" '\033[0m' "$1"
+        _x=$((_x + 1))
+        shift
+    done
+}
+
+args_list() {
+    shift
+    printf "%b%s%b\n" '\033[1;37m' 'args_list:' '\033[0m'
+    _largs 2 "$@"
+}
+
+cmd() {
+    printf "%b%s%b\n" '\033[1;37m' 'cmd_exec:' '\033[0m'
+    _largs 1 "$@"
+    echo
+
+    command "$@"
+}
+
+cmd_exec() {
+    cmd "$@"
+}
+
+cmd_exec_sys() {
+    case "$1 $2" in
+        'dbus-send --session') shift 2; set -- 'dbus-send' '--system' "$@" ;;
+    esac
+
+    cmd "$@"
+}
+
+sys_bus() {
+    cmd_exec() { cmd_exec_sys "$@"; }
+    user_bus "$@"
+}
+
+user_bus() {
+    case "$1" in
+        'exists')
+            args_list "$@"
+            cmd_exec dbus-send \
+                --session --dest=org.freedesktop.DBus --print-reply \
+                /org/freedesktop/DBus org.freedesktop.DBus.NameHasOwner \
+                string:"$2"
+        ;;
+        'inspect')
+            # stable rules for object paths
+            set -- "$1" "$2" "${3%/}"   # NOT end with slash
+            set -- "$1" "$2" "/${3#/}"  # start with slash
+
+            args_list "$@"
+            cmd_exec dbus-send \
+                --session --dest="$2" --print-reply "$3" \
+                org.freedesktop.DBus.Introspectable.Introspect
+        ;;
+        'list')
+            cmd_exec dbus-send \
+                --session --dest=org.freedesktop.DBus --print-reply \
+                /org/freedesktop/DBus org.freedesktop.DBus.ListNames
+        ;;
+        'objects')  # name-dependent impl of ObjectManager 'GetManagedObjects'
+            # stable rules for object paths
+            set -- "$1" "$2" "${3%/}"   # NOT end with slash
+            set -- "$1" "$2" "/${3#/}"  # start with slash
+
+            args_list "$@"
+            cmd_exec dbus-send \
+                --session --dest="$2" --print-reply "$3" \
+                org.freedesktop.DBus.ObjectManager.GetManagedObjects
+        ;;
+        'pid')
+            args_list "$@"
+            cmd_exec dbus-send \
+                --session --dest=org.freedesktop.DBus --print-reply \
+                /org/freedesktop/DBus org.freedesktop.DBus.GetConnectionUnixProcessID \
+                string:"$2"
+        ;;
+        'services')
+            cmd_exec dbus-send \
+                --session --dest=org.freedesktop.DBus --print-reply \
+                /org/freedesktop/DBus org.freedesktop.DBus.ListActivatableNames
+        ;;
+        'stat')  # gen summary of active names
+            :
+            printf "%s\n" "$0: $1: NOT IMPLEMENTED."
+        ;;
+        'tree')  # use introspection and recursively walk node to build tree
+            args_list "$@"
+            printf "\n%s\n" "$0: $1: NOT IMPLEMENTED."
+            :  # *you* parse xml in shell
+        ;;
+        'uid')
+            args_list "$@"
+            cmd_exec dbus-send \
+                --session --dest=org.freedesktop.DBus --print-reply \
+                /org/freedesktop/DBus org.freedesktop.DBus.GetConnectionUnixUser \
+                string:"$2"
+        ;;
+        'uname')  # 'unique name'
+            args_list "$@"
+            cmd_exec dbus-send \
+                --session --dest=org.freedesktop.DBus --print-reply \
+                /org/freedesktop/DBus org.freedesktop.DBus.GetNameOwner \
+                string:"$2"
+        ;;
+        'watch')
+            cmd_exec dbus-monitor \
+                --session
+        ;;
+        'watchname')
+            args_list "$@"
+            cmd_exec dbus-monitor \
+                --session "type='signal',sender='$2'"
+        ;;
+        *)
+            printf "%s\n" \
+                '[$1(SYS)]'
+            printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
+                'exists $2' \
+                'inspect $2(name) $3(node)' \
+                'list' \
+                '+ objects $2(name) $3(node)' \
+                'pid $2(name)' \
+                'services' \
+                '- stat' \
+                '- tree $2(name) $3(node)' \
+                'uid $2(name)' \
+                'uname $2(name)' \
+                'watch' \
+                'watchname $2(name)'
+        ;;
+    esac
+}
+
+case "$1" in
+    'SYS')
+        shift
+        printf "%b%s%b\n\n" '\033[1;37m' 'System bus.' '\033[0m'
+        sys_bus "$@"
+    ;;
+    *)
+        printf "%b%s%b\n\n" '\033[1;37m' 'Querying the user bus.' '\033[0m'
+        user_bus "$@"
+    ;;
+esac

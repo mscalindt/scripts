@@ -50,7 +50,7 @@ Probably irrelevant now.
 
 `copy_config`: _Copy kernel .config as defconfig_.
 
-* **misc (2020-22):**
+* **misc (2020-26):**
 
 `AAPKslurp`: Builds raw APK list (pm list packages -f).
 
@@ -67,6 +67,8 @@ lexicographical sort.
 
 `gclog`: Provide patch URLs and it will give you "log"-like output of them with
 references.
+
+`inbus1`: _inspect d-bus_.
 
 `increment_num`: _Increment number in filenames_.
 
