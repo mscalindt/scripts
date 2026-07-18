@@ -28,10 +28,6 @@
 shorts and livestreams. Uses and expects in $PATH `ffmpeg_merge`, `yt_a`,
 `yt_s`, and `yt_v`.
 
-* **misc:**
-
-`walt`: _wow amazing lyrics timer_.
-
 ## License
 
 [GNU General Public License v3.0 only](LICENSE)
@@ -73,6 +69,8 @@ references.
 `increment_num`: _Increment number in filenames_.
 
 `r9q_debloat`: Used to debloat _Samsung Galaxy S21 FE 5G_.
+
+`walt`: _wow amazing lyrics timer_.
 
 * **shells/ps (2023-24):**
 
