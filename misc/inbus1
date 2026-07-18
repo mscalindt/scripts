@@ -33,6 +33,7 @@ cmd_exec() {
 cmd_exec_sys() {
     case "$1 $2" in
         'dbus-send --session') shift 2; set -- 'dbus-send' '--system' "$@" ;;
+        'dbus-monitor --session') shift 2; set -- 'dbus-monitor' '--system' "$@" ;;
     esac
 
     cmd "$@"
