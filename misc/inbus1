@@ -39,8 +39,71 @@ cmd_exec_sys() {
     cmd "$@"
 }
 
+fslist() {
+    set -- "$1" "$(($2 + 1))"
+
+    if [ ! -e "$1" ] && [ ! -h "$_obj" ]; then
+        printf "%b%s%s%b %s\n" '\033[1;31m' "$2" '-' '\033[0m' "$1"
+
+        return 0
+    elif [ -f "$1" ]; then
+        printf "%b%s%s%b %s\n" '\033[1;37m' "$2" 'F' '\033[0m' "$1"
+
+        return 0
+    elif [ ! -d "$1" ]; then
+        printf "%b%s%s%b %s\n" '\033[1;37m' "$2" '?' '\033[0m' "$1"
+
+        return 0
+    fi
+
+    printf "%b%s%s%b %s\n" '\033[1;37m' "$2" 'D' '\033[0m' "$1"
+
+    for _obj in "${1%/}"/*; do
+        if [ ! -e "$_obj" ] && [ ! -h "$_obj" ]; then
+            continue
+        fi
+
+        fslist "$_obj" "$2"
+    done
+}
+
+fslist_sys() {
+    printf "%b%s%b\n\n" '\033[1;37m' 'Querying common system bus paths...' '\033[0m'
+
+    fslist '/etc/machine-id' -1
+    echo
+
+    fslist '/etc/dbus-1' -1
+    fslist '/lib/dbus-1' -1
+    fslist '/run/dbus-1' -1
+    fslist '/usr/local/share/dbus-1' -1
+    fslist '/usr/share/dbus-1/system-services' -1
+    fslist '/usr/share/dbus-1/system.conf' -1
+    fslist '/usr/share/dbus-1/system.d' -1
+}
+
+fslist_user() {
+    printf "%b%s%b\n\n" '\033[1;37m' 'Querying common user bus paths...' '\033[0m'
+
+    fslist '/etc/machine-id' -1
+    echo
+
+    fslist "$HOME"/.local/share/dbus-1 -1
+    fslist "$XDG_RUNTIME_DIR"/dbus-1 -1
+    fslist '/usr/local/share/dbus-1' -1
+    fslist '/usr/share/dbus-1/accessibility-services' -1
+    fslist '/usr/share/dbus-1/services' -1
+    fslist '/usr/share/dbus-1/session.conf' -1
+    fslist '/usr/share/dbus-1/session.d' -1
+    echo
+
+    fslist "$XDG_RUNTIME_DIR"/systemd/transient -1
+    fslist "$XDG_RUNTIME_DIR"/systemd/units -1
+}
+
 sys_bus() (
     cmd_exec() { cmd_exec_sys "$@"; }
+    fslist_user() { fslist_sys "$@"; }
 
     user_bus "$@"
 )
@@ -53,6 +116,9 @@ user_bus() {
                 --session --dest=org.freedesktop.DBus --print-reply \
                 /org/freedesktop/DBus org.freedesktop.DBus.NameHasOwner \
                 string:"$2"
+        ;;
+        'fslist')
+            fslist_user;
         ;;
         'inspect')
             # stable rules for object paths
@@ -126,8 +192,9 @@ user_bus() {
         *)
             printf "%s\n" \
                 '[$1(SYS)]'
-            printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
+            printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
                 'exists $2' \
+                'fslist' \
                 'inspect $2(name) $3(node)' \
                 'list' \
                 '+ objects $2(name) $3(node)' \
