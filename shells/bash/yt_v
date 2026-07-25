@@ -182,8 +182,8 @@ $3 *z* -> use youtube-dl
 
     "$@"
 
-    FILE=$(set -- *; printf "%s" "${1}x")
-    FILE="${FILE%?}"
+    FILE=$(set -- *; printf "%s" "$1.")
+    FILE="${FILE%.}"
 
     if [ "$FNAME" ]; then
         case "$FILE" in
