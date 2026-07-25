@@ -39,8 +39,8 @@ $4 *u* -> work in current dir
     IN2="$2"
     FNAME="$3"
     OPTS="$4"
-    DIR=$(cd -Pe "$PWD" && printf "%s" "${PWD}x")
-    DIR="${DIR%?}"
+    DIR=$(cd -Pe "$PWD" && printf "%s" "$PWD.")
+    DIR="${DIR%.}"
 
     [ "$IN" ] || { printf "%s\n" 'No input file specified.'; exit 2; }
     [ -e "$IN" ] || { printf "%s\n" 'Bad input. (ENOENT)'; exit 2; }
@@ -48,8 +48,8 @@ $4 *u* -> work in current dir
 
     case "$IN" in
         */*)
-            IN="$(realpath -- "$IN" && printf "%s" x)"
-            IN="${IN%??}"
+            IN="$(realpath -- "$IN" && printf "%s" .)"
+            IN="${IN%?.}"
 
             DIR="${IN%/*}"
         ;;
@@ -64,8 +64,8 @@ $4 *u* -> work in current dir
     [ -e "$IN2" ] || { printf "%s\n" 'Bad second file. (ENOENT)'; exit 2; }
     [ ! -d "$IN2" ] || { printf "%s\n" 'Bad second file. (EISDIR)'; exit 2; }
 
-    IN2="$(realpath -- "$IN2" && printf "%s" x)"
-    IN2="${IN2%??}"
+    IN2="$(realpath -- "$IN2" && printf "%s" .)"
+    IN2="${IN2%?.}"
 
     [ -e "$IN2" ] || { printf "%s\n" 'Resolution error. (ENOENT)'; exit 1; }
 
@@ -134,8 +134,8 @@ $4 *u* -> work in current dir
 
     rm -f ShePoludeem.txt  # (poludqvam)
 
-    FILE=$(set -- *; printf "%s" "${1}x")
-    FILE="${FILE%?}"
+    FILE=$(set -- *; printf "%s" "$1.")
+    FILE="${FILE%.}"
 
     case "$OPTS" in
         *m*) : ;;
