@@ -43,8 +43,8 @@ $4 *u* -> work in current dir
     TIME="$2"
     FNAME="$3"
     OPTS="$4"
-    DIR=$(cd -Pe "$PWD" && printf "%s" "${PWD}x")
-    DIR="${DIR%?}"
+    DIR=$(cd -Pe "$PWD" && printf "%s" "$PWD.")
+    DIR="${DIR%.}"
 
     [ "$IN" ] || { printf "%s\n" 'No input file specified.'; exit 2; }
     [ -e "$IN" ] || { printf "%s\n" 'Bad input. (ENOENT)'; exit 2; }
@@ -52,8 +52,8 @@ $4 *u* -> work in current dir
 
     case "$IN" in
         */*)
-            IN="$(realpath -- "$IN" && printf "%s" x)"
-            IN="${IN%??}"
+            IN="$(realpath -- "$IN" && printf "%s" .)"
+            IN="${IN%?.}"
 
             DIR="${IN%/*}"
         ;;
@@ -175,8 +175,8 @@ $4 *u* -> work in current dir
 
     "$@"
 
-    FILE=$(set -- *; printf "%s" "${1}x")
-    FILE="${FILE%?}"
+    FILE=$(set -- *; printf "%s" "$1.")
+    FILE="${FILE%.}"
 
     case "$OPTS" in
         *m*) : ;;
