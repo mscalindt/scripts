@@ -10,6 +10,7 @@ yt_s() (
 '
 $1 -> url
 $2 -> fname
+$3 *3* -> dont use cookies,                                    yt-dlp only
 $3 *a* -> write the auto-generated subs
 $3 *m* -> dont use `--mtime`
 $3 *s* -> convert to `srt` using ffmpeg
@@ -82,6 +83,9 @@ $3 *z* -> use youtube-dl
     esac
 
     case "$OPTS" in
+        *3*)
+            set -- "$@" '--compat-options' 'no-live-chat'
+        ;;
         *y*)
             set -- "$@" '--cookies-from-browser' 'firefox'
             set -- "$@" '--compat-options' 'no-live-chat'
