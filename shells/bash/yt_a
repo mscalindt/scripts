@@ -11,6 +11,7 @@ yt_a() (
 $1 -> url
 $2 -> fname
 $3 *0* -> `--format bestaudio[format_id~=^140][language^=en]`, yt-dlp only
+$3 *3* -> dont use cookies,                                    yt-dlp only
 $3 *b* -> `--format bestaudio`
 $3 *m* -> dont use `--mtime`
 $3 *n* -> `--fixup never`
@@ -87,6 +88,9 @@ $3 *z* -> use youtube-dl
     esac
 
     case "$OPTS" in
+        *3*)
+            set -- "$@" '--extractor-args' 'youtube:formats=missing_pot'
+        ;;
         *y*)
             set -- "$@" '--cookies-from-browser' 'firefox'
             set -- "$@" '--extractor-args' 'youtube:formats=missing_pot'
