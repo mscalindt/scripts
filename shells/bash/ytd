@@ -13,6 +13,7 @@ $2 -> fname
 $3 *0* -> `--format bestaudio[format_id~=^140][language^=en]`, yt-dlp only
 $3 *1* -> `--format bestvideo[height<=1080]`, yt-dlp only
 $3 *2* -> `--format bestvideo[height<=1440]`, yt-dlp only
+$3 *3* -> dont use cookies,                                    yt-dlp only
 $3 *a* -> write the auto-generated subs
 $3 *b* -> `--format bestaudio`, `--format bestvideo`
 $3 *m* -> dont use `--mtime`
