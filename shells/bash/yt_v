@@ -12,6 +12,7 @@ $1 -> url
 $2 -> fname
 $3 *1* -> `--format bestvideo[height<=1080]`, yt-dlp only
 $3 *2* -> `--format bestvideo[height<=1440]`, yt-dlp only
+$3 *3* -> dont use cookies,                                    yt-dlp only
 $3 *b* -> `--format bestvideo`
 $3 *c* -> check for unknown avc1 formats
 $3 *d* -> check for unknown avc1 formats with specified config as well
@@ -130,6 +131,9 @@ $3 *z* -> use youtube-dl
     esac
 
     case "$OPTS" in
+        *3*)
+            set -- "$@" '--extractor-args' 'youtube:formats=missing_pot'
+        ;;
         *y*)
             set -- "$@" '--cookies-from-browser' 'firefox'
             set -- "$@" '--extractor-args' 'youtube:formats=missing_pot'
