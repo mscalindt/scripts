@@ -16,6 +16,7 @@ $3 *3* -> dont use cookies,                                    yt-dlp only
 $3 *b* -> `--format bestvideo`
 $3 *c* -> check for unknown avc1 formats
 $3 *d* -> check for unknown avc1 formats with specified config as well
+$3 *f* -> dont recognize/append extension, fname is fully authoritative
 $3 *m* -> dont use `--mtime`
 $3 *n* -> `--fixup never`
 $3 *o* -> dont use `-o` / dont custom format filename
@@ -49,15 +50,10 @@ $3 *z* -> use youtube-dl
 
     [ "$URL" ] || { printf "%s\n" 'No URL specified.'; exit 2; }
 
-    case "$FNAME" in
-        *.???) FNAME="${FNAME%????}" ;;
-        *.????) FNAME="${FNAME%?????}" ;;
-    esac
-
+    # guarantee we are in our custom empty dir
+    # otherwise globbing cannot be trusted
     case "$OPTS" in
         *u*)
-            # custom empty dir is still needed; otherwise the glob match cannot
-            # be trusted
             mkdir "$DIR"/.yt_v
             cd "$DIR"/.yt_v
         ;;
@@ -186,22 +182,36 @@ $3 *z* -> use youtube-dl
 
     "$@"
 
+    # from now on guarantee $FILE is just the filename as we are in our dir
+    # simplifies operations
     FILE=$(set -- *; printf "%s" "$1.")
     FILE="${FILE%.}"
+    FILE="${FILE##*/}"
 
+    # rename in our dir
+    # if $FILE has extension, append it to $FNAME
     if [ "$FNAME" ]; then
-        case "$FILE" in
-            "${FNAME}.${FILE##*.}")
+        case "$OPTS" in
+            *f*)
                 :
             ;;
             *)
-                mv "$FILE" "${FNAME}.${FILE##*.}"
-
-                FILE="${FNAME}.${FILE##*.}"
+                case "$FILE" in
+                    *.?? | *.??? | *.????) FNAME="$FNAME.${FILE##*.}" ;;
+                esac
             ;;
         esac
+
+        # guard same filename rename
+        case "$FILE" in
+            "$FNAME") : ;;
+            *) mv "$FILE" "$FNAME" ;;
+        esac
+
+        FILE="$FNAME"
     fi
 
+    # move result to dest
     case "$OPTS" in
         *u*)
             mv "$FILE" "$DIR"/"$FILE"
@@ -216,7 +226,8 @@ $3 *z* -> use youtube-dl
                 '\033[1;37m' "${TMPDIR:-/tmp}"/yt_v/"$FILE" '\033[0m'
         ;;
         *)
-            mv "${TMPDIR:-/tmp}"/yt_v/"$FILE" "$DIR"/"$FILE"
+            # guaranteed move, no need for guard
+            mv -f "$FILE" "$DIR"/"$FILE"
 
             printf "%b%s%b %b%s%b\n" \
                 '\033[1;32m' 'FILE:' '\033[0m' \
