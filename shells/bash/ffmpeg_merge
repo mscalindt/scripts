@@ -51,9 +51,45 @@ $4 *u* -> work in current dir
             IN="$(realpath -- "$IN" && printf "%s" .)"
             IN="${IN%?.}"
 
+            # assert $IN has extension or prompt for the format
+            # input files dont need specification, but output files do
+            case "$IN" in
+                *.?? | *.??? | *.????)
+                    FMT="${IN##*.}"
+                ;;
+                *)
+                    printf "%s%s" \
+                        'Honey, please tell me the output file format ' \
+                        'in ffmpeg notation: '
+
+                    read -r FMT
+                    if [ ! "$FMT" ]; then
+                        printf "%s\n" 'No format specified.'; exit 2
+                    fi
+                ;;
+            esac
+
             DIR="${IN%/*}"
         ;;
         *)
+            # assert $IN has extension or prompt for the format
+            # input files dont need specification, but output files do
+            case "$IN" in
+                *.?? | *.??? | *.????)
+                    FMT="${IN##*.}"
+                ;;
+                *)
+                    printf "%s%s" \
+                        'Honey, please tell me the output file format ' \
+                        'in ffmpeg notation: '
+
+                    read -r FMT
+                    if [ ! "$FMT" ]; then
+                        printf "%s\n" 'No format specified.'; exit 2
+                    fi
+                ;;
+            esac
+
             IN="$DIR"/"$IN"
         ;;
     esac
@@ -86,15 +122,10 @@ $4 *u* -> work in current dir
         ;;
     esac
 
-    case "$FNAME" in
-        *.???) FNAME="${FNAME%????}" ;;
-        *.????) FNAME="${FNAME%?????}" ;;
-    esac
-
+    # guarantee we are in our custom empty dir
+    # otherwise globbing cannot be trusted
     case "$OPTS" in
         *u*)
-            # custom empty dir is still needed; otherwise the glob match cannot
-            # be trusted
             mkdir "$DIR"/.ffmpeg_merge
             cd "$DIR"/.ffmpeg_merge
         ;;
@@ -141,12 +172,16 @@ $4 *u* -> work in current dir
         *s*) set -- "$@" '-c:s' 'mov_text' ;;
     esac
 
+    set -- "$@" '-f' "$FMT"
     set -- "$@" "${IN##*/}"
 
     "$@"
 
+    # from now on guarantee $FILE is just the filename as we are in our dir
+    # simplifies operations
     FILE=$(set -- *; printf "%s" "$1.")
     FILE="${FILE%.}"
+    FILE="${FILE##*/}"
 
     case "$OPTS" in
         *m*) : ;;
@@ -154,50 +189,32 @@ $4 *u* -> work in current dir
         *) touch -r "$IN" "$FILE" ;;
     esac
 
+    # rename in our dir
+    # if $IN has extension, append it to $FNAME
     if [ "$FNAME" ]; then
-        case "$FILE" in
-            *.??? | *.????)
-                case "$FILE" in
-                    "${FNAME}.${FILE##*.}")
-                        :
-                    ;;
-                    *)
-                        mv "$FILE" "${FNAME}.${FILE##*.}"
-
-                        FILE="${FNAME}.${FILE##*.}"
-                    ;;
-                esac
-            ;;
-            *)
-                case "$FILE" in
-                    "$FNAME")
-                        :
-                    ;;
-                    *)
-                        mv "$FILE" "$FNAME"
-
-                        FILE="$FNAME"
-                    ;;
-                esac
-            ;;
+        case "$IN" in
+            *.?? | *.??? | *.????) FNAME="$FNAME.${IN##*.}" ;;
         esac
+
+        # guard same filename rename
+        case "$FILE" in
+            "$FNAME") : ;;
+            *) mv "$FILE" "$FNAME" ;;
+        esac
+
+        FILE="$FNAME"
     fi
 
+    # move result to dest
     case "$OPTS" in
-        *u*)
-            mv -f "$FILE" "$DIR"/"$FILE"
-
-            printf "%b%s%b %b%s%b\n" \
-                '\033[1;32m' 'FILE:' '\033[0m' \
-                '\033[1;37m' "$DIR"/"$FILE" '\033[0m'
-        ;;
         *t*)
             printf "%b%s%b %b%s%b\n" \
                 '\033[1;32m' 'FILE:' '\033[0m' \
                 '\033[1;37m' "${TMPDIR:-/tmp}"/ffmpeg_merge/"$FILE" '\033[0m'
         ;;
         *)
-            mv -f "${TMPDIR:-/tmp}"/ffmpeg_merge/"$FILE" "$DIR"/"$FILE"
+            # guaranteed move, no need for guard
+            mv -f "$FILE" "$DIR"/"$FILE"
 
             printf "%b%s%b %b%s%b\n" \
                 '\033[1;32m' 'FILE:' '\033[0m' \
