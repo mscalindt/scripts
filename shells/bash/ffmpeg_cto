@@ -16,10 +16,7 @@ $4 *b* -> only bump negative out PTS/DTS (might still choke players)
 $4 *c* -> non-zero out PTS/DTS start (not monotonic; can still choke players)
 $4 *d* -> `-loglevel debug`
 $4 *m* -> dont keep mtime
-$4 *p* -> precise (exact frame) cut; with side effects :) wont fix :) unless:
-          pay $100k and I will consider tackling this problem in a novel way,
-          providing a libre, FOSS implementation to its solution :)
-          and I will credit you copyright, too :)
+$4 *p* -> (NO-OP) precise (exact frame) cut; pay $666k for FLAWLESS implementation :)
 $4 *t* -> no cleanup/move (only on success)
 $4 *u* -> work in current dir
 '
@@ -143,8 +140,8 @@ $4 *u* -> work in current dir
     #
     # in either case, PTS/DTS do not affect the produced video/audio (packet)
     # data; only the container's PTS/DTS get shifted/regen, because we don't
-    # explicitly transcode or re-encode (and `+genpts` will *not* force full
-    # re-encode, even if first/last GoP ends up being re-encoded).
+    # explicitly transcode or re-encode (and `+genpts` will *not* force
+    # re-encoding).
     #
     # if source PTS/DTS are 100% correct, `+genpts` is redundant but harmless.
     case "$OPTS" in
@@ -168,41 +165,26 @@ $4 *u* -> work in current dir
         ;;
     esac
 
-    case "$OPTS" in
-        *p*)
-            # exact frame cut; last GOP (only) is re-encoded
-            # (with ffmpeg + ffmpeg container/codec defaults).
-            # audio common side effects: pop(s), bad playback...
-            # video common side effects: artifact(s), broken filters...
-            set -- "$@" '-i' "$IN"
-            set -- "$@" '-to' "$TIME"
-        ;;
-        *)
-            # exact early read keyframe cut; all lossless; no side effects.
-            #
-            # note that, we trust that the source PTS is not malformed for this
-            # to actually work as intended.
-            #
-            # if the source PTS is known bad/malformed, you may as well use
-            # mode "p" / exact frame cut, because ffmpeg might re-encode
-            # the last GoP either way.
-            #
-            # if source PTS cannot be trusted, depending on container/codec,
-            # ffmpeg might do a full re-encode of the stream (or refuse copy).
-            # in mode "p" too.
-            TIME=$(
-                ffprobe \
-                '-select_streams' 'v' '-read_intervals' "$TIME"'%+30' \
-                '-show_packets' '-show_entries' 'packet=pts_time,flags' '-of' \
-                'compact=p=0' '-v' 'quiet' "$IN" | grep -m1 flags=K
-            )
-            TIME="${TIME#*=}"
-            TIME="${TIME%%'|'*}"
-
-            set -- "$@" '-to' "$TIME"
-            set -- "$@" '-i' "$IN"
-        ;;
-    esac
+    # nearest keyframe cut; all lossless; no side effects.
+    #
+    # note that, we trust that the source PTS is not malformed for this
+    # to actually work as intended.
+    #
+    # if the source PTS is known bad/malformed and cannot be trusted, depending
+    # on container/codec, ffmpeg might refuse copy or produce a bad
+    # (first) GoP or stream that might choke players in various ways.
+    set -- "$@" '-ss' "$TIME"
+    set -- "$@" '-i' "$IN"
+    TIME=$(
+        ffprobe \
+        '-select_streams' 'v' '-read_intervals' "$TIME"'%+30' \
+        '-show_packets' '-show_entries' 'packet=pts_time,flags' '-of' \
+        'compact=p=0' '-v' 'quiet' "$IN" | grep -m1 flags=K
+    )
+    TIME="${TIME#*=}"
+    TIME="${TIME%%'|'*}"
+    set -- "$@" '-to' "$TIME"
+    set -- "$@" '-i' "$IN"
 
     set -- "$@" '-c' 'copy'
     set -- "$@" '-map' '0'
