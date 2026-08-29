@@ -15,18 +15,18 @@ $3 *a* -> write the auto-generated subs
 $3 *f* -> dont recognize/append extension, fname is fully authoritative
 $3 *m* -> dont use `--mtime`
 $3 *s* -> convert to `srt` using ffmpeg
-$3 *t* -> `--no-part --no-cache-dir`, keep in tmp dir, no cleanup (only on success)
+$3 *t* -> `--no-part --no-cache-dir`, no cleanup/move (only on success)
 $3 *v* -> `--verbose`
 $3 *y* -> use yt-dlp
 $3 *z* -> use youtube-dl
 '
 
-            rm -rf "${TMPDIR:-/tmp}"/yt_s
+            rm -rf "$ODIR"
         fi
 
         case "$OPTS" in
             *t*) : ;;
-            *) rm -rf "${TMPDIR:-/tmp}"/yt_s ;;
+            *) rm -rf "$ODIR" ;;
         esac
 
         exit "$1"
@@ -41,13 +41,17 @@ $3 *z* -> use youtube-dl
     DIR="$PWD"
     FILE=
 
+    case "$OPTS" in
+        *) ODIR="${TMPDIR:-/tmp}"/.yt_s ;;
+    esac
+
     [ "$URL" ] || { printf "%s\n" 'No URL specified.'; exit 2; }
 
     # guarantee we are in our custom empty dir
     # otherwise globbing cannot be trusted
-    rm -rf "${TMPDIR:-/tmp}"/yt_s
-    mkdir "${TMPDIR:-/tmp}"/yt_s
-    cd "${TMPDIR:-/tmp}"/yt_s
+    rm -rf "$ODIR"
+    mkdir "$ODIR"
+    cd "$ODIR"
 
     case "$OPTS" in
         *y*)
@@ -146,10 +150,11 @@ $3 *z* -> use youtube-dl
         *t*)
             printf "%b%s%b %b%s%b\n" \
                 '\033[1;32m' 'FILE:' '\033[0m' \
-                '\033[1;37m' "${TMPDIR:-/tmp}"/yt_s/"$FILE" '\033[0m'
+                '\033[1;37m' "$ODIR"/"$FILE" '\033[0m'
         ;;
         *)
             # guaranteed move, no need for guard
+            # `-f` because typically output loc/name might match input loc
             mv -f "$FILE" "$DIR"/"$FILE"
 
             printf "%b%s%b %b%s%b\n" \
