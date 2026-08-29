@@ -17,6 +17,7 @@ $3 *f* -> dont recognize/append extension, fname is fully authoritative
 $3 *m* -> dont use `--mtime`
 $3 *n* -> `--fixup never`
 $3 *t* -> `--no-part --no-cache-dir`, no cleanup/move (only on success)
+$3 *u* -> download in current dir
 $3 *v* -> `--verbose`
 $3 *y* -> use yt-dlp
 $3 *z* -> use youtube-dl
@@ -43,6 +44,7 @@ $3 *z* -> use youtube-dl
     FILE=
 
     case "$OPTS" in
+        *u*) ODIR="$DIR"/.yt_a ;;
         *) ODIR="${TMPDIR:-/tmp}"/.yt_a ;;
     esac
 
