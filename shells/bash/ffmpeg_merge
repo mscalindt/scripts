@@ -8,16 +8,17 @@ ffmpeg_merge() (
         if [ "$1" != 0 ]; then
             printf "%s" \
 '
-$1 -> video input
-$2 -> input
-$3 -> fname
-$4 *a* -> out PTS/DTS as-is (might choke players)
-$4 *d* -> `-loglevel debug`
-$4 *m* -> dont keep mtime
-$4 *n* -> keep mtime of input 2
-$4 *s* -> pass `-c:s mov_text`
-$4 *t* -> keep in tmp dir, no cleanup (only on success)
-$4 *u* -> work in current dir
+$1 -> (video) input
+$2 -> (audio) input
+$3 -> (subtitles) input
+$4 -> fname
+$5 *a* -> out PTS/DTS as-is (might choke players)
+$5 *d* -> `-loglevel debug`
+$5 *m* -> dont keep mtime
+$5 *n* -> keep mtime of input 2
+$5 *s* -> pass `-c:s mov_text`
+$5 *t* -> keep in tmp dir, no cleanup
+$5 *u* -> work in current dir
 '
 
             rm -rf "${TMPDIR:-/tmp}"/ffmpeg_merge
@@ -37,14 +38,15 @@ $4 *u* -> work in current dir
 
     IN="$1"
     IN2="$2"
-    FNAME="$3"
-    OPTS="$4"
+    IN3="$3"
+    FNAME="$4"
+    OPTS="$5"
     DIR=$(cd -Pe "$PWD" && printf "%s" "$PWD.")
     DIR="${DIR%.}"
 
-    [ "$IN" ] || { printf "%s\n" 'No input file specified.'; exit 2; }
-    [ -e "$IN" ] || { printf "%s\n" 'Bad input. (ENOENT)'; exit 2; }
-    [ ! -d "$IN" ] || { printf "%s\n" 'Bad input. (EISDIR)'; exit 2; }
+    [ "$IN" ] || { printf "%s\n" 'No first input file specified.'; exit 2; }
+    [ -e "$IN" ] || { printf "%s\n" 'Bad first input. (ENOENT)'; exit 2; }
+    [ ! -d "$IN" ] || { printf "%s\n" 'Bad first input. (EISDIR)'; exit 2; }
 
     case "$IN" in
         */*)
@@ -96,14 +98,30 @@ $4 *u* -> work in current dir
 
     [ -e "$IN" ] || { printf "%s\n" 'Resolution error. (ENOENT)'; exit 1; }
 
-    [ "$IN2" ] || { printf "%s\n" 'No second file specified.'; exit 2; }
-    [ -e "$IN2" ] || { printf "%s\n" 'Bad second file. (ENOENT)'; exit 2; }
-    [ ! -d "$IN2" ] || { printf "%s\n" 'Bad second file. (EISDIR)'; exit 2; }
+    # require at least either of $IN2 or $IN3
+    [ "$IN2" ] || [ "$IN3" ] || {
+        printf "%s\n" 'No second input specified.'; exit 2
+    }
 
-    IN2="$(realpath -- "$IN2" && printf "%s" .)"
-    IN2="${IN2%?.}"
+    if [ "$IN2" ]; then
+        [ -e "$IN2" ] || { printf "%s\n" 'Bad second input. (ENOENT)'; exit 2; }
+        [ ! -d "$IN2" ] || { printf "%s\n" 'Bad second input. (EISDIR)'; exit 2; }
 
-    [ -e "$IN2" ] || { printf "%s\n" 'Resolution error. (ENOENT)'; exit 1; }
+        IN2="$(realpath -- "$IN2" && printf "%s" .)"
+        IN2="${IN2%?.}"
+
+        [ -e "$IN2" ] || { printf "%s\n" 'Resolution error. (ENOENT)'; exit 1; }
+    fi
+
+    if [ "$IN3" ]; then
+        [ -e "$IN3" ] || { printf "%s\n" 'Bad third input. (ENOENT)'; exit 2; }
+        [ ! -d "$IN3" ] || { printf "%s\n" 'Bad third input. (EISDIR)'; exit 2; }
+
+        IN3="$(realpath -- "$IN3" && printf "%s" .)"
+        IN3="${IN3%?.}"
+
+        [ -e "$IN3" ] || { printf "%s\n" 'Resolution error. (ENOENT)'; exit 1; }
+    fi
 
     case "${IN##*.}.${IN2##*.}" in
         'm4a.mp4')
@@ -157,17 +175,29 @@ $4 *u* -> work in current dir
     esac
 
     set -- "$@" '-i' "$IN"
-    set -- "$@" '-i' "$IN2"
+    if [ "$IN2" ]; then
+        set -- "$@" '-i' "$IN2"
+    fi
+    if [ "$IN3" ]; then
+        set -- "$@" '-i' "$IN3"
+    fi
     set -- "$@" '-c' 'copy'
     set -- "$@" '-copy_unknown'
     set -- "$@" '-map' '0'
-    set -- "$@" '-map' '1'
+    if [ "$IN2" ]; then
+        set -- "$@" '-map' '1'
+    fi
+    if [ "$IN3" ]; then
+        set -- "$@" '-map' '2'
+    fi
     set -- "$@" '-map_metadata' '0'
 
     case "$OPTS" in
         *d*) set -- "$@" '-loglevel' 'debug' ;;
     esac
 
+    # works on the first subtitle output stream; not related to input streams.
+    # warning is normal due to global (but intended) `-c copy`
     case "$OPTS" in
         *s*) set -- "$@" '-c:s' 'mov_text' ;;
     esac
