@@ -205,9 +205,16 @@ $4 *u* -> work in current dir
 
     # from now on guarantee $FILE is just the filename as we are in our dir
     # simplifies operations
-    FILE=$(set -- *; printf "%s" "$1.")
-    FILE="${FILE%.}"
-    FILE="${FILE##*/}"
+    set -- *
+    FILE="$1"
+    if [ ! -e "$FILE" ]; then
+        set -- .*; while [ "$1" ]; do case "$1" in
+            '.' | '..') shift ;;
+            *) FILE="$1" && break ;;
+        esac; done
+    fi
+    [ -e "$FILE" ] || { printf "%s\n" 'File glob failed. (ENOENT)'; exit 1; }
+    [ ! -d "$FILE" ] || { printf "%s\n" 'File glob failed. (EISDIR)'; exit 1; }
 
     case "$OPTS" in
         *m*) : ;;
