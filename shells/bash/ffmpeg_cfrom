@@ -108,7 +108,11 @@ $4 *u* -> work in current dir
     case "$TIME" in
         [0-9][0-9]:[0-9][0-9]:[0-9][0-9] | \
         [0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9])
-            :
+            # assert there is at least one unit of time
+            case "$TIME" in
+                *[1-9]*) : ;;
+                *) printf "%s\n" 'Invalid FROM time.'; exit 2 ;;
+            esac
         ;;
         *)
             printf "%s\n" 'Invalid FROM time.'; exit 2
