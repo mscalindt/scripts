@@ -121,8 +121,21 @@ $4 *u* -> work in current dir
     mkdir "$ODIR"
     cd "$ODIR"
 
+    # global options shall follow first.
     set -- 'ffmpeg'
     set -- "$@" '-hide_banner'
+    case "$OPTS" in
+        *d*) set -- "$@" '-loglevel' 'debug' ;;
+    esac
+
+    # nearest keyframe cut; all lossless; no side effects.
+    #
+    # note that, we trust that the container is not malformed for this to
+    # actually work as intended.
+    #
+    # after these options, only output options shall follow.
+    set -- "$@" '-ss' "$TIME"
+    set -- "$@" '-i' "$IN"
 
     # adjusting the container PTS/DTS does not cause re-encoding whatsoever.
     case "$OPTS" in
@@ -136,21 +149,8 @@ $4 *u* -> work in current dir
             set -- "$@" '-avoid_negative_ts' 'make_non_negative'  # 1
         ;;
     esac
-
-    # nearest keyframe cut; all lossless; no side effects.
-    #
-    # note that, we trust that the container is not malformed for this to
-    # actually work as intended.
-    set -- "$@" '-ss' "$TIME"
-    set -- "$@" '-i' "$IN"
-
     set -- "$@" '-c' 'copy'
     set -- "$@" '-map' '0'
-
-    case "$OPTS" in
-        *d*) set -- "$@" '-loglevel' 'debug' ;;
-    esac
-
     set -- "$@" '-f' "$FMT"
     set -- "$@" "${IN##*/}"
 
