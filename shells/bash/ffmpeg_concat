@@ -11,7 +11,6 @@ ffmpeg_concat() (
 $1 -> input 1
 $2 -> input 2
 $3 -> fname
-$4 *a* -> out PTS/DTS as-is (might choke players)
 $4 *d* -> `-loglevel debug`
 $4 *i* -> `-map_metadata 1` (global metadata from input 2 instead of 1)
 $4 *m* -> dont keep mtime
@@ -123,23 +122,6 @@ $4 *u* -> work in current dir
 
     set -- 'ffmpeg'
     set -- "$@" '-hide_banner'
-
-    # fully regenerate PTS/DTS container timestamps by default for monotonic
-    # timeline. a timeline that is not monotonic can choke players.
-    #
-    # in either case, PTS/DTS do not affect the produced video/audio (packet)
-    # data; only the container's PTS/DTS get regenerated when not re-encoding
-    # (and `+genpts` will *not* force re-encode).
-    #
-    # if source PTS/DTS are 100% correct, `+genpts` is redundant but harmless.
-    case "$OPTS" in
-        *a*)
-            set -- "$@" '-avoid_negative_ts' 'disabled'  # 0
-        ;;
-        *)
-            set -- "$@" '-fflags' '+genpts'
-        ;;
-    esac
 
     set -- "$@" '-f' 'concat'
     set -- "$@" '-safe' '0'
