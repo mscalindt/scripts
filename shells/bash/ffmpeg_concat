@@ -120,23 +120,23 @@ $4 *u* -> work in current dir
     )
     printf "%s" "$ShePoludeem" > ShePoludeem.txt
 
+    # global options shall follow first.
     set -- 'ffmpeg'
     set -- "$@" '-hide_banner'
-
-    set -- "$@" '-f' 'concat'
-    set -- "$@" '-safe' '0'
-    set -- "$@" '-i' 'ShePoludeem.txt'  # kaam ti
-    set -- "$@" '-c' 'copy'
-    set -- "$@" '-map' '0'
-
-    case "$OPTS" in
-        *i*) set -- "$@" '-map_metadata' '1' ;;
-    esac
-
     case "$OPTS" in
         *d*) set -- "$@" '-loglevel' 'debug' ;;
     esac
 
+    # after these options, only output options shall follow.
+    set -- "$@" '-f' 'concat'
+    set -- "$@" '-safe' '0'
+    set -- "$@" '-i' 'ShePoludeem.txt'  # kaam ti
+
+    set -- "$@" '-c' 'copy'
+    set -- "$@" '-map' '0'
+    case "$OPTS" in
+        *i*) set -- "$@" '-map_metadata' '1' ;;
+    esac
     set -- "$@" '-f' "$FMT"
     set -- "$@" "${IN##*/}"
 
