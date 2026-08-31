@@ -12,7 +12,6 @@ $1 -> (video) input
 $2 -> (audio) input
 $3 -> (subtitles) input
 $4 -> fname
-$5 *a* -> out PTS/DTS as-is (might choke players)
 $5 *d* -> `-loglevel debug`
 $5 *m* -> dont keep mtime
 $5 *n* -> keep mtime of input 2
@@ -152,23 +151,6 @@ $5 *u* -> work in current dir
 
     set -- 'ffmpeg'
     set -- "$@" '-hide_banner'
-
-    # fully regenerate PTS/DTS container timestamps by default for monotonic
-    # timeline. a timeline that is not monotonic can choke players.
-    #
-    # in either case, PTS/DTS do not affect the produced video/audio (packet)
-    # data; only the container's PTS/DTS get regenerated when not re-encoding
-    # (and `+genpts` will *not* force re-encode).
-    #
-    # if source PTS/DTS are 100% correct, `+genpts` is redundant but harmless.
-    case "$OPTS" in
-        *a*)
-            set -- "$@" '-avoid_negative_ts' 'disabled'  # 0
-        ;;
-        *)
-            set -- "$@" '-fflags' '+genpts'
-        ;;
-    esac
 
     set -- "$@" '-i' "$IN"
     if [ "$IN2" ]; then
