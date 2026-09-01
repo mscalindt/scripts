@@ -114,11 +114,11 @@ $4 *u* -> work in current dir
     mkdir "$ODIR"
     cd "$ODIR"
 
-    ShePoludeem=$(
+    POLUDQVAM=$(
         printf "file '%s'\n" "${IN//\'/\'\\\'\'}"
         printf "file '%s'\n" "${IN2//\'/\'\\\'\'}"
     )
-    printf "%s" "$ShePoludeem" > ShePoludeem.txt
+    printf "%s" "$POLUDQVAM" > "${TMPDIR:-/tmp}"/POLUDQVAM.txt
 
     # global options shall follow first.
     set -- 'ffmpeg'
@@ -130,7 +130,8 @@ $4 *u* -> work in current dir
     # after these options, only output options shall follow.
     set -- "$@" '-f' 'concat'
     set -- "$@" '-safe' '0'
-    set -- "$@" '-i' 'ShePoludeem.txt'  # kaam ti
+    set -- "$@" '-i' "${TMPDIR:-/tmp}"/POLUDQVAM.txt  # kaam ti, LUD STANAH...
+                                                      # nenadeino.
 
     set -- "$@" '-c' 'copy'
     set -- "$@" '-map' '0'
@@ -140,9 +141,9 @@ $4 *u* -> work in current dir
     set -- "$@" '-f' "$FMT"
     set -- "$@" "${IN##*/}"
 
-    "$@"
+    "$@" || { set -- "$?"; rm -f "${TMPDIR:-/tmp}"/POLUDQVAM.txt; return "$1"; }
 
-    rm -f ShePoludeem.txt  # (poludqvam)
+    rm -f "${TMPDIR:-/tmp}"/POLUDQVAM.txt  # poludql. real scheisse.
 
     # from now on guarantee $FILE is just the filename as we are in our dir
     # simplifies operations
