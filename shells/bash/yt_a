@@ -35,6 +35,7 @@ $3 *z* -> use youtube-dl
     }
 
     set -e
+    ODIR=
     trap "err \$?" INT TERM EXIT
 
     URL="$1"
@@ -44,9 +45,21 @@ $3 *z* -> use youtube-dl
     FILE=
 
     case "$OPTS" in
-        *u*) ODIR="$DIR"/.yt_a ;;
-        *) ODIR="${TMPDIR:-/tmp}"/.yt_a ;;
+        *u*) _ODIR="$DIR"/.yt_a ;;
+        *) _ODIR="${TMPDIR:-/tmp}"/.yt_a ;;
     esac
+
+    if [ -e "$_ODIR" ]; then
+        printf "%s" "Sweetie, '$_ODIR' already exists... Shall I delete it? [y/N] "
+
+        read -r _action; [ "$_action" ] || _action=N
+        case "$_action" in
+            [Yy]*) ODIR="$_ODIR" ;;
+            *) printf "%s\n" 'Sweetheart... wise choice! Deal with it.'; exit 1 ;;
+        esac
+    else
+        ODIR="$_ODIR"
+    fi
 
     [ "$URL" ] || { printf "%s\n" 'No URL specified.'; exit 2; }
 
