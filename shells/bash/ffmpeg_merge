@@ -32,6 +32,7 @@ $5 *u* -> work in current dir
     }
 
     set -e
+    ODIR=
     trap "err \$?" INT TERM EXIT
 
     IN="$1"
@@ -43,9 +44,21 @@ $5 *u* -> work in current dir
     DIR="${DIR%.}"
 
     case "$OPTS" in
-        *u*) ODIR="$DIR"/.ffmpeg_merge ;;
-        *) ODIR="${TMPDIR:-/tmp}"/.ffmpeg_merge ;;
+        *u*) _ODIR="$DIR"/.ffmpeg_merge ;;
+        *) _ODIR="${TMPDIR:-/tmp}"/.ffmpeg_merge ;;
     esac
+
+    if [ -e "$_ODIR" ]; then
+        printf "%s" "Sweetie, '$_ODIR' already exists... Shall I delete it? [y/N] "
+
+        read -r _action; [ "$_action" ] || _action=N
+        case "$_action" in
+            [Yy]*) ODIR="$_ODIR" ;;
+            *) printf "%s\n" 'Sweetheart... wise choice! Deal with it.'; exit 1 ;;
+        esac
+    else
+        ODIR="$_ODIR"
+    fi
 
     [ "$IN" ] || { printf "%s\n" 'No first input file specified.'; exit 2; }
     [ -e "$IN" ] || { printf "%s\n" 'Bad first input. (ENOENT)'; exit 2; }
