@@ -1,0 +1,272 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-only
+
+ffmpeg_split() (
+    err() {
+        trap - INT TERM EXIT
+
+        if [ "$1" != 0 ]; then
+            printf "%s" \
+'
+$1 -> input
+$2 -> segment time HH:MM:SS
+$3 -> fname
+$4 *d* -> `-loglevel debug`
+$4 *e* -> dont `-reset_timestamps 1` (might break/choke players)
+$4 *m* -> dont keep mtime
+$4 *p* -> precise (exact frame) split; full re-encode
+$4 *t* -> no cleanup/move (only on success)
+$4 *u* -> work in current dir
+'
+
+            rm -rf "$ODIR"
+        fi
+
+        case "$OPTS" in
+            *t*) : ;;
+            *) rm -rf "$ODIR" ;;
+        esac
+
+        exit "$1"
+    }
+
+    set -e
+    FILE=
+    ODIR=
+    trap "err \$?" INT TERM EXIT
+
+    IN="$1"
+    TIME="$2"
+    FNAME="$3"
+    OPTS="$4"
+    DIR=$(cd -Pe "$PWD" && printf "%s" "$PWD.")
+    DIR="${DIR%.}"
+
+    case "$OPTS" in
+        *u*) _ODIR="$DIR"/.ffmpeg_split ;;
+        *) _ODIR="${TMPDIR:-/tmp}"/.ffmpeg_split ;;
+    esac
+
+    if [ -e "$_ODIR" ]; then
+        printf "%s" "Sweetie, '$_ODIR' already exists... Shall I delete it? [y/N] "
+
+        read -r _action; [ "$_action" ] || _action=N
+        case "$_action" in
+            [Yy]*) ODIR="$_ODIR" ;;
+            *) printf "%s\n" 'Sweetheart... wise choice! Deal with it.'; exit 1 ;;
+        esac
+    else
+        ODIR="$_ODIR"
+    fi
+
+    [ "$IN" ] || { printf "%s\n" 'No input file specified.'; exit 2; }
+    [ -e "$IN" ] || { printf "%s\n" 'Bad input. (ENOENT)'; exit 2; }
+    [ ! -d "$IN" ] || { printf "%s\n" 'Bad input. (EISDIR)'; exit 2; }
+
+    case "$IN" in
+        */*)
+            IN="$(realpath -- "$IN" && printf "%s" .)"
+            IN="${IN%?.}"
+
+            # assert $IN has extension or prompt for the format
+            # input files dont need specification, but output files do
+            case "$IN" in
+                *.?? | *.??? | *.????)
+                    FMT="${IN##*.}"
+                ;;
+                *)
+                    printf "%s%s" \
+                        'Honey, please tell me the output segment format ' \
+                        'in ffmpeg notation: '
+
+                    read -r FMT
+                    if [ ! "$FMT" ]; then
+                        printf "%s\n" 'No format specified.'; exit 2
+                    fi
+                ;;
+            esac
+
+            DIR="${IN%/*}"
+        ;;
+        *)
+            # assert $IN has extension or prompt for the format
+            # input files dont need specification, but output files do
+            case "$IN" in
+                *.?? | *.??? | *.????)
+                    FMT="${IN##*.}"
+                ;;
+                *)
+                    printf "%s%s" \
+                        'Honey, please tell me the output segment format ' \
+                        'in ffmpeg notation: '
+
+                    read -r FMT
+                    if [ ! "$FMT" ]; then
+                        printf "%s\n" 'No format specified.'; exit 2
+                    fi
+                ;;
+            esac
+
+            IN="$DIR"/"$IN"
+        ;;
+    esac
+
+    [ -e "$IN" ] || { printf "%s\n" 'Resolution error. (ENOENT)'; exit 1; }
+
+    [ "$TIME" ] || { printf "%s\n" 'No segment time specified.'; exit 2; }
+    case "$TIME" in
+        [0-9][0-9]:[0-9][0-9]:[0-9][0-9])
+            # verify there is at least one unit of time
+            case "$TIME" in
+                *[1-9]*) : ;;
+                *) printf "%s\n" 'Invalid segment time.'; exit 2 ;;
+            esac
+        ;;
+        *)
+            printf "%s\n" 'Invalid segment time.'; exit 2
+        ;;
+    esac
+
+    # guarantee we are in our custom empty dir
+    # otherwise globbing cannot be trusted
+    rm -rf "$ODIR"
+    mkdir "$ODIR"
+    cd "$ODIR"
+
+    # guarantee we have a level in our custom empty dir.
+    # our directory will have to become the object itself;
+    # simplifies operations
+    mkdir IQ200
+    cd IQ200
+
+    # global options shall follow first.
+    set -- 'ffmpeg'
+    set -- "$@" '-hide_banner'
+    case "$OPTS" in
+        *d*) set -- "$@" '-loglevel' 'debug' ;;
+    esac
+
+    # after this option, only output options shall follow.
+    set -- "$@" '-i' "$IN"
+
+    case "$OPTS" in
+        *p*)
+            # must convert $TIME to seconds
+            killme_hh="${TIME%??????}"
+            killme_hh="${killme_hh#0}"
+            killme_mm="${TIME#???}"
+            killme_mm="${killme_mm%???}"
+            killme_mm="${killme_mm#0}"
+            killme_ss="${TIME#??????}"
+            killme_ss="${killme_ss#0}"
+            killme="$killme_ss"
+            killme="$((killme + (killme_mm * 60)))"
+            killme="$((killme + (killme_hh * 3600)))"
+            # exact frame split; ffmpeg will fully re-encode
+            # (with ffmpeg + ffmpeg container/codec defaults).
+            set -- "$@" '-force_key_frames' "expr:gte(t,n_forced*$killme)"
+        ;;
+        *)
+            # nearest keyframe split; all lossless; no side effects.
+            #
+            # note that, we trust that the container is not malformed for this
+            # to actually work as intended.
+            set -- "$@" '-c' 'copy'
+        ;;
+    esac
+    set -- "$@" '-map' '0'
+    set -- "$@" '-f' 'segment'
+    # a proper timeline is important. and for the produced segments--probably
+    # wished for, in fact. no re-encoding happens.
+    case "$OPTS" in
+        *e*) : ;;
+        *) set -- "$@" '-reset_timestamps' '1' ;;
+    esac
+    set -- "$@" '-segment_start_number' '1'
+    set -- "$@" '-segment_time' "$TIME"
+    set -- "$@" '-segment_format' "$FMT"
+    # construct filename for the output segments
+    # if $IN has extension, append it
+    case "$IN" in
+        *.?? | *.??? | *.????)
+            if [ "$FNAME" ]; then
+                set -- "$@" "${FNAME}_%03d.${IN##*.}"
+            else
+                name="${IN##*/}"
+                set -- "$@" "${name%.*}_%03d.${IN##*.}"
+            fi
+        ;;
+        *)
+            if [ "$FNAME" ]; then
+                set -- "$@" "${FNAME}_%03d"
+            else
+                set -- "$@" "${IN##*/}_%03d"
+            fi
+        ;;
+    esac
+
+    "$@"
+
+    # iterate over the produced files to set mtime
+    # also sets mtime of the dir (`.`)
+    case "$OPTS" in
+        *m*)
+            :
+        ;;
+        *)
+            for _f in *; do touch -r "$IN" "$_f"; done
+            touch -r "$IN" .  # set dir last
+        ;;
+    esac
+
+    # move to the top level and consider our dir the $FILE object from now on.
+    # guarantee $FILE is just the filename from now on;
+    # simplifies operations.
+    cd ..
+    FILE=IQ200
+    [ -e "$FILE" ] || { printf "%s\n" 'Enumeration failed. (ENOENT)'; exit 1; }
+    [ -d "$FILE" ] || { printf "%s\n" 'Enumeration failed. (ENOTDIR)'; exit 1; }
+
+    # rename in our dir
+    # if $IN has extension, remove it, as $FILE is dir
+    if [ "$FNAME" ]; then
+        name="$FNAME"
+    else
+        # remove ext if present
+        case "$IN" in
+            *.?? | *.??? | *.????)
+                name="${IN##*/}"
+                name="${name%.*}"
+            ;;
+            *)
+                name="${IN##*/}"
+            ;;
+        esac
+    fi
+    # guard same filename rename
+    case "$FILE" in
+        "$name") : ;;
+        *) mv "$FILE" "$name" ;;
+    esac
+    FILE="$name"
+
+    # move result to dest
+    case "$OPTS" in
+        *t*)
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'DIR:' '\033[0m' \
+                '\033[1;37m' "$ODIR"/"$FILE" '\033[0m'
+        ;;
+        *)
+            # guaranteed move, no need for guard
+            # `-f` because typically output loc/name might match input loc
+            mv -f "$FILE" "$DIR"/"$FILE"
+
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'DIR:' '\033[0m' \
+                '\033[1;37m' "$DIR"/"$FILE" '\033[0m'
+        ;;
+    esac
+)
+
+ffmpeg_split "$@"
