@@ -141,8 +141,6 @@ $4 *u* -> work in current dir
     #
     # note that, we trust that the container is not malformed for this to
     # actually work as intended.
-    set -- "$@" '-ss' "$TIME"
-    set -- "$@" '-i' "$IN"
     TIME=$(
         ffprobe \
         '-select_streams' 'v' '-read_intervals' "$TIME"'%+30' \
