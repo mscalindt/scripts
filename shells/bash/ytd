@@ -29,18 +29,19 @@ $3 *y* -> use yt-dlp
 $3 *z* -> use youtube-dl
 '
 
-            rm -rf "$ODIR"/.ffmpeg_merge "$ODIR"/.yt_a "$ODIR"/.yt_s "$ODIR"/.yt_v
+            rm -rf "$ODIR"
         fi
 
         case "$OPTS" in
             *t*) : ;;
-            *) rm -rf "$ODIR"/.ffmpeg_merge "$ODIR"/.yt_a "$ODIR"/.yt_s "$ODIR"/.yt_v ;;
+            *) rm -rf "$ODIR" ;;
         esac
 
         exit "$1"
     }
 
     set -e
+    ODIR=
     trap "err \$?" INT TERM EXIT
 
     URL="$1"
@@ -50,11 +51,33 @@ $3 *z* -> use youtube-dl
     FILE=
 
     case "$OPTS" in
-        *u*) ODIR="$DIR" ;;
-        *) ODIR="${TMPDIR:-/tmp}" ;;
+        *u*) _ODIR="$DIR"/.ytd ;;
+        *) _ODIR="${TMPDIR:-/tmp}"/.ytd ;;
     esac
 
+    if [ -e "$_ODIR" ]; then
+        printf "%s" "Sweetie, '$_ODIR' already exists... Shall I delete it? [y/N] "
+
+        read -r _action; [ "$_action" ] || _action=N
+        case "$_action" in
+            [Yy]*) ODIR="$_ODIR" ;;
+            *) printf "%s\n" 'Sweetheart... wise choice! Deal with it.'; exit 1 ;;
+        esac
+    else
+        ODIR="$_ODIR"
+    fi
+
     [ "$URL" ] || { printf "%s\n" 'No URL specified.'; exit 2; }
+
+    # guarantee we are in our custom empty dir
+    # otherwise globbing cannot be trusted
+    rm -rf "$ODIR"
+    mkdir "$ODIR"
+    cd "$ODIR"
+
+    # ensure ffmpeg_merge, yt_a, yt_s, and yt_v respect working in our dir by
+    # pointing $TMPDIR to $ODIR (they shall support $TMPDIR)
+    export TMPDIR="$ODIR"
 
     # download audio first to prematurely discover any problems
     yt_a "$URL" '' t"$OPTS"
