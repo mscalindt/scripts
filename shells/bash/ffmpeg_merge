@@ -149,9 +149,14 @@ $5 *u* -> work in current dir
     mkdir "$ODIR"
     cd "$ODIR"
 
+    # global options shall follow first.
     set -- 'ffmpeg'
     set -- "$@" '-hide_banner'
+    case "$OPTS" in
+        *d*) set -- "$@" '-loglevel' 'debug' ;;
+    esac
 
+    # after these options, only output options shall follow.
     set -- "$@" '-i' "$IN"
     if [ "$IN2" ]; then
         set -- "$@" '-i' "$IN2"
@@ -159,6 +164,7 @@ $5 *u* -> work in current dir
     if [ "$IN3" ]; then
         set -- "$@" '-i' "$IN3"
     fi
+
     set -- "$@" '-c' 'copy'
     set -- "$@" '-copy_unknown'
     set -- "$@" '-map' '0'
@@ -169,17 +175,10 @@ $5 *u* -> work in current dir
         set -- "$@" '-map' '2'
     fi
     set -- "$@" '-map_metadata' '0'
-
-    case "$OPTS" in
-        *d*) set -- "$@" '-loglevel' 'debug' ;;
-    esac
-
-    # works on the first subtitle output stream; not related to input streams.
     # warning is normal due to global (but intended) `-c copy`
     case "$OPTS" in
         *s*) set -- "$@" '-c:s' 'mov_text' ;;
     esac
-
     set -- "$@" '-f' "$FMT"
     set -- "$@" "${IN##*/}"
 
