@@ -10,21 +10,21 @@ yt_v() (
 '
 $1 -> url
 $2 -> fname
-$3 *1* -> `--format bestvideo[height<=1080]`, yt-dlp only
-$3 *2* -> `--format bestvideo[height<=1440]`, yt-dlp only
-$3 *3* -> dont use cookies,                                    yt-dlp only
-$3 *b* -> `--format bestvideo`
-$3 *c* -> check for unknown avc1 formats
-$3 *d* -> check for unknown avc1 formats with specified config as well
-$3 *f* -> dont recognize/append extension, fname is fully authoritative
-$3 *m* -> dont use `--mtime`
-$3 *n* -> `--fixup never`
-$3 *o* -> dont use `-o` / dont custom format filename
-$3 *t* -> `--no-part --no-cache-dir`, no cleanup/move (only on success)
-$3 *u* -> download in current dir
-$3 *v* -> `--verbose`
-$3 *y* -> use yt-dlp
-$3 *z* -> use youtube-dl
+$3 -> cookies.txt path
+$4 *1* -> `--format bestvideo[height<=1080]`, yt-dlp only
+$4 *2* -> `--format bestvideo[height<=1440]`, yt-dlp only
+$4 *b* -> `--format bestvideo`
+$4 *c* -> check for unknown avc1 formats
+$4 *d* -> check for unknown avc1 formats with specified config as well
+$4 *f* -> dont recognize/append extension, fname is fully authoritative
+$4 *m* -> dont use `--mtime`
+$4 *n* -> `--fixup never`
+$4 *o* -> dont use `-o` / dont custom format filename
+$4 *t* -> `--no-part --no-cache-dir`, no cleanup/move (only on success)
+$4 *u* -> download in current dir
+$4 *v* -> `--verbose`
+$4 *y* -> use yt-dlp
+$4 *z* -> use youtube-dl
 '
 
             rm -rf "$ODIR"
@@ -44,7 +44,8 @@ $3 *z* -> use youtube-dl
 
     URL="$1"
     FNAME="$2"
-    OPTS="$3"
+    COOKIES="$3"
+    OPTS="$4"
     DIR="$PWD"
     FILE=
 
@@ -66,6 +67,11 @@ $3 *z* -> use youtube-dl
     fi
 
     [ "$URL" ] || { printf "%s\n" 'No URL specified.'; exit 2; }
+    if [ "$COOKIES" ]; then
+        if [ ! -e "$COOKIES" ]; then
+            printf "%s\n" 'Bad cookies.txt file. (ENOENT)'; exit 2
+        fi
+    fi
 
     # guarantee we are in our custom empty dir
     # otherwise globbing cannot be trusted
@@ -136,14 +142,12 @@ $3 *z* -> use youtube-dl
     esac
 
     case "$OPTS" in
-        *3*)
-            set -- "$@" '--extractor-args' 'youtube:formats=missing_pot'
-        ;;
-        *y*)
-            set -- "$@" '--cookies-from-browser' 'firefox'
-            set -- "$@" '--extractor-args' 'youtube:formats=missing_pot'
-        ;;
+        *y*) set -- "$@" '--extractor-args' 'youtube:formats=missing_pot' ;;
     esac
+
+    if [ "$COOKIES" ]; then
+        set -- "$@" '--cookies' "$COOKIES"
+    fi
 
     case "$OPTS" in
         *d*)
