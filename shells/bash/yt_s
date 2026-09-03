@@ -10,16 +10,16 @@ yt_s() (
 '
 $1 -> url
 $2 -> fname
-$3 *3* -> dont use cookies,                                    yt-dlp only
-$3 *a* -> write the auto-generated subs
-$3 *f* -> dont recognize/append extension, fname is fully authoritative
-$3 *m* -> dont use `--mtime`
-$3 *s* -> convert to `srt` using ffmpeg
-$3 *t* -> `--no-part --no-cache-dir`, no cleanup/move (only on success)
-$3 *u* -> download in current dir
-$3 *v* -> `--verbose`
-$3 *y* -> use yt-dlp
-$3 *z* -> use youtube-dl
+$3 -> cookies.txt path
+$4 *a* -> write the auto-generated subs
+$4 *f* -> dont recognize/append extension, fname is fully authoritative
+$4 *m* -> dont use `--mtime`
+$4 *s* -> convert to `srt` using ffmpeg
+$4 *t* -> `--no-part --no-cache-dir`, no cleanup/move (only on success)
+$4 *u* -> download in current dir
+$4 *v* -> `--verbose`
+$4 *y* -> use yt-dlp
+$4 *z* -> use youtube-dl
 '
 
             rm -rf "$ODIR"
@@ -39,7 +39,8 @@ $3 *z* -> use youtube-dl
 
     URL="$1"
     FNAME="$2"
-    OPTS="$3"
+    COOKIES="$3"
+    OPTS="$4"
     DIR="$PWD"
     FILE=
 
@@ -61,6 +62,11 @@ $3 *z* -> use youtube-dl
     fi
 
     [ "$URL" ] || { printf "%s\n" 'No URL specified.'; exit 2; }
+    if [ "$COOKIES" ]; then
+        if [ ! -e "$COOKIES" ]; then
+            printf "%s\n" 'Bad cookies.txt file. (ENOENT)'; exit 2
+        fi
+    fi
 
     # guarantee we are in our custom empty dir
     # otherwise globbing cannot be trusted
@@ -100,15 +106,13 @@ $3 *z* -> use youtube-dl
     esac
 
     case "$OPTS" in
-        *3*)
-            set -- "$@" '--compat-options' 'no-live-chat'
-        ;;
-        *y*)
-            set -- "$@" '--cookies-from-browser' 'firefox'
-            set -- "$@" '--compat-options' 'no-live-chat'
-        ;;
+        *y*) set -- "$@" '--compat-options' 'no-live-chat' ;;
     esac
     set -- "$@" '--skip-download'
+
+    if [ "$COOKIES" ]; then
+        set -- "$@" '--cookies' "$COOKIES"
+    fi
 
     case "$OPTS" in
         *a*) set -- "$@" '--write-auto-sub' ;;
