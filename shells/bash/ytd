@@ -10,23 +10,23 @@ ytd() {
 '
 $1 -> url
 $2 -> fname
-$3 *0* -> `--format bestaudio[format_id~=^140][language^=en]`, yt-dlp only
-$3 *1* -> `--format bestvideo[height<=1080]`, yt-dlp only
-$3 *2* -> `--format bestvideo[height<=1440]`, yt-dlp only
-$3 *3* -> dont use cookies,                                    yt-dlp only
-$3 *a* -> write the auto-generated subs
-$3 *b* -> `--format bestaudio`, `--format bestvideo`
-$3 *f* -> dont recognize/append extension, fname is fully authoritative
-$3 *m* -> dont use `--mtime`
-$3 *n* -> `--fixup never`
-$3 *o* -> dont use `-o` / dont custom format filename
-$3 *s* -> convert subtitles to `srt` using ffmpeg before embed
-$3 *t* -> `--no-part --no-cache-dir`, no cleanup/move (only on success)
-$3 *u* -> download in current dir
-$3 *v* -> `--verbose`
-$3 *x* -> dont try to download any subtitles
-$3 *y* -> use yt-dlp
-$3 *z* -> use youtube-dl
+$3 -> cookies.txt path
+$4 *0* -> `--format bestaudio[format_id~=^140][language^=en]`, yt-dlp only
+$4 *1* -> `--format bestvideo[height<=1080]`, yt-dlp only
+$4 *2* -> `--format bestvideo[height<=1440]`, yt-dlp only
+$4 *a* -> write the auto-generated subs
+$4 *b* -> `--format bestaudio`, `--format bestvideo`
+$4 *f* -> dont recognize/append extension, fname is fully authoritative
+$4 *m* -> dont use `--mtime`
+$4 *n* -> `--fixup never`
+$4 *o* -> dont use `-o` / dont custom format filename
+$4 *s* -> convert subtitles to `srt` using ffmpeg before embed
+$4 *t* -> `--no-part --no-cache-dir`, no cleanup/move (only on success)
+$4 *u* -> download in current dir
+$4 *v* -> `--verbose`
+$4 *x* -> dont try to download any subtitles
+$4 *y* -> use yt-dlp
+$4 *z* -> use youtube-dl
 '
 
             rm -rf "$ODIR"
@@ -46,7 +46,8 @@ $3 *z* -> use youtube-dl
 
     URL="$1"
     FNAME="$2"
-    OPTS="$3"
+    COOKIES="$3"
+    OPTS="$4"
     DIR="$PWD"
     FILE=
 
@@ -80,8 +81,8 @@ $3 *z* -> use youtube-dl
     export TMPDIR="$ODIR"
 
     # download audio first to prematurely discover any problems
-    yt_a "$URL" '' t"$OPTS"
-    yt_v "$URL" '' t"$OPTS"
+    yt_a "$URL" '' "$COOKIES" t"$OPTS"
+    yt_v "$URL" '' "$COOKIES" t"$OPTS"
     case "$OPTS" in
         *x*)
             echo 'Will not try to download any subtitles.'
@@ -92,14 +93,14 @@ $3 *z* -> use youtube-dl
 
             case "$OPTS" in
                 *a*)
-                    if yt_s "$URL" '' t"$OPTS" > /dev/null; then
+                    if yt_s "$URL" '' "$COOKIES" t"$OPTS" > /dev/null; then
                         s=2
                     fi
                 ;;
                 *)
-                    if yt_s "$URL" '' t"$OPTS" > /dev/null; then
+                    if yt_s "$URL" '' "$COOKIES" t"$OPTS" > /dev/null; then
                         s=1
-                    elif yt_s "$URL" '' at"$OPTS" > /dev/null; then
+                    elif yt_s "$URL" '' "$COOKIES" at"$OPTS" > /dev/null; then
                         s=2
                     fi
                 ;;
