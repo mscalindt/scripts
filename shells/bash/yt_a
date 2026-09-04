@@ -75,6 +75,23 @@ $4 *z* -> use youtube-dl
     mkdir "$ODIR"
     cd "$ODIR"
 
+    # scan for cookies.txt file
+    if [ ! "$COOKIES" ] && { [ -e cookies.txt ] || [ -e ../cookies.txt ]; }; then
+        _cookies=cookies.txt && [ -e "$_cookies" ] || _cookies=../cookies.txt
+        _cookies="$(realpath -- "$_cookies" && printf "%s" .)"
+        _cookies="${_cookies%?.}"
+
+        if [ -e "$_cookies" ]; then
+            printf "%s" "Honey, should I use the cookies at '$_cookies'? [y/N] "
+
+            read -r _action; [ "$_action" ] || _action=N
+            case "$_action" in
+                [Yy]*) COOKIES="$_cookies" ;;
+                *) printf "%s\n" 'Will not use the cookies.' ;;
+            esac
+        fi
+    fi
+
     case "$OPTS" in
         *y*)
             set -- 'yt-dlp'
