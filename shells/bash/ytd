@@ -41,6 +41,7 @@ $4 *z* -> use youtube-dl
     }
 
     set -e
+    _destroy_cookies=
     ODIR=
     trap "err \$?" INT TERM EXIT
 
@@ -77,21 +78,26 @@ $4 *z* -> use youtube-dl
     cd "$ODIR"
 
     # scan for cookies.txt file
-    if [ ! "$COOKIES" ] && { [ -e cookies.txt ] || [ -e ../cookies.txt ]; }; then
-        _cookies=cookies.txt && [ -e "$_cookies" ] || _cookies=../cookies.txt
+    if [ ! "$COOKIES" ]; then while :; do
+        set -- *cookies.txt ../*cookies.txt
+        while [ "$#" -ge 1 ] || break 2; do
+            [ -e "$1" ] && break || shift
+        done
+
+        _cookies="$1"
         _cookies="$(realpath -- "$_cookies" && printf "%s" .)"
         _cookies="${_cookies%?.}"
 
-        if [ -e "$_cookies" ]; then
-            printf "%s" "Honey, should I use the cookies at '$_cookies'? [y/N] "
+        printf "%s" "Honey, should I use the cookies at '$_cookies'? [y/N] "
 
-            read -r _action; [ "$_action" ] || _action=N
-            case "$_action" in
-                [Yy]*) COOKIES="$_cookies" ;;
-                *) printf "%s\n" 'Will not use the cookies.' ;;
-            esac
-        fi
-    fi
+        read -r _action; [ "$_action" ] || _action=N
+        case "$_action" in
+            [Yy]*) COOKIES="$_cookies"; _destroy_cookies=1 ;;
+            *) printf "%s\n" 'Will not use the cookies.' ;;
+        esac
+
+        break
+    done; fi
 
     # ensure ffmpeg_merge, yt_a, yt_s, and yt_v respect working in our dir by
     # pointing $TMPDIR to $ODIR (they shall support $TMPDIR)
@@ -199,6 +205,12 @@ $4 *z* -> use youtube-dl
                 '\033[1;37m' "$DIR"/"$FILE" '\033[0m'
         ;;
     esac
+
+    # remaining unrelated stuff to do
+    if [ "$_destroy_cookies" ]; then
+        rm -f "$COOKIES"
+        printf "%s\n" "Deleted the cookies '$COOKIES'."
+    fi
 }
 
 ytd "$@"
