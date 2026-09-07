@@ -1,7 +1,7 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-only
 
-ffmpeg_cfrom() (
+ffmpeg_get_from() (
     err() {
         trap - INT TERM EXIT
 
@@ -43,8 +43,8 @@ $4 *u* -> work in current dir
     DIR="${DIR%.}"
 
     case "$OPTS" in
-        *u*) _ODIR="$DIR"/.ffmpeg_cfrom ;;
-        *) _ODIR="${TMPDIR:-/tmp}"/.ffmpeg_cfrom ;;
+        *u*) _ODIR="$DIR"/.ffmpeg_get_from ;;
+        *) _ODIR="${TMPDIR:-/tmp}"/.ffmpeg_get_from ;;
     esac
 
     if [ -e "$_ODIR" ]; then
@@ -222,4 +222,4 @@ $4 *u* -> work in current dir
     esac
 )
 
-ffmpeg_cfrom "$@"
+ffmpeg_get_from "$@"
