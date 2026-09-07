@@ -18,7 +18,7 @@ $4 *a* -> write the auto-generated subs
 $4 *b* -> `--format bestaudio`, `--format bestvideo`
 $4 *f* -> dont recognize/append extension, fname is fully authoritative
 $4 *m* -> dont use `--mtime`
-$4 *n* -> `--fixup never`
+$4 *n* -> `--fixup warn`
 $4 *o* -> dont use `-o` / dont custom format filename
 $4 *s* -> convert subtitles to `srt` using ffmpeg before embed
 $4 *t* -> `--no-part --no-cache-dir`, no cleanup/move (only on success)
