@@ -11,9 +11,9 @@
 
 `ffmpeg_concat`: Concatenate two files losslessly.
 
-`ffmpeg_cto`: Trim all (of video, audio) after X time losslessly.
-
 `ffmpeg_get_from`: Trim all (of video, audio) before X time losslessly.
+
+`ffmpeg_get_to`: Trim all (of video, audio) after X time losslessly.
 
 `ffmpeg_merge`: Merge two files losslessly.
 

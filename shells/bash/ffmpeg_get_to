@@ -1,7 +1,7 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-only
 
-ffmpeg_cto() (
+ffmpeg_get_to() (
     err() {
         trap - INT TERM EXIT
 
@@ -43,8 +43,8 @@ $4 *u* -> work in current dir
     DIR="${DIR%.}"
 
     case "$OPTS" in
-        *u*) _ODIR="$DIR"/.ffmpeg_cto ;;
-        *) _ODIR="${TMPDIR:-/tmp}"/.ffmpeg_cto ;;
+        *u*) _ODIR="$DIR"/.ffmpeg_get_to ;;
+        *) _ODIR="${TMPDIR:-/tmp}"/.ffmpeg_get_to ;;
     esac
 
     if [ -e "$_ODIR" ]; then
@@ -231,4 +231,4 @@ $4 *u* -> work in current dir
     esac
 )
 
-ffmpeg_cto "$@"
+ffmpeg_get_to "$@"
