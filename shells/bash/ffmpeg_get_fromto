@@ -1,0 +1,252 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-only
+
+ffmpeg_get_fromto() (
+    err() {
+        trap - INT TERM EXIT
+
+        if [ "$1" != 0 ]; then
+            printf "%s" \
+'
+$1 -> input
+$2 -> from time HH:MM:SS[.SSS]
+$3 -> to time HH:MM:SS[.SSS]
+$4 -> fname
+$5 *a* -> `-avoid_negative_ts disabled` (might break players) OR \
+$5 *b* -> `-avoid_negative_ts make_zero` (might still choke players)
+$5 *d* -> `-loglevel debug`
+$5 *m* -> dont keep mtime
+$5 *p* -> (NO-OP) precise (exact frame) cut; pay $666k for FLAWLESS implementation :)
+$5 *t* -> no cleanup/move (only on success)
+$5 *u* -> work in current dir
+'
+
+            rm -rf "$ODIR"
+        fi
+
+        case "$OPTS" in
+            *t*) : ;;
+            *) rm -rf "$ODIR" ;;
+        esac
+
+        exit "$1"
+    }
+
+    set -e
+    ODIR=
+    trap "err \$?" INT TERM EXIT
+
+    IN="$1"
+    FROMTIME="$2"
+    TOTIME="$3"
+    FNAME="$4"
+    OPTS="$5"
+    DIR=$(cd -Pe "$PWD" && printf "%s" "$PWD.")
+    DIR="${DIR%.}"
+
+    case "$OPTS" in
+        *u*) _ODIR="$DIR"/.ffmpeg_get_fromto ;;
+        *) _ODIR="${TMPDIR:-/tmp}"/.ffmpeg_get_fromto ;;
+    esac
+
+    if [ -e "$_ODIR" ]; then
+        printf "%s" "Sweetie, '$_ODIR' already exists... Shall I delete it? [y/N] "
+
+        read -r _action; [ "$_action" ] || _action=N
+        case "$_action" in
+            [Yy]*) ODIR="$_ODIR" ;;
+            *) printf "%s\n" 'Sweetheart... wise choice! Deal with it.'; exit 1 ;;
+        esac
+    else
+        ODIR="$_ODIR"
+    fi
+
+    [ "$IN" ] || { printf "%s\n" 'No input file specified.'; exit 2; }
+    [ -e "$IN" ] || { printf "%s\n" 'Bad input. (ENOENT)'; exit 2; }
+    [ ! -d "$IN" ] || { printf "%s\n" 'Bad input. (EISDIR)'; exit 2; }
+
+    case "$IN" in
+        */*)
+            IN="$(realpath -- "$IN" && printf "%s" .)"
+            IN="${IN%?.}"
+
+            # assert $IN has extension or prompt for the format
+            # input files dont need specification, but output files do
+            case "$IN" in
+                *.?? | *.??? | *.????)
+                    FMT="${IN##*.}"
+                ;;
+                *)
+                    printf "%s%s" \
+                        'Honey, please tell me the output file format ' \
+                        'in ffmpeg notation: '
+
+                    read -r FMT
+                    if [ ! "$FMT" ]; then
+                        printf "%s\n" 'No format specified.'; exit 2
+                    fi
+                ;;
+            esac
+
+            DIR="${IN%/*}"
+        ;;
+        *)
+            # assert $IN has extension or prompt for the format
+            # input files dont need specification, but output files do
+            case "$IN" in
+                *.?? | *.??? | *.????)
+                    FMT="${IN##*.}"
+                ;;
+                *)
+                    printf "%s%s" \
+                        'Honey, please tell me the output file format ' \
+                        'in ffmpeg notation: '
+
+                    read -r FMT
+                    if [ ! "$FMT" ]; then
+                        printf "%s\n" 'No format specified.'; exit 2
+                    fi
+                ;;
+            esac
+
+            IN="$DIR"/"$IN"
+        ;;
+    esac
+
+    [ -e "$IN" ] || { printf "%s\n" 'Resolution error. (ENOENT)'; exit 1; }
+
+    [ "$FROMTIME" ] || { printf "%s\n" 'No FROM time specified.'; exit 2; }
+    case "$FROMTIME" in
+        [0-9][0-9]:[0-9][0-9]:[0-9][0-9] | \
+        [0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9])
+            # assert there is at least one unit of time
+            case "$FROMTIME" in
+                *[1-9]*) : ;;
+                *) printf "%s\n" 'Invalid FROM time.'; exit 2 ;;
+            esac
+        ;;
+        *)
+            printf "%s\n" 'Invalid FROM time.'; exit 2
+        ;;
+    esac
+
+    [ "$TOTIME" ] || { printf "%s\n" 'No TO time specified.'; exit 2; }
+    case "$TOTIME" in
+        [0-9][0-9]:[0-9][0-9]:[0-9][0-9] | \
+        [0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9])
+            # assert there is at least one unit of time
+            case "$TOTIME" in
+                *[1-9]*) : ;;
+                *) printf "%s\n" 'Invalid TO time.'; exit 2 ;;
+            esac
+        ;;
+        *)
+            printf "%s\n" 'Invalid TO time.'; exit 2
+        ;;
+    esac
+
+    # guarantee we are in our custom empty dir
+    # otherwise globbing cannot be trusted
+    rm -rf "$ODIR"
+    mkdir "$ODIR"
+    cd "$ODIR"
+
+    TOTIME=$(
+        ffprobe \
+        '-select_streams' 'v' '-read_intervals' "$TOTIME"'%+30' \
+        '-show_packets' '-show_entries' 'packet=pts_time,flags' '-of' \
+        'compact=p=0' '-v' 'quiet' "$IN" | grep -m1 flags=K
+    )
+    TOTIME="${TOTIME#*=}"
+    TOTIME="${TOTIME%%'|'*}"
+
+    # global options shall follow first.
+    set -- 'ffmpeg'
+    set -- "$@" '-hide_banner'
+    case "$OPTS" in
+        *d*) set -- "$@" '-loglevel' 'debug' ;;
+    esac
+
+    # nearest keyframe cut; all lossless; no side effects.
+    #
+    # note that, we trust that the container is not malformed for this to
+    # actually work as intended.
+    #
+    # after these options, only output options shall follow.
+    set -- "$@" '-ss' "$FROMTIME"
+    set -- "$@" '-to' "$TOTIME"
+    set -- "$@" '-i' "$IN"
+
+    # adjusting the container PTS/DTS does not cause re-encoding whatsoever.
+    case "$OPTS" in
+        *a*)
+            set -- "$@" '-avoid_negative_ts' 'disabled'  # 0
+        ;;
+        *b*)
+            set -- "$@" '-avoid_negative_ts' 'make_zero'  # 2
+        ;;
+        *)
+            set -- "$@" '-avoid_negative_ts' 'make_non_negative'  # 1
+        ;;
+    esac
+    set -- "$@" '-c' 'copy'
+    set -- "$@" '-map' '0'
+    set -- "$@" '-f' "$FMT"
+    set -- "$@" "${IN##*/}"
+
+    "$@"
+
+    # from now on guarantee $FILE is just the filename as we are in our dir
+    # simplifies operations
+    set -- *
+    FILE="$1"
+    if [ ! -e "$FILE" ]; then
+        set -- .*; while [ "$1" ]; do case "$1" in
+            '.' | '..') shift ;;
+            *) FILE="$1" && break ;;
+        esac; done
+    fi
+    [ -e "$FILE" ] || { printf "%s\n" 'File glob failed. (ENOENT)'; exit 1; }
+    [ ! -d "$FILE" ] || { printf "%s\n" 'File glob failed. (EISDIR)'; exit 1; }
+
+    case "$OPTS" in
+        *m*) : ;;
+        *) touch -r "$IN" "$FILE" ;;
+    esac
+
+    # rename in our dir
+    # if $IN has extension, append it to $FNAME
+    if [ "$FNAME" ]; then
+        case "$IN" in
+            *.?? | *.??? | *.????) FNAME="$FNAME.${IN##*.}" ;;
+        esac
+
+        # guard same filename rename
+        case "$FILE" in
+            "$FNAME") : ;;
+            *) mv "$FILE" "$FNAME" ;;
+        esac
+
+        FILE="$FNAME"
+    fi
+
+    # move result to dest
+    case "$OPTS" in
+        *t*)
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'FILE:' '\033[0m' \
+                '\033[1;37m' "$ODIR"/"$FILE" '\033[0m'
+        ;;
+        *)
+            # guaranteed move, no need for guard
+            # `-f` because typically output loc/name might match input loc
+            mv -f "$FILE" "$DIR"/"$FILE"
+
+            printf "%b%s%b %b%s%b\n" \
+                '\033[1;32m' 'FILE:' '\033[0m' \
+                '\033[1;37m' "$DIR"/"$FILE" '\033[0m'
+        ;;
+    esac
+)
+
+ffmpeg_get_fromto "$@"
