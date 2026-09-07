@@ -18,7 +18,7 @@ $4 *c* -> check for unknown avc1 formats
 $4 *d* -> check for unknown avc1 formats with specified config as well
 $4 *f* -> dont recognize/append extension, fname is fully authoritative
 $4 *m* -> dont use `--mtime`
-$4 *n* -> `--fixup never`
+$4 *n* -> `--fixup warn`
 $4 *o* -> dont use `-o` / dont custom format filename
 $4 *t* -> `--no-part --no-cache-dir`, no cleanup/move (only on success)
 $4 *u* -> download in current dir
@@ -157,7 +157,7 @@ $4 *z* -> use youtube-dl
     esac
 
     case "$OPTS" in
-        *n*) set -- "$@" '--fixup' 'never' ;;
+        *n*) set -- "$@" '--fixup' 'warn' ;;
     esac
 
     case "$OPTS" in
