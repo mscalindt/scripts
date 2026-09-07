@@ -144,7 +144,7 @@ $4 *z* -> use youtube-dl
     esac
 
     if [ "$s" = 0 ]; then
-        ffmpeg_merge "$ODIR"/.yt_v/* "$ODIR"/.yt_a/* '' "$1"
+        ffmpeg_merge "$ODIR"/.yt_v/* "$ODIR"/.yt_a/* '' '' "$1"
     else
         ffmpeg_merge "$ODIR"/.yt_v/* "$ODIR"/.yt_a/* "$ODIR"/.yt_s/* '' s"$1"
     fi
