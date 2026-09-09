@@ -1,7 +1,7 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-only
 
-ffmpeg_split() (
+ffmpeg_split_n() (
     err() {
         trap - INT TERM EXIT
 
@@ -43,8 +43,8 @@ $4 *u* -> work in current dir
     DIR="${DIR%.}"
 
     case "$OPTS" in
-        *u*) _ODIR="$DIR"/.ffmpeg_split ;;
-        *) _ODIR="${TMPDIR:-/tmp}"/.ffmpeg_split ;;
+        *u*) _ODIR="$DIR"/.ffmpeg_split_n ;;
+        *) _ODIR="${TMPDIR:-/tmp}"/.ffmpeg_split_n ;;
     esac
 
     if [ -e "$_ODIR" ]; then
@@ -269,4 +269,4 @@ $4 *u* -> work in current dir
     esac
 )
 
-ffmpeg_split "$@"
+ffmpeg_split_n "$@"

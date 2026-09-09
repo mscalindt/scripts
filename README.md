@@ -19,7 +19,7 @@
 
 `ffmpeg_merge`: Merge two files losslessly.
 
-`ffmpeg_split`: Split a file into segments losslessly.
+`ffmpeg_split_n`: Split a file into HH:MM:SS segments losslessly.
 
 `yt_a`: Download highest quality AAC from YouTube videos.
 
