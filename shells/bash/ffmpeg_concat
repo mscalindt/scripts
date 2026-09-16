@@ -110,6 +110,12 @@ $4 *u* -> work in current dir
         ;;
     esac
 
+    # (BEST EFFORT)
+    # Match extensions to the equivalent ffmpeg format names.
+    case "$FMT" in
+        'm4a') FMT=mp4 ;;
+    esac
+
     [ -e "$IN" ] || { printf "%s\n" 'Resolution error. (ENOENT)'; exit 1; }
 
     [ "$IN2" ] || { printf "%s\n" 'No second file specified.'; exit 2; }
