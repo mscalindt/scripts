@@ -19,6 +19,7 @@ $5 *m* -> dont keep mtime
 $5 *p* -> (NO-OP) precise (exact frame) cut; pay $666k for FLAWLESS implementation :)
 $5 *t* -> no cleanup/move (only on success)
 $5 *u* -> work in current dir
+$5 *v* -> verbose/developer output
 '
 
             rm -rf "$ODIR"
@@ -61,6 +62,20 @@ $5 *u* -> work in current dir
         _ms="${1#*.}"
 
         eval "$2=\"\$_hh:\$_mm:\$_ss.\$_ms\""
+    }
+
+    # print debug info
+    # $1 = debug tag
+    # $2 = string
+    d() {
+        printf "%b[%s] %b%s: %b%s%b\n" \
+            '\033[1;35m' \
+            'D' \
+            '\033[1;37m' \
+            "${1:-DEBUG}" \
+            '\033[1;30m' \
+            "$2" \
+            '\033[0m'
     }
 
     # turn a timestamp into a scaled integer (with ms precision; no dot)
@@ -284,6 +299,19 @@ $5 *u* -> work in current dir
     mkdir "$ODIR"
     cd "$ODIR"
 
+    case "$OPTS" in
+        *v*)
+            d 'cksum' "$(cksum "$IN")"
+            d 'stream=index,codec_name,codec_type,has_b_frames,time_base,start_pts,start_time,duration' "
+$(
+    ffprobe \
+        -v 16 \
+        -show_entries stream=index,codec_name,codec_type,has_b_frames,time_base,start_pts,start_time,duration \
+        "$IN"
+)"
+        ;;
+    esac
+
     # compute the snap to nearest keyframe/packet (video/audio) timestamp
     # to show and use it. on videos, only keyframes are considered,
     # even though a keyframe landing on a packet (audio) timestamp would be
@@ -307,6 +335,9 @@ $5 *u* -> work in current dir
             "$IN"
     )
     if [ "$type" = video ]; then
+        case "$OPTS" in
+            *v*) d 'codec_type' 'video' ;;
+        esac
         echo 'Computing timestamps...'
         # ask the demuxer (packet=) which frames are keyframes--substantially
         # faster than decoding (frame=), but in theory not as reliable
@@ -318,6 +349,12 @@ $5 *u* -> work in current dir
                 -of compact=p=0:nk=1 \
                 "$IN"
         )
+        case "$OPTS" in
+            *v*)
+                d 'packet=pts_time,flags' "${keyframes//
+/ }"
+            ;;
+        esac
         # get keyframes only
         keyframes=$(
             printf "%s\n" "$keyframes" | while IFS= read -r LINE; do
@@ -383,6 +420,9 @@ EOF
         fi
         TOTIME="$TS2"
     elif [ "$type" = audio ]; then
+        case "$OPTS" in
+            *v*) d 'codec_type' 'audio' ;;
+        esac
         echo 'Computing timestamps...'
         packets=$(
             ffprobe \
@@ -392,6 +432,12 @@ EOF
                 -of compact=p=0:nk=1 \
                 "$IN"
         )
+        case "$OPTS" in
+            *v*)
+                d 'packet=pts_time' "${packets//
+/ }"
+            ;;
+        esac
         # using snap(), compare the timestamps to our scaled integer timestamp
         # using relative difference. for middle collision, choose lower
         # timestamp. snap() internally does not differentiate the snap
@@ -486,6 +532,9 @@ EOF
     set -- "$@" '-f' "$FMT"
     set -- "$@" "${IN##*/}"
 
+    case "$OPTS" in
+        *v*) d 'cmdline' "$*" ;;
+    esac
     "$@"
 
     # from now on guarantee $FILE is just the filename as we are in our dir
@@ -500,6 +549,19 @@ EOF
     fi
     [ -e "$FILE" ] || { printf "%s\n" 'File glob failed. (ENOENT)'; exit 1; }
     [ ! -d "$FILE" ] || { printf "%s\n" 'File glob failed. (EISDIR)'; exit 1; }
+
+    case "$OPTS" in
+        *v*)
+            d 'stream=index,codec_name,codec_type,has_b_frames,time_base,start_pts,start_time,duration' "
+$(
+    ffprobe \
+        -v 16 \
+        -show_entries stream=index,codec_name,codec_type,has_b_frames,time_base,start_pts,start_time,duration \
+        "$FILE"
+)"
+            d 'cksum' "$(cksum "$FILE")"
+        ;;
+    esac
 
     case "$OPTS" in
         *m*) : ;;
