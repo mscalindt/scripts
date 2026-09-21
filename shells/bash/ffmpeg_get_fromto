@@ -32,6 +32,133 @@ $5 *u* -> work in current dir
         exit "$1"
     }
 
+    # turn pts_time (ms scaled) timestamp into HH:MM:SS.SSS timestamp
+    # e.g. 3617.666 -> 01:00:17.666
+    # $1 = val
+    # $2 = var name
+    conv_pts_time_ms() {
+        # assert input
+        case "$1" in
+            *.[0-9][0-9][0-9]) ;;
+            *) echo 'input error'; exit 255 ;;
+        esac
+        case "$2" in
+            [0-9]*)
+                return 1
+            ;;
+            *[!0-9A-Za-z_]*)
+                return 1
+            ;;
+        esac
+        [ "$2" ] || { echo 'input error'; exit 255; }
+
+        _ts="${1%.*}"
+        _ts="${_ts#"${_ts%%[!0]*}"}" && [ "$_ts" ] || _ts=0
+
+        _hh=$((_ts / 3600)); [ "${#_hh}" -ne 1 ] || _hh="0$_hh"
+        _mm=$(((_ts % 3600) / 60)); [ "${#_mm}" -ne 1 ] || _mm="0$_mm"
+        _ss=$((_ts % 60)); [ "${#_ss}" -ne 1 ] || _ss="0$_ss"
+        _ms="${1#*.}"
+
+        eval "$2=\"\$_hh:\$_mm:\$_ss.\$_ms\""
+    }
+
+    # turn a timestamp into a scaled integer (with ms precision; no dot)
+    # e.g. 01:00:17.666 -> 3617666 (scale factor = 1000)
+    # $1 = val
+    # $2 = var name
+    scale_ms() {
+        case "$1" in
+            *'.'*) _ts="${1%.*}" ;;
+            *) _ts="$1" ;;
+        esac
+        case "$2" in
+            [0-9]*)
+                return 1
+            ;;
+            *[!0-9A-Za-z_]*)
+                return 1
+            ;;
+        esac
+        [ "$2" ] || { echo 'input error'; exit 255; }
+
+        _hh="${_ts%??????}"
+        _hh="${_hh#0}"
+        _mm="${_ts#???}"
+        _mm="${_mm%???}"
+        _mm="${_mm#0}"
+        _ss="${_ts#??????}"
+        _ss="${_ss#0}"
+        case "$1" in
+            *'.'*) _ms="${1#*.}" ;;
+            *) _ms=000 ;;
+        esac
+
+        _time="$_ss"
+        _time=$((_time + (_mm * 60)))
+        _time=$((_time + (_hh * 3600)))
+        eval "$2=\"\$_time\$_ms\""
+    }
+
+    # $1 = diff var name
+    # $2 = prev diff var name
+    # $3 = our ts var name
+    # $4 = pts_time ts var name
+    # $5 = prev pts_time ts var name
+    snap() {
+        for _name in "$1" "$2" "$3" "$4" "$5"; do
+            case "$_name" in
+                [0-9]*)
+                    return 1
+                ;;
+                *[!0-9A-Za-z_]*)
+                    return 1
+                ;;
+            esac
+            [ "$_name" ] || { echo 'input error'; exit 255; }
+        done
+
+        eval "_diff=\"\$$1\""
+        eval "_pdiff=\"\$$2\""
+        eval "_ts=\"\$$3\""
+        eval "_TS=\"\$$4\""
+        eval "_pTS=\"\$$5\""
+
+        # assert pts_time timestamp
+        case "$_TS" in
+            *.[0-9][0-9][0-9][0-9][0-9][0-9]) ;;
+            *) echo 'input error'; exit 255 ;;
+        esac
+
+        # strip us (microseconds) from pts_time
+        _TS="${_TS%???}"
+
+        # scale by 1000
+        _TS="${_TS%".${_TS#*.}"}${_TS#"${_TS%.*}."}"
+
+        # ensure operands remain interpreted as decimal in shell arithmetic
+        _ts="${_ts#"${_ts%%[!0]*}"}" && [ "$_ts" ] || _ts=0
+        _TS="${_TS#"${_TS%%[!0]*}"}" && [ "$_TS" ] || _TS=0
+
+        _diff=$((_ts - _TS))
+        _diff="${_diff#-}"
+        if [ "$_diff" -gt "${_pdiff:-$_diff}" ] || \
+           [ "$_diff" = "$_pdiff" ]; then
+            eval "$1=\"\$$1\""
+            eval "$2=\"\$$2\""
+            eval "$3=\"\$$3\""
+            eval "$4=\"\$$5\""
+            eval "$5=\"\$$5\""
+            return 0
+        fi
+        eval "$1=\"\$_diff\""
+        eval "$2=\"\$_diff\""
+        eval "$3=\"\$$3\""
+        eval "$4=\"\$$4\""
+        eval "$5=\"\$$4\""
+        [ "$_diff" = 0 ]
+    }
+
     set -e
     ODIR=
     trap "err \$?" INT TERM EXIT
@@ -157,14 +284,173 @@ $5 *u* -> work in current dir
     mkdir "$ODIR"
     cd "$ODIR"
 
-    TOTIME=$(
+    # compute the snap to nearest keyframe/packet (video/audio) timestamp
+    # to show and use it. on videos, only keyframes are considered,
+    # even though a keyframe landing on a packet (audio) timestamp would be
+    # beneficial to avoid worst-case imperceptible ~23ms AV desync.
+    #
+    # must convert the time to seconds with ms precision using scale_ms()
+    # to match pts_time unit (us). thus, error tolerance is us (microseconds),
+    # e.g. 6.666 == 6.666777, but 6.666 != 6.667 (this is considered a snap),
+    # because ms is significant.
+    #
+    # requires at least ffmpeg 7.0 or newer, where the claim about pts_time
+    # unit having us precision holds true.
+    scale_ms "$FROMTIME" time1
+    scale_ms "$TOTIME" time2
+    type=$(
         ffprobe \
-        '-select_streams' 'v' '-read_intervals' "$TOTIME"'%+30' \
-        '-show_packets' '-show_entries' 'packet=pts_time,flags' '-of' \
-        'compact=p=0' '-v' 'quiet' "$IN" | grep -m1 flags=K
+            -v 16 \
+            -select_streams 0 \
+            -show_entries stream=codec_type \
+            -of compact=p=0:nk=1 \
+            "$IN"
     )
-    TOTIME="${TOTIME#*=}"
-    TOTIME="${TOTIME%%'|'*}"
+    if [ "$type" = video ]; then
+        echo 'Computing timestamps...'
+        # ask the demuxer (packet=) which frames are keyframes--substantially
+        # faster than decoding (frame=), but in theory not as reliable
+        keyframes=$(
+            ffprobe \
+                -v 16 \
+                -select_streams v \
+                -show_entries packet=pts_time,flags \
+                -of compact=p=0:nk=1 \
+                "$IN"
+        )
+        # get keyframes only
+        keyframes=$(
+            printf "%s\n" "$keyframes" | while IFS= read -r LINE; do
+                case "$LINE" in
+                    *'K'*) printf "%s\n" "${LINE%|*}" ;;
+                esac
+            done
+        )
+        # using snap(), compare the timestamps to our scaled integer timestamp
+        # using relative difference. for middle collision, choose lower
+        # timestamp. snap() internally does not differentiate the snap
+        # and just dynamically updates the specified variables, but for us:
+        # diff 0 == no snap;
+        # otherwise lowest diff == closest ts == snap.
+        diff1=; pdiff1=
+        diff2=; pdiff2=
+        flag2=; pTS=  # $TS is empty on overshoot, so store it in $pTS
+        while IFS= read -r TS; do
+            case "$TS" in
+                '-'*) continue ;;  # skip negative ts
+                '0.000'*) continue ;;  # skip first/no-op ts
+                *) TS="${TS%|}" ;;  # normalize ts
+            esac
+            if [ "$flag2" ]; then
+                if snap diff2 pdiff2 time2 TS pTS; then
+                    break
+                fi
+            else
+                if snap diff1 pdiff1 time1 TS pTS; then
+                    flag2=1; TS1="$TS"; pTS=
+                fi
+            fi
+        done \
+<<EOF
+$keyframes
+EOF
+        [ "$diff1$diff2" ] || { printf "%s\n" 'No keyframes available.'; exit 1; }
+        [ "$TS" ] || TS="$pTS"; TS2="$TS"
+        if [ "$diff1" != 0 ]; then
+            # just for your convenience sweetheart, $TS1 will be converted to
+            # HH:MM:SS.SSS. no need to thank me!
+            conv_pts_time_ms "${TS1%???}" _TS1
+            printf "%b%s: From %s (%s) instead of %s%b\n" \
+                '\033[1;33m' \
+                'SNAP TO NEAREST KEYFRAME' \
+                "$TS1" \
+                "$_TS1" \
+                "$FROMTIME" \
+                '\033[0m'
+        fi
+        FROMTIME="$TS1"
+        if [ "$diff2" != 0 ]; then
+            # just for your convenience sweetheart, $TS2 will be converted to
+            # HH:MM:SS.SSS. no need to thank me!
+            conv_pts_time_ms "${TS2%???}" _TS2
+            printf "%b%s: To %s (%s) instead of %s%b\n" \
+                '\033[1;33m' \
+                'SNAP TO NEAREST KEYFRAME' \
+                "$TS2" \
+                "$_TS2" \
+                "$TOTIME" \
+                '\033[0m'
+        fi
+        TOTIME="$TS2"
+    elif [ "$type" = audio ]; then
+        echo 'Computing timestamps...'
+        packets=$(
+            ffprobe \
+                -v 16 \
+                -select_streams a \
+                -show_entries packet=pts_time \
+                -of compact=p=0:nk=1 \
+                "$IN"
+        )
+        # using snap(), compare the timestamps to our scaled integer timestamp
+        # using relative difference. for middle collision, choose lower
+        # timestamp. snap() internally does not differentiate the snap
+        # and just dynamically updates the specified variables, but for us:
+        # diff 0 == no snap;
+        # otherwise lowest diff == closest ts == snap.
+        diff1=; pdiff1=
+        diff2=; pdiff2=
+        flag2=; pTS=  # $TS is empty on overshoot, so store it in $pTS
+        while IFS= read -r TS; do
+            case "$TS" in
+                '-'*) continue ;;  # skip negative ts
+                '0.000'*) continue ;;  # skip first/no-op ts
+                *) TS="${TS%|}" ;;  # normalize ts
+            esac
+            if [ "$flag2" ]; then
+                if snap diff2 pdiff2 time2 TS pTS; then
+                    break
+                fi
+            else
+                if snap diff1 pdiff1 time1 TS pTS; then
+                    flag2=1; TS1="$TS"; pTS=
+                fi
+            fi
+        done \
+<<EOF
+$packets
+EOF
+        [ "$diff1$diff2" ] || { printf "%s\n" 'No packets available.'; exit 1; }
+        [ "$TS" ] || TS="$pTS"; TS2="$TS"
+        if [ "$diff1" != 0 ]; then
+            # just for your convenience sweetheart, $TS1 will be converted to
+            # HH:MM:SS.SSS. no need to thank me!
+            conv_pts_time_ms "${TS1%???}" _TS1
+            printf "%b%s: From %s (%s) instead of %s%b\n" \
+                '\033[1;33m' \
+                'SNAP TO NEAREST PACKET' \
+                "$TS1" \
+                "$_TS1" \
+                "$FROMTIME" \
+                '\033[0m'
+        fi
+        FROMTIME="$TS1"
+        if [ "$diff2" != 0 ]; then
+            # just for your convenience sweetheart, $TS2 will be converted to
+            # HH:MM:SS.SSS. no need to thank me!
+            conv_pts_time_ms "${TS2%???}" _TS2
+            printf "%b%s: To %s (%s) instead of %s%b\n" \
+                '\033[1;33m' \
+                'SNAP TO NEAREST PACKET' \
+                "$TS2" \
+                "$_TS2" \
+                "$TOTIME" \
+                '\033[0m'
+        fi
+        TOTIME="$TS2"
+    else
+        printf "%s\n" 'Unsupported input. (could not determine type)'; exit 1
+    fi
 
     # global options shall follow first.
     set -- 'ffmpeg'
