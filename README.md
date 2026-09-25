@@ -80,7 +80,7 @@ references.
 
 `mscalindt.ps1`: Used to debloat/setup Windows 10.
 
-* **utils (2020-24):**
+* **utils (2020-26):**
 
 `admerge`: _Do an advanced, better merge. (git wrapper)_.
 Might have an ng (reboot) version in the future, but is getting largely

@@ -6,7 +6,7 @@
 _copyright() {
     while IFS= read -r LINE; do printf "%s\n" "$LINE"; done \
 <<'COPYRIGHT'
-Copyright (C) 2021-2022 Dimitar Yurukov <mscalindt@protonmail.com>
+Copyright (C) 2021-2026 Dimitar Yurukov <mscalindt@protonmail.com>
 COPYRIGHT
 }
 
@@ -64,6 +64,8 @@ Options:
   -v, --vfs-cache-pressure <0-2147483647>
                              specify VFS cache reclaim priority; value persists
                              until reboot
+  -z, --zswap-off            disable zswap if enabled
+  -Z, --zswap-on             enable zswap if disabled
       --language <LANG>      custom LANG for LANG
       --locale <LANG>        custom LANG for LC_ALL
       --no-color             colorless output on all streams
@@ -352,7 +354,20 @@ fswap_check() {
 
 fswap_info() {
     TMP=$(cat "$zswap_path" 2> /dev/null)
-    [ "$TMP" ] && info_fmt "${ES_inf}MISC:${ES_res} " "zswap: '$TMP'."
+    case $zswap:$TMP in
+        :)
+            :
+        ;;
+        :"$TMP" | "$TMP":"$zswap")
+            info_fmt "${ES_inf}MISC:${ES_res} " "zswap: '$TMP'."
+        ;;
+        *)
+            info_fmt "${ES_inf}MISC: ${ES_neg}OLD:${ES_res} " "zswap:" \
+                     "'$TMP'."
+            info_fmt "${ES_inf}MISC: ${ES_pos}NEW:${ES_res} " "zswap:" \
+                     "'$zswap'."
+        ;;
+    esac
 
     TMP=$(cat "$zswapar_path" 2> /dev/null)
     [ "$TMP" ] && info_fmt "${ES_inf}MISC:${ES_res} " "zswap allocator: '$TMP'."
@@ -420,6 +435,12 @@ fswap_exec() {
 }
 
 fswap_post() {
+    if [ "$zswap" ]; then
+        _fwrite "$zswap" "$zswap_path" || {
+            warn "Failed to apply '$zswap' on '$zswap_path'. (RC = $?)"
+        }
+    fi
+
     if [ "$swappiness" ]; then
         _fwrite "$swappiness" "$ss_path" || {
             warn "Failed to apply '$swappiness' on '$ss_path'. (RC = $?)"
@@ -1060,6 +1081,8 @@ options() {
             copt '--locale' && { locale="$_opt_arg"; }
 
             sopt '-c' '--check' && { op=CHECK; }
+            sopt '-z' '--zswap-off' && { zswap=N; }
+            sopt '-Z' '--zswap-on' && { zswap=Y; }
 
             copt '-l' '--location' && { {
                 assert 6 "$_opt_arg" && \
