@@ -34,6 +34,7 @@ $4 *z* -> use youtube-dl
     }
 
     set -e
+    LC_ALL=C; export LC_ALL
     _destroy_cookies=
     ODIR=
     trap "err \$?" INT TERM EXIT
