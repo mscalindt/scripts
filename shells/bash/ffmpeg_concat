@@ -31,6 +31,7 @@ $4 *u* -> work in current dir
     }
 
     set -e
+    LC_ALL=C; export LC_ALL
     ODIR=
     trap "err \$?" INT TERM EXIT
 
