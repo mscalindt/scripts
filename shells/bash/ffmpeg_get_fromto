@@ -302,8 +302,9 @@ $5 *v* -> verbose/developer output
 
     case "$OPTS" in
         *v*)
-            d 'cksum' "$(cksum "$IN")"
-            d 'stream=index,codec_name,codec_type,has_b_frames,time_base,start_pts,start_time,duration' "
+            d 'cksum' "
+$(cksum "$IN")"
+            d 'properties' "
 $(
     ffprobe \
         -v 16 \
@@ -348,7 +349,8 @@ $(
     )
     case "$OPTS" in
         *v*)
-            d 'packet=pts_time,flags' "${keyts//
+            d 'packet=pts_time,flags' "
+${keyts//
 / }"
         ;;
     esac
@@ -444,7 +446,10 @@ EOF
     set -- "$@" "${IN##*/}"
 
     case "$OPTS" in
-        *v*) d 'cmdline' "$*" ;;
+        *v*)
+            d 'cmdline' "
+$*"
+        ;;
     esac
     "$@"
 
@@ -460,19 +465,6 @@ EOF
     fi
     [ -e "$FILE" ] || { printf "%s\n" 'File glob failed. (ENOENT)'; exit 1; }
     [ ! -d "$FILE" ] || { printf "%s\n" 'File glob failed. (EISDIR)'; exit 1; }
-
-    case "$OPTS" in
-        *v*)
-            d 'stream=index,codec_name,codec_type,has_b_frames,time_base,start_pts,start_time,duration' "
-$(
-    ffprobe \
-        -v 16 \
-        -show_entries stream=index,codec_name,codec_type,has_b_frames,time_base,start_pts,start_time,duration \
-        "$FILE"
-)"
-            d 'cksum' "$(cksum "$FILE")"
-        ;;
-    esac
 
     case "$OPTS" in
         *m*) : ;;
@@ -494,6 +486,20 @@ $(
 
         FILE="$FNAME"
     fi
+
+    case "$OPTS" in
+        *v*)
+            d 'properties' "
+$(
+    ffprobe \
+        -v 16 \
+        -show_entries stream=index,codec_name,codec_type,has_b_frames,time_base,start_pts,start_time,duration \
+        "$FILE"
+)"
+            d 'cksum' "
+$(cksum "$FILE")"
+        ;;
+    esac
 
     # move result to dest
     case "$OPTS" in
