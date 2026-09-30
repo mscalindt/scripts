@@ -9,17 +9,11 @@
 
 * **shells/bash:**
 
-`ffmpeg_concat`: Concatenate two files losslessly.
-
 `ffmpeg_get_from`: Trim all (of video, audio) before X time losslessly.
 
 `ffmpeg_get_fromto`: Get a time segment (of video, audio) losslessly.
 
 `ffmpeg_get_to`: Trim all (of video, audio) after X time losslessly.
-
-`ffmpeg_merge`: Merge two files losslessly.
-
-`ffmpeg_split_n`: Split a file into HH:MM:SS segments losslessly.
 
 `yt_a`: Download highest quality AAC from YouTube videos.
 
@@ -75,6 +69,14 @@ references.
 `r9q_debloat`: Used to debloat _Samsung Galaxy S21 FE 5G_.
 
 `walt`: _wow amazing lyrics timer_.
+
+* **shells/bash (2026):**
+
+`ffmpeg_concat`: Concatenate two files losslessly.
+
+`ffmpeg_merge`: Merge two files losslessly.
+
+`ffmpeg_split_n`: Split a file into HH:MM:SS segments losslessly.
 
 * **shells/ps (2023-24):**
 
