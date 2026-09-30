@@ -335,169 +335,79 @@ $(
             -of compact=p=0:nk=1 \
             "$IN"
     )
-    if [ "$type" = video ]; then
-        case "$OPTS" in
-            *v*) d 'codec_type' 'video' ;;
-        esac
-        echo 'Computing timestamps...'
-        # ask the demuxer (packet=) which frames are keyframes--substantially
-        # faster than decoding (frame=), but in theory not as reliable
-        keyframes=$(
-            ffprobe \
-                -v 16 \
-                -select_streams v \
-                -show_entries packet=pts_time,flags \
-                -of compact=p=0:nk=1 \
-                "$IN"
-        )
-        case "$OPTS" in
-            *v*)
-                d 'packet=pts_time,flags' "${keyframes//
+    [ "$type" = video ] || [ "$type" = audio ] || \
+    { printf "%s\n" 'Unsupported input. (could not determine type)'; exit 1; }
+    echo 'Computing timestamps...'
+    keyts=$(
+        ffprobe \
+            -v 16 \
+            -select_streams "${type%"${type#?}"}" \
+            -show_entries packet=pts_time,flags \
+            -of compact=p=0:nk=1 \
+            "$IN"
+    )
+    case "$OPTS" in
+        *v*)
+            d 'packet=pts_time,flags' "${keyts//
 / }"
-            ;;
-        esac
-        # get keyframes only
-        keyframes=$(
-            printf "%s\n" "$keyframes" | while IFS= read -r LINE; do
-                case "$LINE" in
-                    *'K'*) printf "%s\n" "${LINE%|*}" ;;
-                esac
-            done
-        )
-        # using snap(), compare the timestamps to our scaled integer timestamp
-        # using relative difference. for middle collision, choose lower
-        # timestamp. snap() internally does not differentiate the snap
-        # and just dynamically updates the specified variables, but for us:
-        # diff 0 == no snap;
-        # otherwise lowest diff == closest ts == snap.
-        diff1=; pdiff1=
-        diff2=; pdiff2=
-        flag2=; pTS=  # $TS is empty on overshoot, so store it in $pTS
-        while IFS= read -r TS; do
-            case "$TS" in
-                '-'*) continue ;;  # skip negative ts
-                '0.000'*) continue ;;  # skip first/no-op ts
-                *) TS="${TS%|}" ;;  # normalize ts
+        ;;
+    esac
+    # get keyframes only
+    keyts=$(
+        printf "%s\n" "$keyts" | while IFS= read -r LINE; do
+            case "$LINE" in
+                *'K'*) printf "%s\n" "${LINE%%|*}" ;;
             esac
-            if [ "$flag2" ]; then
-                if snap diff2 pdiff2 time2 TS pTS; then
-                    break
-                fi
-            else
-                if snap diff1 pdiff1 time1 TS pTS; then
-                    flag2=1; TS1="$TS"; pTS=
-                fi
-            fi
-        done \
-<<EOF
-$keyframes
-EOF
-        [ "$diff1$diff2" ] || { printf "%s\n" 'No keyframes available.'; exit 1; }
-        [ "$TS" ] || TS="$pTS"; TS2="$TS"
-        if [ "$diff1" != 0 ]; then
-            # just for your convenience sweetheart, $TS1 will be converted to
-            # HH:MM:SS.SSS. no need to thank me!
-            conv_pts_time_ms "${TS1%???}" _TS1
-            printf "%b%s: From %s (%s) instead of %s%b\n" \
-                '\033[1;33m' \
-                'SNAP TO NEAREST KEYFRAME' \
-                "$TS1" \
-                "$_TS1" \
-                "$FROMTIME" \
-                '\033[0m'
-        fi
-        FROMTIME="$TS1"
-        if [ "$diff2" != 0 ]; then
-            # just for your convenience sweetheart, $TS2 will be converted to
-            # HH:MM:SS.SSS. no need to thank me!
-            conv_pts_time_ms "${TS2%???}" _TS2
-            printf "%b%s: To %s (%s) instead of %s%b\n" \
-                '\033[1;33m' \
-                'SNAP TO NEAREST KEYFRAME' \
-                "$TS2" \
-                "$_TS2" \
-                "$TOTIME" \
-                '\033[0m'
-        fi
-        TOTIME="$TS2"
-    elif [ "$type" = audio ]; then
-        case "$OPTS" in
-            *v*) d 'codec_type' 'audio' ;;
+        done
+    )
+    # using snap(), compare the timestamps to our scaled integer timestamp
+    # using relative difference. for middle collision, choose lower
+    # timestamp. snap() internally does not differentiate the snap
+    # and just dynamically updates the specified variables, but for us:
+    # diff 0 == no snap;
+    # otherwise lowest diff == closest ts == snap.
+    diff1=; pdiff1=
+    diff2=; pdiff2=
+    flag2=; pTS=  # $TS is empty on overshoot, so store it in $pTS
+    while IFS= read -r TS; do
+        case "$TS" in
+            '-'*) continue ;;  # skip negative ts
+            '0.000'*) continue ;;  # skip first/no-op ts
         esac
-        echo 'Computing timestamps...'
-        packets=$(
-            ffprobe \
-                -v 16 \
-                -select_streams a \
-                -show_entries packet=pts_time \
-                -of compact=p=0:nk=1 \
-                "$IN"
-        )
-        case "$OPTS" in
-            *v*)
-                d 'packet=pts_time' "${packets//
-/ }"
-            ;;
-        esac
-        # using snap(), compare the timestamps to our scaled integer timestamp
-        # using relative difference. for middle collision, choose lower
-        # timestamp. snap() internally does not differentiate the snap
-        # and just dynamically updates the specified variables, but for us:
-        # diff 0 == no snap;
-        # otherwise lowest diff == closest ts == snap.
-        diff1=; pdiff1=
-        diff2=; pdiff2=
-        flag2=; pTS=  # $TS is empty on overshoot, so store it in $pTS
-        while IFS= read -r TS; do
-            case "$TS" in
-                '-'*) continue ;;  # skip negative ts
-                '0.000'*) continue ;;  # skip first/no-op ts
-                *) TS="${TS%|}" ;;  # normalize ts
-            esac
-            if [ "$flag2" ]; then
-                if snap diff2 pdiff2 time2 TS pTS; then
-                    break
-                fi
-            else
-                if snap diff1 pdiff1 time1 TS pTS; then
-                    flag2=1; TS1="$TS"; pTS=
-                fi
+        if [ "$flag2" ]; then
+            if snap diff2 pdiff2 time2 TS pTS; then
+                break
             fi
-        done \
+        else
+            if snap diff1 pdiff1 time1 TS pTS; then
+                flag2=1; TS1="$TS"; pTS=
+            fi
+        fi
+    done \
 <<EOF
-$packets
+$keyts
 EOF
-        [ "$diff1$diff2" ] || { printf "%s\n" 'No packets available.'; exit 1; }
-        [ "$TS" ] || TS="$pTS"; TS2="$TS"
-        if [ "$diff1" != 0 ]; then
-            # just for your convenience sweetheart, $TS1 will be converted to
+    [ "$diff2" ] || { printf "%s\n" 'No key timestamps available.'; exit 1; }
+    [ "$TS" ] || TS="$pTS"; TS2="$TS"
+    set -- "$diff1" "$TS1" "$FROMTIME" 'From' "$diff2" "$TS2" "$TOTIME" 'To'
+    while [ "$#" -ge 4 ]; do
+        if [ "$1" != 0 ]; then
+            # just for your convenience sweetheart, $2 will be converted to
             # HH:MM:SS.SSS. no need to thank me!
-            conv_pts_time_ms "${TS1%???}" _TS1
-            printf "%b%s: From %s (%s) instead of %s%b\n" \
+            conv_pts_time_ms "${2%???}" _x
+            printf "%b%s: %s %s (%s) instead of %s%b\n" \
                 '\033[1;33m' \
-                'SNAP TO NEAREST PACKET' \
-                "$TS1" \
-                "$_TS1" \
-                "$FROMTIME" \
+                'SNAP TO NEAREST KEY TIMESTAMP' \
+                "$4" \
+                "$2" \
+                "$_x" \
+                "$3" \
                 '\033[0m'
         fi
-        FROMTIME="$TS1"
-        if [ "$diff2" != 0 ]; then
-            # just for your convenience sweetheart, $TS2 will be converted to
-            # HH:MM:SS.SSS. no need to thank me!
-            conv_pts_time_ms "${TS2%???}" _TS2
-            printf "%b%s: To %s (%s) instead of %s%b\n" \
-                '\033[1;33m' \
-                'SNAP TO NEAREST PACKET' \
-                "$TS2" \
-                "$_TS2" \
-                "$TOTIME" \
-                '\033[0m'
-        fi
-        TOTIME="$TS2"
-    else
-        printf "%s\n" 'Unsupported input. (could not determine type)'; exit 1
-    fi
+        shift 4
+    done
+    FROMTIME="$TS1"
+    TOTIME="$TS2"
 
     # global options shall follow first.
     set -- 'ffmpeg'
