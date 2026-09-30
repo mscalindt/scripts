@@ -294,6 +294,13 @@ $(
         -show_entries stream=index,codec_name,codec_type,has_b_frames,time_base,start_pts,start_time,duration \
         "$IN"
 )"
+            d 'muxer' "
+$(
+    ffprobe \
+        -v 16 \
+        -show_entries format_tags=encoder,writing_application,encoding_program \
+        "$IN"
+)"
         ;;
     esac
 
@@ -462,6 +469,13 @@ $(
     ffprobe \
         -v 16 \
         -show_entries stream=index,codec_name,codec_type,has_b_frames,time_base,start_pts,start_time,duration \
+        "$FILE"
+)"
+            d 'muxer' "
+$(
+    ffprobe \
+        -v 16 \
+        -show_entries format_tags=encoder,writing_application,encoding_program \
         "$FILE"
 )"
             d 'cksum' "
