@@ -14,6 +14,8 @@
 # - (Maybe) Samsung account/login.
 # - Some diagnostics and stock diagnostic apps/menus.
 # - (Maybe) Some inessential (privacy risk) stock Camera functions.
+# - Some built-in wallpapers & theming.
+# - Battery stats & modes.
 #
 # Also, all Google apps (besides Play Store), even ones that might be used,
 # will be removed. This is being done so that any stock-provided apps do not
@@ -480,6 +482,21 @@
 # Any information, for example about any packages, can be put in this function
 # as comments or output for future reference.
 _pkg_info_desc_misc_etc() {
+    # com.samsung.android.app.smartcapture >> Samsung capture
+    # Screenshot toolbar & notification. Contains strings 'SmartThings'.
+    # Heavy app. Not essential to taking screenshots.
+    #
+    # com.samsung.android.location >> slocation
+    # Location services for Samsung apps. Notably, removing this probably
+    # breaks EXIF location tagging in the stock Camera app. Open Camera remains
+    # unaffected.
+    #
+    # com.samsung.android.motionphoto.app >> Motionphoto
+    # Removal breaks motion function in the stock Camera app.
+    #
+    # com.samsung.gpuwatchapp >> GPUWatch
+    # GPUWatch in Developer Options. Standalone, inessential app to monitor
+    # CPU and GPU usage of an app/game.
     :
 }
 
@@ -588,6 +605,7 @@ main() {
     pkg_rm com.android.hotwordenrollment.okgoogle # OK Google Hotword
     pkg_rm com.android.hotwordenrollment.xgoogle # Hey Google Hotword
     pkg_rm com.google.android.apps.bard # Gemini
+    pkg_rm com.google.android.apps.carrier.carrierwifi # Google Wi-Fi Provisioner
     pkg_rm com.google.android.apps.googleassistant # Assistant
     pkg_rm com.google.android.apps.maps # Maps
     pkg_rm com.google.android.apps.restore # Android Switch
@@ -601,6 +619,7 @@ main() {
     pkg_rm com.google.android.googlequicksearchbox # Google
     pkg_rm com.google.android.health.connect.backuprestore # com.google.android.health.connect.backuprestore
     pkg_rm com.google.android.healthconnect.controller # Health Connect
+    pkg_rm com.google.android.ims # Carrier Services
     pkg_rm com.google.android.ondevicepersonalization.services # com.google.android.ondevicepersonalization.services
     pkg_rm com.google.android.overlay.modules.healthfitness.forframework # com.google.android.overlay.modules.healthfitness.forframework
     pkg_rm com.google.android.partnersetup # Google Partner Setup
@@ -608,6 +627,7 @@ main() {
     pkg_rm com.google.android.signature # Signature
     pkg_rm com.google.android.syncadapters.calendar # Google Calendar Sync
     pkg_rm com.google.ar.core # Google Play Services for AR
+    pkg_rm com.google.audio.hearing.visualization.accessibility.scribe # Live Transcribe & Sound Notifications
     pkg_rm com.hiya.star # Hiya Service
     pkg_rm com.mygalaxy.service # My Galaxy
     pkg_rm_or_disable com.osp.app.signin # Samsung account
@@ -633,10 +653,12 @@ main() {
     pkg_rm com.samsung.android.app.omcagent # Recommended apps
     pkg_rm com.samsung.android.app.routines # Modes and Routines
     pkg_rm com.samsung.android.app.sharelive # Quick Share
+    pkg_rm com.samsung.android.app.smartcapture # Samsung capture
     pkg_rm com.samsung.android.app.taskedge # Tasks
     pkg_rm com.samsung.android.app.telephonyui # Call settings
     pkg_rm com.samsung.android.app.telephonyui.esimclient # EsimClient
     pkg_rm com.samsung.android.app.updatecenter # App update
+    pkg_rm com.samsung.android.appseparation # Separated Apps
     pkg_rm com.samsung.android.aremoji # Galaxy Avatar
     pkg_rm com.samsung.android.aremojieditor # AR Emoji Editor
     pkg_rm com.samsung.android.authfw # Authentication Framework
@@ -660,31 +682,43 @@ main() {
     pkg_rm com.samsung.android.easysetup # Nearby device scanning
     pkg_rm com.samsung.android.fast # Secure Wi-Fi
     pkg_rm_or_disable com.samsung.android.fmm # Find My Mobile
+    pkg_rm com.samsung.android.forest # Digital Wellbeing
     pkg_rm com.samsung.android.game.gamehome # Gaming Hub
     pkg_rm com.samsung.android.game.gametools # Game Booster
     # the following pkg is being reinstalled on reboot; try disabling it
     pkg_disable com.samsung.android.game.gos # Game Optimizing Service
+    pkg_rm com.samsung.android.globalpostprocmgr # Galaxy editing service
     pkg_rm com.samsung.android.hdmapp # HdmApp
     pkg_rm com.samsung.android.hwresourceshare # Camera share
     pkg_rm com.samsung.android.inputshare # Multi control
     pkg_rm com.samsung.android.intellivoiceservice # Samsung Intelligence Service
     pkg_rm com.samsung.android.kidsinstaller # Samsung Kids Installer
+    pkg_rm com.samsung.android.kmxservice # Knox Matrix
     pkg_rm com.samsung.android.knox.attestation # com.samsung.android.knox.attestation
     pkg_rm com.samsung.android.knox.containercore # KnoxCore
+    pkg_rm_or_disable com.samsung.android.knox.er # com.samsung.android.knox.er
+    pkg_rm_or_disable com.samsung.android.knox.knnr # KnoxNeuralNetworkRuntime
     pkg_rm com.samsung.android.knox.kpecore # KPECore
+    pkg_rm com.samsung.android.knox.mpos # com.samsung.android.knox.mpos
     pkg_rm com.samsung.android.knox.pushmanager # KnoxPushManager
     pkg_rm com.samsung.android.knox.zt.framework # KnoxZT Framework
     pkg_rm com.samsung.android.livestickers # DECO PIC
+    pkg_rm com.samsung.android.location # slocation
+    pkg_rm com.samsung.android.lool # Device care
     pkg_rm com.samsung.android.mapsagent # Application recommendations
     pkg_rm com.samsung.android.mcfds # Continuity Service
+    pkg_rm com.samsung.android.mcfserver # Samsung Multi Connectivity
     pkg_rm com.samsung.android.mdecservice # Call & text on other devices
+    pkg_rm com.samsung.android.mdm # Knox Core Service
     pkg_rm com.samsung.android.mdx # Link to Windows Service
     pkg_rm com.samsung.android.mdx.kit # Quick Share Connectivity
     pkg_rm com.samsung.android.messaging # Messages
     pkg_rm com.samsung.android.mhs.ai # MhsAiService
     pkg_rm com.samsung.android.mobileservice # Group Sharing
     pkg_rm com.samsung.android.mocca # MoccaMobile
+    pkg_rm com.samsung.android.motionphoto.app # Motionphoto
     pkg_rm com.samsung.android.mydevice # Nearby Devices
+    pkg_rm com.samsung.android.networkdiagnostic # NetworkDiagnostic
     pkg_rm com.samsung.android.photoremasterservice # PhotoRemasterService
     pkg_rm com.samsung.android.privateaccesstokens # Automatic verification
     pkg_rm com.samsung.android.privateshare # Private Share
@@ -694,50 +728,67 @@ main() {
     pkg_rm com.samsung.android.samsungpassautofill # Autofill with Samsung Pass
     pkg_rm com.samsung.android.samsungpositioning # SamsungPositioning
     pkg_rm com.samsung.android.scloud # Samsung Cloud
+    pkg_rm com.samsung.android.scpm # Samsung Cloud Assistant
+    pkg_rm com.samsung.android.scs # Samsung Core Services
     pkg_rm com.samsung.android.sdk.handwriting # HandwritingService
     pkg_rm com.samsung.android.sdm.config # Service provider setup
     pkg_rm com.samsung.android.service.peoplestripe # People edge
     pkg_rm com.samsung.android.service.stplatform # SmartThings Companion
     pkg_rm com.samsung.android.service.tagservice # Tags
     pkg_rm com.samsung.android.shortcutbackupservice # ShortcutBNR
+    pkg_rm com.samsung.android.sm.devicesecurity # App protection
     pkg_rm com.samsung.android.smartcallprovider # Smart Call
     pkg_rm com.samsung.android.smartface # SmartFaceService
+    pkg_rm com.samsung.android.smartface.overlay # com.samsung.android.smartface.overlay
     pkg_rm com.samsung.android.smartmirroring # Smart View
     pkg_rm com.samsung.android.smartsuggestions # Personal data intelligence
     pkg_rm com.samsung.android.stickercenter # Sticker Center
     pkg_rm com.samsung.android.svcagent # SVC Agent
     pkg_rm com.samsung.android.svoiceime # Samsung voice input
+    pkg_rm com.samsung.android.themecenter # Galaxy Themes Service
+    pkg_rm com.samsung.android.themestore # Galaxy Themes
     pkg_rm com.samsung.android.video # Video Player
     pkg_rm com.samsung.android.visionintelligence # Bixby Vision
     pkg_rm com.samsung.android.visualars # Smart Touch Call
+    pkg_rm com.samsung.android.vtcamerasettings # Video effects
+    pkg_rm com.samsung.android.wallpaper.live # Samsung Wallpaper
     pkg_rm com.samsung.android.widget.pictureframe # Gallery
     pkg_rm com.samsung.android.wifi.ai # WiFiAiService
     pkg_rm com.samsung.app.newtrim # Editor Lite
     pkg_rm com.samsung.cmh # CMHProvider
     pkg_rm com.samsung.crane # Phone
     pkg_rm com.samsung.faceservice # FaceService
+    pkg_rm com.samsung.gpuwatchapp # GPUWatch
     pkg_rm com.samsung.ipservice # IPService
     pkg_rm_or_disable com.samsung.klmsagent # KLMS Agent
+    pkg_rm com.samsung.knox.securefolder # Secure Folder
     pkg_rm com.samsung.sait.sohservice # SoHService
     pkg_rm com.samsung.storyservice # StoryService
     pkg_rm com.sec.android.app.billing # Samsung Checkout
+    pkg_rm com.sec.android.app.bluetoothagent # Bluetooth Agent
     pkg_rm com.sec.android.app.chromecustomizations # ChromeCustomizations
     pkg_rm com.sec.android.app.clockpackage # Clock
     pkg_rm com.sec.android.app.desktoplauncher # Samsung DeX Home
     pkg_rm com.sec.android.app.kidshome # Samsung Kids
+    pkg_rm com.sec.android.app.myfiles # My Files
     pkg_rm com.sec.android.app.parser # DRParser Mode
     pkg_rm com.sec.android.app.popupcalculator # Calculator
     pkg_rm com.sec.android.app.quicktool # Tools
     pkg_rm com.sec.android.app.samsungapps # Galaxy Store
+    pkg_rm com.sec.android.app.servicemodeapp # Service mode
+    pkg_rm com.sec.android.app.soundalive # Sound quality and effects
     pkg_rm com.sec.android.app.ve.vebgm # Samsung Editing Assets
     pkg_rm com.sec.android.app.vepreload # Studio
     pkg_rm com.sec.android.app.voicenote # Voice Recorder
+    pkg_rm com.sec.android.app.volumemonitorprovider # VolumeMonitorProvider
     pkg_rm com.sec.android.autodoodle.service # Auto Doodle
     pkg_rm com.sec.android.daemonapp # Weather
     pkg_rm com.sec.android.desktopmode.uiservice # Samsung DeX
     pkg_rm com.sec.android.easyMover # Smart Switch
+    pkg_rm com.sec.android.easyonehand # EasyOneHand
     pkg_rm com.sec.android.iaft # iaft
     pkg_rm com.sec.android.mimage.photoretouching # Photo Editor
+    pkg_rm com.sec.android.sdhms # Samsung Device Health Manager Service
     pkg_rm com.sec.android.smartfpsadjuster # SmartFPSAdjuster
     pkg_rm com.sec.android.widgetapp.easymodecontactswidget # Favourite Contacts
     pkg_rm com.sec.bcservice # com.sec.bcservice
@@ -749,6 +800,7 @@ main() {
     pkg_rm com.sec.imslogger # ImsLogger
     pkg_rm com.sec.location.nfwlocationprivacy # Service provider location
     pkg_rm com.sec.location.nsflp2 # Samsung Location SDK
+    pkg_rm com.sec.modem.settings # SilentLogging
     pkg_rm com.sec.spp.push # Samsung Push Service
     pkg_rm com.sec.vsim.ericssonnsds.webapp # NSDSWebApp
     pkg_rm com.sem.factoryapp # SEMFactoryApp
