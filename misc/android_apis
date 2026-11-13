@@ -1,7 +1,13 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
-# Copyright (C) 2021-2022 Dimitar Yurukov <mscalindt@protonmail.com>
+# Copyright (C) 2021-2026 Dimitar Yurukov <mscalindt@protonmail.com>
 # Usage (intended): source android_apis
+
+# > Disable a package for user 0
+# Arguments: <"$1"> - package name
+pkg_disable() {
+    pm disable-user --user 0 "$1"
+}
 
 # > Install an APK contained in URL for user 0
 # Arguments: <"$1"> - APK URL
