@@ -587,44 +587,81 @@ pkg_clr() (
     rm -rf "$DIR/data/$1"/* 2> /dev/null
 )
 
-main() {
-    set -e
-    LC_ALL=C; export LC_ALL
+main_android_13() {
+    # Safe Google APIs (safe debloat)
+    pkg_rm com.google.android.gms.supervision # Family Link parental controls
 
-    trap 'err $?' INT TERM EXIT
+    # Safe Samsung APIs (safe debloat)
+    pkg_rm com.diotek.sec.lookup.dictionary # Dictionary
+    pkg_rm com.samsung.android.app.notes.addons # Samsung Notes Add-ons
+    pkg_rm com.samsung.android.app.settings.bixby # SettingsBixby
+    pkg_rm com.samsung.android.app.watchmanagerstub # Wearable Manager Installer
+    pkg_rm com.samsung.android.ardrawing # AR Doodle
+    pkg_rm com.samsung.android.arzone # AR Zone
+    pkg_rm com.samsung.android.cmfa.framework # CMFA Framework
+    pkg_rm com.samsung.android.ipsgeofence # Samsung Visit In
+    pkg_rm com.samsung.android.knox.containeragent # Work profile
+    pkg_rm com.samsung.android.mateagent # Samsung Galaxy Friends
+    pkg_rm com.samsung.android.smartswitchassistant # com.samsung.android.smartswitchassistant
+    pkg_rm com.samsung.android.spayfw # Samsung PaymentFramework
+    pkg_rm com.samsung.android.sume.nn.service # SumeNN
+    pkg_rm com.samsung.cmfa.AuthTouch # CMFA AuthTouchService
+    pkg_rm com.samsung.systemui.bixby2 # SystemUIBixby2
+    pkg_rm com.sec.android.easyMover.Agent # Smart Switch Agent
+    pkg_rm com.sec.android.mimage.avatarstickers # AR Emoji Stickers
 
-    pm list packages > /dev/null 2>&1 || { err_red 'Not in Android shell.'; return 2; }
-    hash date pm > /dev/null 2>&1
-    DEVICE_MODEL=$(getprop ro.product.model)
-    DEVICE_SN=$(getprop ro.serialno)
-    DEVICE="$DEVICE_MODEL $DEVICE_SN"
+    # Safe Google apps (safe debloat)
+    pkg_rm com.google.android.apps.docs # Drive
+    pkg_rm com.google.android.apps.messaging # Messages
+    pkg_rm com.google.android.apps.photos # Photos
+    pkg_rm com.google.android.apps.tachyon # Meet
+    pkg_rm com.google.android.apps.youtube.music # YouTube Music
+    pkg_rm com.google.android.videos # Google TV
+    pkg_rm com.google.android.youtube # YouTube
 
-    info_white "Connected device:"
-    info_white "$DEVICE"
+    # Safe Samsung apps (safe debloat)
+    pkg_rm com.android.stk2 # SIM Toolkit
+    pkg_rm com.samsung.android.app.notes # Samsung Notes
+    pkg_rm com.samsung.android.app.spage # Samsung Free
+    pkg_rm com.samsung.android.app.tips # Tips
+    pkg_rm com.samsung.android.app.watchmanager # Galaxy Wearable
+    pkg_rm com.samsung.android.galaxy # Galaxy Shop
+    pkg_rm com.samsung.android.oneconnect # Smart​Things
+    pkg_rm com.samsung.android.spay # Samsung Pay
+    pkg_rm com.samsung.android.tvplus # Samsung TV Plus
+    pkg_rm com.samsung.android.voc # Samsung Members
+    pkg_rm com.samsung.sree # Samsung Global Goals
+    pkg_rm com.sec.android.app.shealth # Samsung Health
 
-    # The Google Play Store app has some ("complete setup") logic to
-    # automatically install bloatware (yes, actual, unrelated bloatware,
-    # besides "stock"-defined one) when it detects any system apps that
-    # have not been updated or have had their updates by Google Play Store
-    # (installer=com.android.vending) reverted.
-    #
-    # This is malicious behavior, so remove the app. It is assumed you have
-    # manually installed any store-exclusive APKs by other means and/or
-    # will update any system apps manually, after the full debloat, and you
-    # do not need any apps/services that depend on store functionality.
-    pkg_rm com.android.vending # Google Play Store
-    # Due to the aforementioned paragraph, remove any "setup wizards". Google
-    # login continues to work.
-    pkg_rm android.autoinstalls.config.samsung # ConfigAPK
-    pkg_rm com.google.android.apps.setupwizard.searchselector # Search Engine Selector
-    pkg_rm com.google.android.partnersetup # Google Partner Setup
-    pkg_rm com.google.android.setupwizard # Android Setup
-    pkg_rm com.samsung.android.dbsc # Galaxy Service Setup
-    pkg_rm com.sec.android.app.SecSetupWizard # Samsung SetupWizard
-    pkg_rm com.sec.android.app.setupwizardlegalprovider # SetupWizardLegalProvider
+    # Literal sh1t (*ASAP* remove)
+    pkg_rm com.facebook.appmanager # Meta App Manager
+    pkg_rm com.facebook.katana # Facebook
+    pkg_rm com.facebook.services # Meta Services
+    pkg_rm com.facebook.system # Meta App Installer
+    pkg_rm com.linkedin.android # LinkedIn
+    pkg_rm com.microsoft.appmanager # Link to Windows
+    pkg_rm com.microsoft.office.officehubrow # Office
+    pkg_rm com.microsoft.office.outlook # Outlook
+    pkg_rm com.microsoft.skydrive # OneDrive
+    pkg_rm com.netflix.mediaclient # Netflix
+    pkg_rm com.samsung.android.knox.analytics.uploader # Knox Analytics Uploader
+    pkg_rm com.spotify.music # Spotify
+    pkg_rm com.touchtype.swiftkey # Microsoft SwiftKey Keyboard
+    pkg_rm de.axelspringer.yana.zeropage # upday
 
-    # Remove all the following bloatware only after `com.android.vending`
-    # removal, because it could interfere in weird ways.
+    # Qualcomm Technology Reporting (_alternative title: Qualcomm-phone Data Beneficiary i.e. "I got your: IMEI, IP, chipset-SN, misc-software-SN, location data, full app names list, phone maker&model&OS&VER&firmware&VER&perfstats, carrier data&phone&netcode (tO iMpRoVe OuR *bUsInEsS* sErViCeS oF cOuRsE! wHaT yOu MeAn WhY?!)"_)
+    pkg_rm com.qualcomm.qti.smq # QTR
+
+    # Wireless IPS (_alternative title: "ping -c 1 '*google.com' && OhNoInstrusionDetected(); ping -c 1 'www.goooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle.com' && OkDNSIsWorking(); ping -c 1 'google.com.onion' && OhNoInstrusionDetected()"_)
+    pkg_rm com.samsung.android.server.wifi.mobilewips # MobileWips
+
+    # https://www.hybrid-analysis.com/sample/27f2d0342fca53058c04287739f82988b835afc2120734d53a35237124c78469
+    # Very suspicious; only spyware & malware capabilities + strings.
+    # Samsung's image uploading & identifying service? (CC - credit card?)
+    pkg_rm com.sec.android.CcInfo # CcInfo
+}
+
+main_android_16() {
     pkg_rm com.android.chrome # Chrome
     pkg_rm com.android.hotwordenrollment.okgoogle # OK Google Hotword
     pkg_rm com.android.hotwordenrollment.xgoogle # Hey Google Hotword
@@ -827,10 +864,9 @@ main() {
     pkg_rm com.sem.factoryapp # SEMFactoryApp
     pkg_rm com.skms.android.agent # SKMSAgentService
     pkg_rm com.swiftkey.swiftkeyconfigurator # Microsoft SwiftKey Factory Settings
+}
 
-    # TP1A.220624.014.G990B2XXU1DVK3
-    main_old_android_13;
-
+main_post() {
     updates=1
     printf "%s" "Shall all updates to system apps be listed? [y/N] "
     read -r _action; [ "$_action" ] || _action=N
@@ -876,84 +912,66 @@ main() {
     case "$_action" in
         [Yy]*) pkg_clr com.google.android.gms # Google Play services ;;
     esac
+}
+
+main_pre() {
+    # The Google Play Store app has some ("complete setup") logic to
+    # automatically install bloatware (yes, actual, unrelated bloatware,
+    # besides "stock"-defined one) when it detects any system apps that
+    # have not been updated or have had their updates by Google Play Store
+    # (installer=com.android.vending) reverted.
+    #
+    # This is malicious behavior, so remove the app. It is assumed you have
+    # manually installed any store-exclusive APKs by other means and/or
+    # will update any system apps manually, after the full debloat, and you
+    # do not need any apps/services that depend on store functionality.
+    pkg_rm com.android.vending # Google Play Store
+    # Due to the aforementioned paragraph, remove any "setup wizards". Google
+    # login continues to work.
+    pkg_rm android.autoinstalls.config.samsung # ConfigAPK
+    pkg_rm com.google.android.apps.setupwizard.searchselector # Search Engine Selector
+    pkg_rm com.google.android.partnersetup # Google Partner Setup
+    pkg_rm com.google.android.setupwizard # Android Setup
+    pkg_rm com.samsung.android.dbsc # Galaxy Service Setup
+    pkg_rm com.sec.android.app.SecSetupWizard # Samsung SetupWizard
+    pkg_rm com.sec.android.app.setupwizardlegalprovider # SetupWizardLegalProvider
+}
+
+main_services() {
+    :
+}
+
+main() {
+    set -e
+    LC_ALL=C; export LC_ALL
+
+    trap 'err $?' INT TERM EXIT
+
+    pm list packages > /dev/null 2>&1 || { err_red 'Not in Android shell.'; return 2; }
+    hash date pm > /dev/null 2>&1
+    DEVICE_MODEL=$(getprop ro.product.model)
+    DEVICE_SN=$(getprop ro.serialno)
+    DEVICE="$DEVICE_MODEL $DEVICE_SN"
+
+    info_white "Connected device:"
+    info_white "$DEVICE"
+
+    # preliminary stuff to do before debloat
+    main_pre;
+
+    # TP1A.220624.014.G990B2XXU1DVK3
+    main_android_13;
+
+    # BP2A.250605.031.A3.G990B2XXSKIZH2
+    main_android_16;
+
+    main_services;
+
+    main_post;
 
     info_white "Reboot the device."
 
     err 0
-}
-
-main_old_android_13() {
-    # Safe Google APIs (safe debloat)
-    pkg_rm com.google.android.gms.supervision # Family Link parental controls
-
-    # Safe Samsung APIs (safe debloat)
-    pkg_rm com.diotek.sec.lookup.dictionary # Dictionary
-    pkg_rm com.samsung.android.app.notes.addons # Samsung Notes Add-ons
-    pkg_rm com.samsung.android.app.settings.bixby # SettingsBixby
-    pkg_rm com.samsung.android.app.watchmanagerstub # Wearable Manager Installer
-    pkg_rm com.samsung.android.ardrawing # AR Doodle
-    pkg_rm com.samsung.android.arzone # AR Zone
-    pkg_rm com.samsung.android.cmfa.framework # CMFA Framework
-    pkg_rm com.samsung.android.ipsgeofence # Samsung Visit In
-    pkg_rm com.samsung.android.knox.containeragent # Work profile
-    pkg_rm com.samsung.android.mateagent # Samsung Galaxy Friends
-    pkg_rm com.samsung.android.smartswitchassistant # com.samsung.android.smartswitchassistant
-    pkg_rm com.samsung.android.spayfw # Samsung PaymentFramework
-    pkg_rm com.samsung.android.sume.nn.service # SumeNN
-    pkg_rm com.samsung.cmfa.AuthTouch # CMFA AuthTouchService
-    pkg_rm com.samsung.systemui.bixby2 # SystemUIBixby2
-    pkg_rm com.sec.android.easyMover.Agent # Smart Switch Agent
-    pkg_rm com.sec.android.mimage.avatarstickers # AR Emoji Stickers
-
-    # Safe Google apps (safe debloat)
-    pkg_rm com.google.android.apps.docs # Drive
-    pkg_rm com.google.android.apps.messaging # Messages
-    pkg_rm com.google.android.apps.photos # Photos
-    pkg_rm com.google.android.apps.tachyon # Meet
-    pkg_rm com.google.android.apps.youtube.music # YouTube Music
-    pkg_rm com.google.android.videos # Google TV
-    pkg_rm com.google.android.youtube # YouTube
-
-    # Safe Samsung apps (safe debloat)
-    pkg_rm com.android.stk2 # SIM Toolkit
-    pkg_rm com.samsung.android.app.notes # Samsung Notes
-    pkg_rm com.samsung.android.app.spage # Samsung Free
-    pkg_rm com.samsung.android.app.tips # Tips
-    pkg_rm com.samsung.android.app.watchmanager # Galaxy Wearable
-    pkg_rm com.samsung.android.galaxy # Galaxy Shop
-    pkg_rm com.samsung.android.oneconnect # Smart​Things
-    pkg_rm com.samsung.android.spay # Samsung Pay
-    pkg_rm com.samsung.android.tvplus # Samsung TV Plus
-    pkg_rm com.samsung.android.voc # Samsung Members
-    pkg_rm com.samsung.sree # Samsung Global Goals
-    pkg_rm com.sec.android.app.shealth # Samsung Health
-
-    # Literal sh1t (*ASAP* remove)
-    pkg_rm com.facebook.appmanager # Meta App Manager
-    pkg_rm com.facebook.katana # Facebook
-    pkg_rm com.facebook.services # Meta Services
-    pkg_rm com.facebook.system # Meta App Installer
-    pkg_rm com.linkedin.android # LinkedIn
-    pkg_rm com.microsoft.appmanager # Link to Windows
-    pkg_rm com.microsoft.office.officehubrow # Office
-    pkg_rm com.microsoft.office.outlook # Outlook
-    pkg_rm com.microsoft.skydrive # OneDrive
-    pkg_rm com.netflix.mediaclient # Netflix
-    pkg_rm com.samsung.android.knox.analytics.uploader # Knox Analytics Uploader
-    pkg_rm com.spotify.music # Spotify
-    pkg_rm com.touchtype.swiftkey # Microsoft SwiftKey Keyboard
-    pkg_rm de.axelspringer.yana.zeropage # upday
-
-    # Qualcomm Technology Reporting (_alternative title: Qualcomm-phone Data Beneficiary i.e. "I got your: IMEI, IP, chipset-SN, misc-software-SN, location data, full app names list, phone maker&model&OS&VER&firmware&VER&perfstats, carrier data&phone&netcode (tO iMpRoVe OuR *bUsInEsS* sErViCeS oF cOuRsE! wHaT yOu MeAn WhY?!)"_)
-    pkg_rm com.qualcomm.qti.smq # QTR
-
-    # Wireless IPS (_alternative title: "ping -c 1 '*google.com' && OhNoInstrusionDetected(); ping -c 1 'www.goooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle.com' && OkDNSIsWorking(); ping -c 1 'google.com.onion' && OhNoInstrusionDetected()"_)
-    pkg_rm com.samsung.android.server.wifi.mobilewips # MobileWips
-
-    # https://www.hybrid-analysis.com/sample/27f2d0342fca53058c04287739f82988b835afc2120734d53a35237124c78469
-    # Very suspicious; only spyware & malware capabilities + strings.
-    # Samsung's image uploading & identifying service? (CC - credit card?)
-    pkg_rm com.sec.android.CcInfo # CcInfo
 }
 
 main "$@"
