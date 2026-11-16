@@ -539,6 +539,20 @@ pkg_disable() (
     fi
 )
 
+pkg_disabled() {
+    case "
+$(pm list packages -d)
+" in
+        *"
+package:$1
+"*)
+            return 0
+        ;;
+    esac
+
+    return 1
+}
+
 pkg_rm() (
     DIR='/storage/emulated/0/Android'
 
@@ -905,16 +919,19 @@ main_post() {
         esac
     fi
 
-    disable=
-    printf "%s" "Shall Google Play services be disabled? [y/N] "
-    read -r _action; [ "$_action" ] || _action=N
-    case "$_action" in
-        [Yy]*)
-            pkg_disable com.google.android.gms # Google Play services
-            disable=1
-        ;;
-    esac
-    if [ ! "$disable" ]; then
+    disabled=
+    ! pkg_disabled com.google.android.gms || disabled=1
+    if [ ! "$disabled" ]; then
+        printf "%s" "Shall Google Play services be disabled? [y/N] "
+        read -r _action; [ "$_action" ] || _action=N
+        case "$_action" in
+            [Yy]*)
+                pkg_disable com.google.android.gms # Google Play services
+                disabled=1
+            ;;
+        esac
+    fi
+    if [ ! "$disabled" ]; then
         # Try this only if you are experiencing any Google Play services issues,
         # because it may reset privacy-related settings.
         printf "%s" "Shall the data of Google Play services be cleared? [y/N] "
