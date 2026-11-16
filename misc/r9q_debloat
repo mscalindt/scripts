@@ -967,16 +967,24 @@ main() {
     info_white "Connected device:"
     info_white "$DEVICE"
 
-    # preliminary stuff to do before debloat
-    main_pre;
+    printf "%s" "Skip debloat phase? [y/N] "
+    read -r _action; [ "$_action" ] || _action=N
+    case "$_action" in
+        [Yy]*)
+        ;;
+        *)
+            # preliminary stuff to do before debloat
+            main_pre;
 
-    # TP1A.220624.014.G990B2XXU1DVK3
-    main_android_13;
+            # TP1A.220624.014.G990B2XXU1DVK3
+            main_android_13;
 
-    # BP2A.250605.031.A3.G990B2XXSKIZH2
-    main_android_16;
+            # BP2A.250605.031.A3.G990B2XXSKIZH2
+            main_android_16;
 
-    main_services;
+            main_services;
+        ;;
+    esac
 
     main_post;
 
