@@ -905,13 +905,24 @@ main_post() {
         esac
     fi
 
-    # Try this only if you are experiencing any Google Play services issues,
-    # because it may reset privacy-related settings.
-    printf "%s" "Shall the data of Google Play services be cleared? [y/N] "
+    disable=
+    printf "%s" "Shall Google Play services be disabled? [y/N] "
     read -r _action; [ "$_action" ] || _action=N
     case "$_action" in
-        [Yy]*) pkg_clr com.google.android.gms # Google Play services ;;
+        [Yy]*)
+            pkg_disable com.google.android.gms # Google Play services
+            disable=1
+        ;;
     esac
+    if [ ! "$disable" ]; then
+        # Try this only if you are experiencing any Google Play services issues,
+        # because it may reset privacy-related settings.
+        printf "%s" "Shall the data of Google Play services be cleared? [y/N] "
+        read -r _action; [ "$_action" ] || _action=N
+        case "$_action" in
+            [Yy]*) pkg_clr com.google.android.gms # Google Play services ;;
+        esac
+    fi
 }
 
 main_pre() {
