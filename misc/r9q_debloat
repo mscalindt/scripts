@@ -1,14 +1,13 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2022-2026 Dimitar Yurukov <mscalindt@protonmail.com>
-# Usage (intended): adb shell < r9q_debloat
+# Usage (intended): cat r9q_debloat - | adb shell
 #
 # ---
 # Heavily opinionated debloat script.
 #
-# Preserves the ability to use Google login and use the Play Store, but gives
-# no guarantees for any Samsung logins/apps and removes the Galaxy Store.
-# Notable (intended) breakage/removal, for privacy reasons, includes:
+# Only preserves the ability to use Google login and gives no guarantees for
+# anything else. Notable breakage:
 # - Most/all Samsung essential smartphone apps, such as 'Phone'.
 # - Most Samsung functions, such as any Knox-related ones.
 # - (Maybe) Samsung account/login.
@@ -17,9 +16,7 @@
 # - Some built-in wallpapers & theming.
 # - Battery stats & modes.
 #
-# Also, all Google apps (besides Play Store), even ones that might be used,
-# will be removed. This is being done so that any stock-provided apps do not
-# interfere with app versions from Play Store or third-party downloads.
+# Also, all Google apps (even Play Store), except GMS, will be removed.
 #
 # It is therefore assumed that you have already installed FOSS alternatives
 # from F-Droid to substitute for any breakage; *I* did, and I am not missing
@@ -501,6 +498,10 @@ _pkg_info_desc_misc_etc() {
 }
 
 err() {
+    case "$1" in
+        0) info_white "$0: Exiting with $1. You can now send EOF to cat." ;;
+        *) info_red "$0: Exiting with $1. You can now send EOF to cat." ;;
+    esac
     trap - INT TERM EXIT
     exit "$1"
 }
@@ -601,6 +602,29 @@ main() {
     info_white "Connected device:"
     info_white "$DEVICE"
 
+    # The Google Play Store app has some ("complete setup") logic to
+    # automatically install bloatware (yes, actual, unrelated bloatware,
+    # besides "stock"-defined one) when it detects any system apps that
+    # have not been updated or have had their updates by Google Play Store
+    # (installer=com.android.vending) reverted.
+    #
+    # This is malicious behavior, so remove the app. It is assumed you have
+    # manually installed any store-exclusive APKs by other means and/or
+    # will update any system apps manually, after the full debloat, and you
+    # do not need any apps/services that depend on store functionality.
+    pkg_rm com.android.vending # Google Play Store
+    # Due to the aforementioned paragraph, remove any "setup wizards". Google
+    # login continues to work.
+    pkg_rm android.autoinstalls.config.samsung # ConfigAPK
+    pkg_rm com.google.android.apps.setupwizard.searchselector # Search Engine Selector
+    pkg_rm com.google.android.partnersetup # Google Partner Setup
+    pkg_rm com.google.android.setupwizard # Android Setup
+    pkg_rm com.samsung.android.dbsc # Galaxy Service Setup
+    pkg_rm com.sec.android.app.SecSetupWizard # Samsung SetupWizard
+    pkg_rm com.sec.android.app.setupwizardlegalprovider # SetupWizardLegalProvider
+
+    # Remove all the following bloatware only after `com.android.vending`
+    # removal, because it could interfere in weird ways.
     pkg_rm com.android.chrome # Chrome
     pkg_rm com.android.hotwordenrollment.okgoogle # OK Google Hotword
     pkg_rm com.android.hotwordenrollment.xgoogle # Hey Google Hotword
@@ -609,7 +633,6 @@ main() {
     pkg_rm com.google.android.apps.googleassistant # Assistant
     pkg_rm com.google.android.apps.maps # Maps
     pkg_rm com.google.android.apps.restore # Android Switch
-    pkg_rm com.google.android.apps.setupwizard.searchselector # Search Engine Selector
     pkg_rm com.google.android.as # Android System Intelligence
     pkg_rm com.google.android.as.oss # Private Compute Services
     pkg_rm com.google.android.federatedcompute # com.google.android.federatedcompute
@@ -622,7 +645,6 @@ main() {
     pkg_rm com.google.android.ims # Carrier Services
     pkg_rm com.google.android.ondevicepersonalization.services # com.google.android.ondevicepersonalization.services
     pkg_rm com.google.android.overlay.modules.healthfitness.forframework # com.google.android.overlay.modules.healthfitness.forframework
-    pkg_rm com.google.android.partnersetup # Google Partner Setup
     pkg_rm com.google.android.projection.gearhead # Android Auto
     pkg_rm com.google.android.signature # Signature
     pkg_rm com.google.android.syncadapters.calendar # Google Calendar Sync
@@ -675,7 +697,6 @@ main() {
     pkg_rm com.samsung.android.carkey # Digital Key Framework
     pkg_rm com.samsung.android.coldwalletservice # Samsung Blockchain Keystore
     pkg_rm com.samsung.android.da.daagent # Dual Messenger
-    pkg_rm com.samsung.android.dbsc # Galaxy Service Setup
     pkg_rm com.samsung.android.dialer # Phone
     pkg_rm com.samsung.android.dkey # Samsung Wallet Digital Key
     pkg_rm com.samsung.android.dsms # Dsms
@@ -810,11 +831,55 @@ main() {
     # TP1A.220624.014.G990B2XXU1DVK3
     main_old_android_13;
 
-    pkg_clr com.android.vending # Google Play Store
+    updates=1
+    printf "%s" "Shall all updates to system apps be listed? [y/N] "
+    read -r _action; [ "$_action" ] || _action=N
+    case "$_action" in
+        [Yy]*)
+            info_white 'Will list all updates to system apps...'
+            _updates=$(
+                pm list packages -s | while read -r PKG; do
+                    PKG="${PKG#package:}"
+                    case "$(dumpsys package "$PKG" < /dev/null)" in
+                        *UPDATED_SYSTEM_APP*)
+                            pm list packages -i "$PKG" < /dev/null
+                        ;;
+                    esac
+                done
+            )
+            if [ ! "$_updates" ]; then
+                info_white 'No system app updates found.'
+                updates=
+            fi
+        ;;
+    esac
+    if [ "$updates" ]; then
+        # It is not desired to end up in a state where system apps have been
+        # updated by Google Play Store and any similar lock-in stores.
+        # So, prompt to remove all system app updates.
+        printf "%s" "Shall all updates to system apps be removed? [y/N] "
+        read -r _action; [ "$_action" ] || _action=N
+        case "$_action" in
+            [Yy]*)
+                info_white 'Will remove all updates to system apps...'
+                # this method in PackageManagerShellCommand.java returns 1 on
+                # success and 0 on failure. just to blow your mind.
+                pm uninstall-system-updates || :
+            ;;
+        esac
+    fi
+
+    # Try this only if you are experiencing any Google Play services issues,
+    # because it may reset privacy-related settings.
+    printf "%s" "Shall the data of Google Play services be cleared? [y/N] "
+    read -r _action; [ "$_action" ] || _action=N
+    case "$_action" in
+        [Yy]*) pkg_clr com.google.android.gms # Google Play services ;;
+    esac
 
     info_white "Reboot the device."
 
-    return 0
+    err 0
 }
 
 main_old_android_13() {
