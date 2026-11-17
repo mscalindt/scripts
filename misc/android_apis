@@ -23,7 +23,9 @@ pkg_install() (
         rm -rf "$DIR"
         return "$1"
     }
-    trap '_errh $?' INT TERM EXIT; set -e
+    set -e
+    LC_ALL=C; export LC_ALL
+    trap '_errh $?' INT TERM EXIT
 
     DIR='/data/local/tmp/pkg_install'
     FILE='/data/local/tmp/pkg_install/00.apk'
@@ -44,7 +46,9 @@ pkg_install_chunks() (
         rm -rf "$DIR"
         return "$1"
     }
-    trap '_errh $?' INT TERM EXIT; set -e
+    set -e
+    LC_ALL=C; export LC_ALL
+    trap '_errh $?' INT TERM EXIT
 
     DIR='/data/local/tmp/pkg_install_chunks'
     DIR_CHUNKS='/data/local/tmp/pkg_install_chunks/chunks'
@@ -71,7 +75,9 @@ pkg_install_split() (
         rm -rf "$DIR"
         return "$1"
     }
-    trap '_errh $?' INT TERM EXIT; set -e
+    set -e
+    LC_ALL=C; export LC_ALL
+    trap '_errh $?' INT TERM EXIT
 
     DIR='/data/local/tmp/pkg_install_split'
     DIR_EXTRACT='/data/local/tmp/pkg_install_split/extract'
@@ -87,7 +93,7 @@ pkg_install_split() (
         *'480') DENSITY='xxhdpi' ;;
         *) printf "%s\n" 'ERROR: Unsupported density.' >&2; _errh 1 ;;
     esac
-    LANG='en'
+    LANG_CFG='en'
 
     rm -rf "$DIR"
     mkdir -p "$DIR" "$DIR_EXTRACT"
@@ -104,7 +110,7 @@ pkg_install_split() (
             ;;
             *".$ABI"*"$ABI_VER."*apk | \
             *".$DENSITY."*apk | \
-            *".$LANG."*apk)
+            *".$LANG_CFG."*apk)
                 set -- "$@" "$f"
             ;;
         esac
@@ -146,7 +152,9 @@ pkg_install_split_chunks() (
         rm -rf "$DIR"
         return "$1"
     }
-    trap '_errh $?' INT TERM EXIT; set -e
+    set -e
+    LC_ALL=C; export LC_ALL
+    trap '_errh $?' INT TERM EXIT
 
     DIR='/data/local/tmp/pkg_install_split_chunks'
     DIR_CHUNKS='/data/local/tmp/pkg_install_split_chunks/chunks'
@@ -163,7 +171,7 @@ pkg_install_split_chunks() (
         *'480') DENSITY='xxhdpi' ;;
         *) printf "%s\n" 'ERROR: Unsupported density.' >&2; _errh 1 ;;
     esac
-    LANG='en'
+    LANG_CFG='en'
 
     rm -rf "$DIR"
     mkdir -p "$DIR" "$DIR_CHUNKS" "$DIR_EXTRACT"
@@ -185,7 +193,7 @@ pkg_install_split_chunks() (
             ;;
             *".$ABI"*"$ABI_VER."*apk | \
             *".$DENSITY."*apk | \
-            *".$LANG."*apk)
+            *".$LANG_CFG."*apk)
                 set -- "$@" "$f"
             ;;
         esac
@@ -225,7 +233,9 @@ pkg_remove() (
         trap - INT TERM EXIT
         return "$1"
     }
-    trap '_errh $?' INT TERM EXIT; set -e
+    set -e
+    LC_ALL=C; export LC_ALL
+    trap '_errh $?' INT TERM EXIT
 
     DIR='/storage/emulated/0/Android'
 
@@ -242,7 +252,9 @@ pkg_reset() (
         trap - INT TERM EXIT
         return "$1"
     }
-    trap '_errh $?' INT TERM EXIT; set -e
+    set -e
+    LC_ALL=C; export LC_ALL
+    trap '_errh $?' INT TERM EXIT
 
     DIR='/storage/emulated/0/Android'
 
