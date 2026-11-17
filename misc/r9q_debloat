@@ -527,12 +527,14 @@ info_white() {
 }
 
 pkg_disable() (
+    ! pkg_disabled "$1" || return 0
+
     DIR='/storage/emulated/0/Android'
 
     pm clear --user 0 "$1" > /dev/null 2>&1 || :
-    { OP=$(pm disable-user --user 0 "$1") && RC=0; } || RC="$?"
+    { OP=$(pm disable-user --user 0 "$1" 2>&1) && RC=0; } || RC="$?"
     if [ "$RC" -eq 0 ]; then
-        info_blue "pkg_disable: $1:"; info_green "$OP"
+        info_blue "pkg_disable: $1: RC=$RC"; info_green "$OP"
     else
         { info_blue "pkg_disable: $1: RC=$RC"; err_red "$OP"; } >&2
         return 0
@@ -541,7 +543,7 @@ pkg_disable() (
 
 pkg_disabled() {
     case "
-$(pm list packages -d)
+$PKG_LIST_DISABLED
 " in
         *"
 package:$1
@@ -553,13 +555,29 @@ package:$1
     return 1
 }
 
+pkg_removed() {
+    case "
+$PKG_LIST
+" in
+        *"
+package:$1
+"*)
+            return 1
+        ;;
+    esac
+
+    return 0
+}
+
 pkg_rm() (
+    ! pkg_removed "$1" || return 0
+
     DIR='/storage/emulated/0/Android'
 
     pm clear --user 0 "$1" > /dev/null 2>&1 || :
-    { OP=$(pm uninstall --user 0 "$1") && RC=0; } || RC="$?"
+    { OP=$(pm uninstall --user 0 "$1" 2>&1) && RC=0; } || RC="$?"
     if [ "$RC" -eq 0 ]; then
-        info_blue "pkg_rm: $1:"; info_green "$OP"
+        info_blue "pkg_rm: $1: RC=$RC"; info_green "$OP"
     else
         { info_blue "pkg_rm: $1: RC=$RC"; err_red "$OP"; } >&2
         return 0
@@ -568,21 +586,27 @@ pkg_rm() (
 )
 
 pkg_rm_or_disable() (
+    { ! pkg_removed "$1" && ! pkg_disabled "$1"; } || return 0
+
     _RC=
     DIR='/storage/emulated/0/Android'
 
     pm clear --user 0 "$1" > /dev/null 2>&1 || :
 
-    { OP=$(pm uninstall --user 0 "$1") && RC=0; } || \
-    { _RC="$?"; OP=$(pm disable-user --user 0 "$1") && RC=0; } || \
+    { OP1=$(pm uninstall --user 0 "$1" 2>&1) && RC=0; } || \
+    { _RC="$?"; OP2=$(pm disable-user --user 0 "$1" 2>&1) && RC=0; } || \
     RC="$?"
 
     if [ "$RC" -eq 0 ] && [ ! "$_RC" ]; then
-        info_blue "pkg_rm: $1:"; info_green "$OP"
+        info_blue "pkg_rm: $1: RC=$RC"; info_green "$OP1"
     elif [ "$RC" -eq 0 ]; then
-        info_blue "pkg_disable: $1:"; info_green "$OP"
+        info_blue "pkg_disable: $1: RC=$RC"; info_green "$OP2"
     else
-        { info_blue "pkg_rm_or_disable: $1: RC1=$_RC, RC2=$RC"; err_red "$OP"; } >&2
+        {
+            info_blue "pkg_rm_or_disable: $1: RC1=$_RC, RC2=$RC"
+            err_red "$OP1"
+            err_red "$OP2"
+        } >&2
         return 0
     fi
     rm -rf "$DIR/data/$1" "$DIR/media/$1" "$DIR/obb/$1" 2> /dev/null
@@ -591,9 +615,9 @@ pkg_rm_or_disable() (
 pkg_clr() (
     DIR='/storage/emulated/0/Android'
 
-    { OP=$(pm clear --user 0 "$1") && RC=0; } || RC="$?"
+    { OP=$(pm clear --user 0 "$1" 2>&1) && RC=0; } || RC="$?"
     if [ "$RC" -eq 0 ]; then
-        info_blue "pkg_clr: $1:"; info_green "$OP"
+        info_blue "pkg_clr: $1: RC=$RC"; info_green "$OP"
     else
         { info_blue "pkg_clr: $1: RC=$RC"; err_red "$OP"; } >&2
         return 0
@@ -983,6 +1007,9 @@ main() {
 
     info_white "Connected device:"
     info_white "$DEVICE"
+
+    PKG_LIST=$(pm list packages)
+    PKG_LIST_DISABLED=$(pm list packages -d)
 
     printf "%s" "Skip debloat phase? [y/N] "
     read -r _action; [ "$_action" ] || _action=N
