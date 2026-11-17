@@ -24,6 +24,7 @@ pkg_install() (
     DIR='/data/local/tmp/pkg_install'
     FILE='/data/local/tmp/pkg_install/00.apk'
 
+    rm -rf "$DIR"
     mkdir -p "$DIR"
     curl --location "$1" --output "$FILE"
     pm install --user 0 "$FILE"
@@ -41,6 +42,7 @@ pkg_install_chunks() (
     COUNT=0
     FARGS=
 
+    rm -rf "$DIR"
     mkdir -p "$DIR"
 
     while [ "$1" ]; do
