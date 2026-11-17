@@ -18,7 +18,11 @@ pkg_enable() {
 # > Install an APK contained in URL for user 0
 # Arguments: <"$1"> - APK URL
 pkg_install() (
-    _errh() { [ -d "$DIR" ] && rm -rf "$DIR"; return "$1"; }
+    _errh() {
+        trap - INT TERM EXIT
+        rm -rf "$DIR"
+        return "$1"
+    }
     trap '_errh $?' INT TERM EXIT; set -e
 
     DIR='/data/local/tmp/pkg_install'
@@ -35,7 +39,11 @@ pkg_install() (
 # > Install an APK split into chunks contained in URLs for user 0
 # Arguments: <"$1+"> - APK URL of sequential chunk
 pkg_install_chunks() (
-    _errh() { [ -d "$DIR" ] && rm -rf "$DIR"; return "$1"; }
+    _errh() {
+        trap - INT TERM EXIT
+        rm -rf "$DIR"
+        return "$1"
+    }
     trap '_errh $?' INT TERM EXIT; set -e
 
     DIR='/data/local/tmp/pkg_install'
@@ -71,7 +79,10 @@ pkg_install_chunks() (
 # > Remove (uninstall) a package for user 0
 # Arguments: <"$1"> - package name
 pkg_remove() (
-    _errh() { return "$1"; }
+    _errh() {
+        trap - INT TERM EXIT
+        return "$1"
+    }
     trap '_errh $?' INT TERM EXIT; set -e
 
     DIR='/storage/emulated/0/Android'
@@ -85,7 +96,10 @@ pkg_remove() (
 # > Reset (clear all data of) a package for user 0
 # Arguments: <"$1"> - package name
 pkg_reset() (
-    _errh() { return "$1"; }
+    _errh() {
+        trap - INT TERM EXIT
+        return "$1"
+    }
     trap '_errh $?' INT TERM EXIT; set -e
 
     DIR='/storage/emulated/0/Android'
