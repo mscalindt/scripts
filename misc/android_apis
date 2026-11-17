@@ -63,6 +63,161 @@ pkg_install_chunks() (
     _errh 0
 )
 
+# > Install a split APK in a bundle (zip) contained in URL for user 0
+# Arguments: <"$1"> - bundle URL
+pkg_install_split() (
+    _errh() {
+        trap - INT TERM EXIT
+        rm -rf "$DIR"
+        return "$1"
+    }
+    trap '_errh $?' INT TERM EXIT; set -e
+
+    DIR='/data/local/tmp/pkg_install_split'
+    DIR_EXTRACT='/data/local/tmp/pkg_install_split/extract'
+    FILE='/data/local/tmp/pkg_install_split/00'
+
+    ABI=$(getprop ro.product.cpu.abi)
+    ABI_ARCH="${ABI%-*}"
+    ABI_VER="${ABI#*-}"
+    DENSITY=$(wm density)
+    case "$DENSITY" in
+        *'240') DENSITY='hdpi' ;;
+        *'320') DENSITY='xhdpi' ;;
+        *'480') DENSITY='xxhdpi' ;;
+        *) printf "%s\n" 'ERROR: Unsupported density.' >&2; _errh 1 ;;
+    esac
+    LANG='en'
+
+    rm -rf "$DIR"
+    mkdir -p "$DIR" "$DIR_EXTRACT"
+    curl --location "$1" --output "$FILE"
+    unzip "$FILE" -d "$DIR_EXTRACT"
+
+    cd "$DIR_EXTRACT"
+    set --
+    _base=
+    for f in *; do
+        case "$f" in
+            base.apk)
+                set -- "$@" "$f"; _base=1
+            ;;
+            *".$ABI"*"$ABI_VER."*apk | \
+            *".$DENSITY."*apk | \
+            *".$LANG."*apk)
+                set -- "$@" "$f"
+            ;;
+        esac
+    done
+    if [ ! "$_base" ]; then
+        printf "%s\n" 'ERROR: base.apk not found.' >&2
+        _errh 1
+    fi
+    printf "Commit file: %s\n" "$@"
+
+    SESSION=$(pm install-create)
+    SESSION="${SESSION#*\[}"
+    SESSION="${SESSION%\]}"
+    _errh() {
+        trap - INT TERM EXIT
+        pm install-abandon "$SESSION"
+        rm -rf "$DIR"
+        return "$1"
+    }
+    for f in "$@"; do
+        pm install-write "$SESSION" "$f" "$f"
+    done
+    pm install-commit "$SESSION"
+
+    _errh() {
+        trap - INT TERM EXIT
+        rm -rf "$DIR"
+        return "$1"
+    }
+    _errh 0
+)
+
+# > Install a split APK in a bundle (zip) split into chunks contained in URLs
+#   for user 0
+# Arguments: <"$1+"> - bundle URL of sequential chunk
+pkg_install_split_chunks() (
+    _errh() {
+        trap - INT TERM EXIT
+        rm -rf "$DIR"
+        return "$1"
+    }
+    trap '_errh $?' INT TERM EXIT; set -e
+
+    DIR='/data/local/tmp/pkg_install_split_chunks'
+    DIR_CHUNKS='/data/local/tmp/pkg_install_split_chunks/chunks'
+    DIR_EXTRACT='/data/local/tmp/pkg_install_split_chunks/extract'
+    FILE='/data/local/tmp/pkg_install_split_chunks/00'
+
+    ABI=$(getprop ro.product.cpu.abi)
+    ABI_ARCH="${ABI%-*}"
+    ABI_VER="${ABI#*-}"
+    DENSITY=$(wm density)
+    case "$DENSITY" in
+        *'240') DENSITY='hdpi' ;;
+        *'320') DENSITY='xhdpi' ;;
+        *'480') DENSITY='xxhdpi' ;;
+        *) printf "%s\n" 'ERROR: Unsupported density.' >&2; _errh 1 ;;
+    esac
+    LANG='en'
+
+    rm -rf "$DIR"
+    mkdir -p "$DIR" "$DIR_CHUNKS" "$DIR_EXTRACT"
+    cd "$DIR_CHUNKS"
+    for url in "$@"; do
+        curl --location "$url" --output 0"$((${cnt:-0} + 1))" &
+        cnt=$((cnt + 1))
+    done; wait
+    cat * > "$FILE"
+    unzip "$FILE" -d "$DIR_EXTRACT"
+
+    cd "$DIR_EXTRACT"
+    set --
+    _base=
+    for f in *; do
+        case "$f" in
+            base.apk)
+                set -- "$@" "$f"; _base=1
+            ;;
+            *".$ABI"*"$ABI_VER."*apk | \
+            *".$DENSITY."*apk | \
+            *".$LANG."*apk)
+                set -- "$@" "$f"
+            ;;
+        esac
+    done
+    if [ ! "$_base" ]; then
+        printf "%s\n" 'ERROR: base.apk not found.' >&2
+        _errh 1
+    fi
+    printf "Commit file: %s\n" "$@"
+
+    SESSION=$(pm install-create)
+    SESSION="${SESSION#*\[}"
+    SESSION="${SESSION%\]}"
+    _errh() {
+        trap - INT TERM EXIT
+        pm install-abandon "$SESSION"
+        rm -rf "$DIR"
+        return "$1"
+    }
+    for f in "$@"; do
+        pm install-write "$SESSION" "$f" "$f"
+    done
+    pm install-commit "$SESSION"
+
+    _errh() {
+        trap - INT TERM EXIT
+        rm -rf "$DIR"
+        return "$1"
+    }
+    _errh 0
+)
+
 # > Remove (uninstall) a package for user 0
 # Arguments: <"$1"> - package name
 pkg_remove() (
