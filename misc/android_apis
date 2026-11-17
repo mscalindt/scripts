@@ -9,6 +9,12 @@ pkg_disable() {
     pm disable-user --user 0 "$1"
 }
 
+# > Enable a package for user 0
+# Arguments: <"$1"> - package name
+pkg_enable() {
+    pm enable --user 0 "$1"
+}
+
 # > Install an APK contained in URL for user 0
 # Arguments: <"$1"> - APK URL
 pkg_install() (
