@@ -46,31 +46,18 @@ pkg_install_chunks() (
     }
     trap '_errh $?' INT TERM EXIT; set -e
 
-    DIR='/data/local/tmp/pkg_install'
-    COUNT=0
-    FARGS=
+    DIR='/data/local/tmp/pkg_install_chunks'
+    DIR_CHUNKS='/data/local/tmp/pkg_install_chunks/chunks'
+    FILE='/data/local/tmp/pkg_install_chunks/00.apk'
 
     rm -rf "$DIR"
-    mkdir -p "$DIR"
-
-    while [ "$1" ]; do
-        COUNT=$((COUNT + 1))
-        FILE="$DIR"/0"$COUNT".apk
-
-        case :"$FARGS" in
-            :) FARGS="'$FILE'" ;;
-            *) FARGS="$FARGS '$FILE'" ;;
-        esac
-
-        curl --location "$1" --output "$FILE" &
-
-        shift
+    mkdir -p "$DIR" "$DIR_CHUNKS"
+    cd "$DIR_CHUNKS"
+    for url in "$@"; do
+        curl --location "$url" --output 0"$((${cnt:-0} + 1))".apk &
+        cnt=$((cnt + 1))
     done; wait
-
-    FILE="$DIR"/00.apk
-
-    eval set -- "$FARGS"
-    cat "$@" > "$FILE"
+    cat * > "$FILE"
     pm install --user 0 "$FILE"
 
     _errh 0
