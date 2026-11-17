@@ -27,6 +27,8 @@ pkg_install() (
     mkdir -p "$DIR"
     curl --location "$1" --output "$FILE"
     pm install --user 0 "$FILE"
+
+    _errh 0
 )
 
 # > Install an APK split into chunks contained in URLs for user 0
@@ -60,6 +62,8 @@ pkg_install_chunks() (
     eval set -- "$FARGS"
     cat "$@" > "$FILE"
     pm install --user 0 "$FILE"
+
+    _errh 0
 )
 
 # > Remove (uninstall) a package for user 0
