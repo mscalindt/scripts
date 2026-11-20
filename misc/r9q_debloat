@@ -914,10 +914,8 @@ main_post() {
             _updates=$(
                 pm list packages -s | while read -r PKG; do
                     PKG="${PKG#package:}"
-                    case "$(dumpsys package "$PKG" < /dev/null)" in
-                        *UPDATED_SYSTEM_APP*)
-                            pm list packages -i "$PKG" < /dev/null
-                        ;;
+                    case "$(dumpsys package "$PKG")" in
+                        *UPDATED_SYSTEM_APP*) pm list packages -i "$PKG" ;;
                     esac
                 done
             )
