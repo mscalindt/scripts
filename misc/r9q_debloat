@@ -639,6 +639,18 @@ pkg_clr() (
     rm -rf "$DIR/data/$1"/* 2> /dev/null
 )
 
+pkg_stop() (
+    pidof "$1" > /dev/null 2>&1 || return 0
+
+    { OP=$(am force-stop "$1" 2>&1) && RC=0; } || RC="$?"
+    if [ "$RC" -eq 0 ]; then
+        info_blue "pkg_stop: $1: RC=$RC"; info_green "${OP:-Success}"
+    else
+        { info_blue "pkg_stop: $1: RC=$RC"; err_red "$OP"; } >&2
+        return 0
+    fi
+)
+
 main_android_13() {
     # Safe Google APIs (safe debloat)
     pkg_rm com.google.android.gms.supervision # Family Link parental controls
@@ -751,7 +763,6 @@ main_android_16() {
     pkg_rm com.google.mainline.telemetry # Support components
     pkg_rm com.hiya.star # Hiya Service
     pkg_rm com.mygalaxy.service # My Galaxy
-    pkg_rm_or_disable com.osp.app.signin # Samsung account
     pkg_rm com.samsung.SMT # Samsung text-to-speech engine
     pkg_rm com.samsung.SMT.lang_de_de_f00 # SamsungTTS German Default voice 1 - Classic
     pkg_rm com.samsung.SMT.lang_en_gb_f00 # SamsungTTS UK English Default voice 1 - Classic
@@ -817,7 +828,6 @@ main_android_16() {
     pkg_rm com.samsung.android.emergency # Emergency SOS
     pkg_rm com.samsung.android.ese # SamsungSEAgent
     pkg_rm com.samsung.android.fast # Secure Wi-Fi
-    pkg_rm_or_disable com.samsung.android.fmm # Find My Mobile
     pkg_rm com.samsung.android.forest # Digital Wellbeing
     pkg_rm com.samsung.android.game.gamehome # Gaming Hub
     pkg_rm com.samsung.android.game.gametools # Game Booster
@@ -835,8 +845,6 @@ main_android_16() {
     pkg_rm com.samsung.android.kmxservice # Knox Matrix
     pkg_rm com.samsung.android.knox.attestation # com.samsung.android.knox.attestation
     pkg_rm com.samsung.android.knox.containercore # KnoxCore
-    pkg_rm_or_disable com.samsung.android.knox.er # com.samsung.android.knox.er
-    pkg_rm_or_disable com.samsung.android.knox.knnr # KnoxNeuralNetworkRuntime
     pkg_rm com.samsung.android.knox.kpecore # KPECore
     pkg_rm com.samsung.android.knox.mpos # com.samsung.android.knox.mpos
     pkg_rm com.samsung.android.knox.pushmanager # KnoxPushManager
@@ -889,7 +897,6 @@ main_android_16() {
     pkg_rm com.samsung.android.stickercenter # Sticker Center
     pkg_rm com.samsung.android.svcagent # SVC Agent
     pkg_rm com.samsung.android.svoiceime # Samsung voice input
-    pkg_rm com.samsung.android.themecenter # Galaxy Themes Service
     pkg_rm com.samsung.android.themestore # Galaxy Themes
     pkg_rm com.samsung.android.vexfwk.service # VexFwkService
     pkg_rm com.samsung.android.video # Video Player
@@ -907,7 +914,6 @@ main_android_16() {
     pkg_rm com.samsung.faceservice # FaceService
     pkg_rm com.samsung.gpuwatchapp # GPUWatch
     pkg_rm com.samsung.ipservice # IPService
-    pkg_rm_or_disable com.samsung.klmsagent # KLMS Agent
     pkg_rm com.samsung.knox.securefolder # Secure Folder
     pkg_rm com.samsung.mfcontents # MFContents
     pkg_rm com.samsung.oda.service # SamsungOdaService
@@ -946,13 +952,11 @@ main_android_16() {
     pkg_rm com.sec.android.emergencylauncher # Launcher
     pkg_rm com.sec.android.iaft # iaft
     pkg_rm com.sec.android.mimage.photoretouching # Photo Editor
-    pkg_disable com.sec.android.sdhms # Samsung Device Health Manager Service
     pkg_rm com.sec.android.smartfpsadjuster # SmartFPSAdjuster
     # DIAGMON_SDK
     pkg_rm com.sec.android.soagent # Software update
     pkg_rm com.sec.android.widgetapp.easymodecontactswidget # Favourite Contacts
     pkg_rm com.sec.bcservice # com.sec.bcservice
-    pkg_rm_or_disable com.sec.enterprise.knox.cloudmdm.smdms # Enrollment Service
     pkg_rm com.sec.epdgtestapp # EpdgTestApp
     pkg_rm com.sec.facatfunction # FacAtFunction
     pkg_rm com.sec.factory.camera # FactoryCamera
@@ -970,8 +974,6 @@ main_android_16() {
     pkg_rm com.skms.android.agent # SKMSAgentService
     pkg_rm com.swiftkey.swiftkeyconfigurator # Microsoft SwiftKey Factory Settings
     pkg_rm com.wsomacp # Configuration message
-    # DIAGMON_SDK
-    pkg_disable com.wssyncmldm # Software update
 }
 
 main_post() {
@@ -1032,6 +1034,20 @@ main_post() {
             [Yy]*) pkg_clr com.google.android.gms # Google Play services ;;
         esac
     fi
+
+    # the following packages are explicitly protected. they can only be
+    # stopped. maybe.
+    pkg_stop com.knox.vpn.proxyhandler # KnoxVpnPacProcessor
+    pkg_stop com.osp.app.signin # Samsung account
+    pkg_stop com.samsung.android.fmm # Find My Mobile
+    pkg_stop com.samsung.android.kgclient # Device Services
+    pkg_stop com.samsung.android.knox.er # com.samsung.android.knox.er
+    pkg_stop com.samsung.android.knox.knnr # KnoxNeuralNetworkRuntime
+    pkg_stop com.samsung.android.themecenter # Galaxy Themes Service
+    pkg_stop com.samsung.klmsagent # KLMS Agent
+    pkg_stop com.sec.android.sdhms # Samsung Device Health Manager Service
+    pkg_stop com.sec.enterprise.knox.cloudmdm.smdms # Enrollment Service
+    pkg_stop com.wssyncmldm # Software update
 }
 
 main_pre() {
