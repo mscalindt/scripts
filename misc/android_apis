@@ -268,3 +268,9 @@ pkg_reset() (
 pkg_restore() {
     pm install-existing --user 0 "$1"
 }
+
+# > Force-stop a package
+# Arguments: <"$1"> - package name
+pkg_stop() {
+    am force-stop "$1"
+}
