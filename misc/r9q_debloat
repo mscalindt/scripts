@@ -541,6 +541,20 @@ pkg_disable() (
     fi
 )
 
+pkg_disable_only() (
+    ! pkg_disabled "$1" || return 0
+
+    DIR='/storage/emulated/0/Android'
+
+    { OP=$(pm disable-user --user 0 "$1" 2>&1) && RC=0; } || RC="$?"
+    if [ "$RC" -eq 0 ]; then
+        info_blue "pkg_disable: $1: RC=$RC"; info_green "$OP"
+    else
+        { info_blue "pkg_disable: $1: RC=$RC"; err_red "$OP"; } >&2
+        return 0
+    fi
+)
+
 pkg_disabled() {
     case "
 $PKG_LIST_DISABLED
@@ -1004,7 +1018,7 @@ main_post() {
         read -r _action; [ "$_action" ] || _action=N
         case "$_action" in
             [Yy]*)
-                pkg_disable com.google.android.gms # Google Play services
+                pkg_disable_only com.google.android.gms # Google Play services
                 disabled=1
             ;;
         esac
